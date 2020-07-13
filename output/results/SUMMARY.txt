@@ -1,0 +1,40 @@
+name:    	night-time-patroling
+context: 	night_time
+patterns:	G((night_time) -> (G(F(go_entrace & F(go_counter & F(go_back & F(go_warehouse)))))))
+
+name:    	get-meds-to-clients
+context: 	(shop & day_time)
+patterns:	G(((shop & day_time)) -> (G((get_med) -> F((G((go_entrace) -> (give_med)) & ((F(go_back & F(go_warehouse & F(go_entrace))) & (!go_warehouse U go_back) & (!go_entrace U go_warehouse) & (!go_back U (go_back & X(!go_back U(go_warehouse)))) & (!go_warehouse U (go_warehouse & X(!go_warehouse U(go_entrace))))) & G((go_warehouse) -> (take_med))))))))
+
+name:    	low-battery
+context: 	TRUE
+patterns:	(G((low_battery & ! full_battery & F full_battery) -> ((F(go_charging_point | full_battery)) U full_battery)))
+
+name:    	welcome-visitors
+context: 	(entrance & day_time)
+patterns:	G(((entrance & day_time)) -> (G((human_entered) -> F(welcome_client))))
+
+name:    	shop-alarm
+context: 	night_time
+patterns:	G((night_time) -> ((G((door_alarm & ! guard_entered) -> (((F(go_entrace | guard_entered)) U guard_entered) | G((F(go_entrace | guard_entered))))))))
+
+name:    	fire-alarm
+context: 	TRUE
+patterns:	G((fire_alarm) -> (go_safe_loc))
+
+
+REALIZABILITY OF INDIVIDUAL GOALS
+night-time-patroling	NO	0.000sec
+get-meds-to-clients	NO	0.000sec
+low-battery	NO	0.000sec
+welcome-visitors	NO	0.000sec
+shop-alarm	NO	0.000sec
+fire-alarm	NO	0.000sec
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+CGT WITH CONJUNCTION OF GOALS
+-->	6 goals: ['night-time-patroling', 'get-meds-to-clients', 'low-battery', 'welcome-visitors', 'shop-alarm', 'fire-alarm']
+REALIZABLE	NO		0.000sec
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+

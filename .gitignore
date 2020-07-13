@@ -14,6 +14,8 @@ nusmvfile.smv
 
 .idea/
 
+output/
+
 # Distribution / packaging
 .Python
 env/

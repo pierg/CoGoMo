@@ -140,7 +140,7 @@ def get_inputs():
             contracts=[PContract([
                 DelayedReaction(
                     trigger=ap["s"]["human_entered"],
-                    reaction=ap["a"]["welcome_client"]),
+                    reaction=ap["a"]["welcome_client"])
             ])]
         ),
         CGTGoal(

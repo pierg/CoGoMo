@@ -70,7 +70,6 @@ class LTL:
     def cnf(self) -> Set['LTL']:
         return self.__cnf
 
-
     def __deepcopy__(self, memo):
         cls = self.__class__
         result = cls.__new__(cls)
@@ -87,6 +86,13 @@ class LTL:
         if not isinstance(other, LTL):
             return AttributeError
 
+        if other.formula == "TRUE":
+            return self
+        if other.formula == "FALSE":
+            self.__formula = "FALSE"
+            self.__cnf |= other.cnf
+            return self
+
         self.__formula = And([self.formula, other.formula])
         self.__variables = Variables(self.variables | other.variables)
         self.__cnf |= other.cnf
@@ -101,6 +107,13 @@ class LTL:
         if not isinstance(other, LTL):
             return AttributeError
 
+        if other.formula == "FALSE":
+            return self
+        if other.formula == "TRUE":
+            self.__formula = "TRUE"
+            self.__cnf |= other.cnf
+            return self
+
         self.__formula = Or([self.formula, other.formula])
         self.__variables = Variables(self.variables | other.variables)
 
@@ -109,8 +122,6 @@ class LTL:
             raise InconsistentException(self, other)
 
         return self
-
-
 
     def __and__(self, other):
         """self & other
@@ -131,14 +142,12 @@ class LTL:
 
         return LTL(formula=formula, variables=variables)
 
-
     def __invert__(self):
         """Returns a new LTL with the negation of self"""
 
         formula = Not(self.formula)
 
         return LTL(formula=formula, variables=self.variables)
-
 
     """Refinement operators"""
 
@@ -200,7 +209,23 @@ class LTL:
 
     def remove(self, element):
         self.cnf.remove(element)
-        self.__init__(cnf = self.cnf, skip_checks=True)
+
+        if len(self.cnf) == 0:
+            self.__formula: str = "TRUE"
+            self.__cnf: Set['LTL'] = {self}
+            self.__variables: Variables = Variables()
+            return
+
+        cnf_str = [x.formula for x in self.cnf]
+
+        self.__formula: str = And(cnf_str)
+        self.__variables: Variables = Variables()
+
+        variables = set()
+        for x in self.cnf:
+            variables.add(x.variables)
+        self.__variables &= variables
+
 
     def is_true(self):
         return self.formula == "TRUE"

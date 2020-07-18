@@ -278,8 +278,6 @@ def create_contextual_clusters(goals: List[CGTGoal], type: str, context_rules: D
 
     if type == "MINIMAL":
         """Context Creation"""
-        """Within one context combination (a row), analyse each pair and discard the bigger set. It is always True"""
-        KEEP_SMALLER_CONTEXT = True
         """Among a pair of context combinations (two rows), save only the smaller context"""
         KEEP_SMALLER_COMBINATION = True
         """Goal Mapping"""
@@ -292,8 +290,6 @@ def create_contextual_clusters(goals: List[CGTGoal], type: str, context_rules: D
 
     elif type == "MUTEX":
         """Context Creation"""
-        """Within one context combination (a row), analyse each pair and discard the bigger set"""
-        KEEP_SMALLER_CONTEXT = True
         """Among a pair of context combinations (two rows), save only the smaller context"""
         KEEP_SMALLER_COMBINATION = False
         """Goal Mapping"""

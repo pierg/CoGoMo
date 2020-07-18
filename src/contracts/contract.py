@@ -119,12 +119,12 @@ class Contract:
         astr = astr[:-2] + ' ]\n  assumptions      :\t[ '
         for assumption in self.assumptions.cnf:
             astr += assumption.formula + ', '
-        astr = astr[:-2] + ' ]\n  guarantees_satur :\t[ '
+        astr = astr[:-2] + ' ]\n  guarantees       :\t[ '
         for guarantee in self.guarantees.cnf:
-            astr += guarantee.saturated + ', '
-        astr = astr[:-2] + ' ]\n  guarantees_unsat :\t[ '
-        for guarantee in self.guarantees.cnf:
-            astr += guarantee.unsaturated + ', '
+            astr += guarantee.formula + ', '
+        # astr = astr[:-2] + ' ]\n  guarantees_unsat :\t[ '
+        # for guarantee in self.guarantees.cnf:
+        #     astr += guarantee.unsaturated + ', '
         return astr[:-2] + ' ]\n'
 
 

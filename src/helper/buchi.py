@@ -4,7 +4,6 @@ import subprocess
 from graphviz import Source
 
 from helper.tools import traslate_boolean, save_to_file
-from typescogomo.formula import NotLTL
 from typescogomo.subtypes.scopes import *
 
 results_folder = results_path = os.path.dirname(os.path.abspath(__file__)) + "/output/"
@@ -135,7 +134,7 @@ def examples():
     #         P_after_Q(
     #             p=P_until_R(
     #                 p=Visit([LTL("safe_loc")]),
-    #                 r=NotLTL(LTL("alarm"))),
+    #                 r=~LTL("alarm")),
     #             q=LTL("alarm")
     #         )
     #     ),
@@ -156,7 +155,7 @@ def examples():
     #         P_after_Q(
     #             p=P_until_R(
     #                 p=Visit([LTL("safe_loc")]),
-    #                 r=NotLTL(LTL("alarm"))),
+    #                 r=~LTL("alarm")),
     #             q=LTL("alarm")
     #         ),
     #     "pattern_with_scope-visit")
@@ -165,7 +164,7 @@ def examples():
             P_after_Q(
                 p=P_until_R(
                     p=LTL("safe_loc"),
-                    r=NotLTL(LTL("alarm"))),
+                    r=~LTL("alarm")),
                 q=LTL("alarm")
             ),
         "pattern_with_scope-new")
@@ -175,7 +174,7 @@ def examples():
         P_after_Q_until_R(
             p=LTL("safe_loc"),
             q=LTL("alarm"),
-            r=NotLTL(LTL("alarm"))
+            r=~LTL("alarm")
         ),
     "pattern_with_scope-dwer")
 

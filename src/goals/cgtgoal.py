@@ -318,7 +318,7 @@ class CGTGoal:
             a_list.append(c.assumptions.formula)
             vars |= c.assumptions.variables
         new_formula = Or(a_list)
-        return LTL(new_formula, vars)
+        return LTL(new_formula, vars, skip_checks=True)
 
     def get_ltl_guarantees(self) -> LTL:
         g_list = []
@@ -327,7 +327,7 @@ class CGTGoal:
             g_list.append(c.guarantees.formula)
             vars |= c.guarantees.variables
         new_formula = And(g_list)
-        return LTL(new_formula, vars)
+        return LTL(new_formula, vars, skip_checks=True)
 
     def get_variables(self) -> Variables:
         vars = Variables()

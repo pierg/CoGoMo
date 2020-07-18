@@ -10,6 +10,8 @@ def And(propositions: List[str]) -> str:
 
         """Remove all TRUE elements"""
         propositions = list(filter("TRUE".__ne__, propositions))
+        if len(propositions) == 0:
+            return "TRUE"
 
         conj = ' & '.join(propositions)
         return "(" + conj + ")"

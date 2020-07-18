@@ -6,57 +6,27 @@ from components.components import ComponentsLibrary, Component, SimpleComponent
 from goals.operations import create_contextual_clusters, mapping, create_cgt, \
     pretty_cgt_exception
 from helper.tools import save_to_file
+from mapping_specification import get_inputs
 from src.goals.cgtgoal import *
 from typescogomo.subtypes.assumption import *
-from src.contracts.patterns import *
 from typescogomo.subtypes.scopes import *
 from typescogomo.variables import BoundedNat
 
-file_path = os.path.dirname(os.path.abspath(__file__)) + "/output/mapping"
+results_path = os.path.dirname(os.path.abspath(__file__)) + "/output/results"
 try:
-    shutil.rmtree(file_path)
+    shutil.rmtree(results_path)
 except:
     pass
 
 sys.path.append(os.path.join(os.getcwd(), os.path.pardir))
 
+ap, rules, goals = get_inputs()
+
 if __name__ == "__main__":
     """The designer specifies a mission using the predefined catalogue of patterns 
        In addition to the patterns to use the designer specifies also in which context each goal can be active"""
 
-    """Or define them here"""
-    """Order Visit pattern of 3 locations in the context 'day'"""
-    """Order Visit pattern of 2 locations in the context '!day'"""
-    """Global Avoidance pattern of 1 location in the context '!day'"""
-    """DelayedReaction pattern in all contexts (always pickup an item when in locaction A)"""
-    list_of_goals = [
-        CGTGoal(
-            context=(Context(P_global(LTL("day")))),
-            name="a-b-c",
-            contracts=[OrderedVisit(["locA", "locB", "locC"])]
-        ),
-        CGTGoal(
-            context=(Context(P_global(LTL("!day")))),
-            name="a-b",
-            contracts=[OrderedVisit(["locA", "locB"])]
-        ),
-        CGTGoal(
-            context=(Context(P_global(LTL("!day")))),
-            name="never-c",
-            contracts=[GlobalAvoidance("locC")]
-        ),
-        CGTGoal(
-            name="a->pickup",
-            contracts=[DelayedReaction("locB", "heavy_item_pickup")]
-        )
-    ]
 
-    context_rules = {
-        "mutex": [
-        ],
-        "inclusion": [
-        ],
-    }
     """Create cgt with the goals, it will automatically compose/conjoin them based on the context"""
     context_goals = create_contextual_clusters(list_of_goals, "MUTEX", context_rules)
 

@@ -3,7 +3,6 @@ import os
 from contracts.contract import PContract
 from src.goals.cgtgoal import *
 from typescogomo.subtypes.patterns import *
-# from typescogomo.formula import AndLTL, NotLTL
 from typescogomo.subtypes.scopes import *
 
 

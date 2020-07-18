@@ -156,18 +156,28 @@ def extract_unique_contexts_from_goals(goals: List[CGTGoal]) -> List[Context]:
     for goal in goals:
         if goal.context is not None:
             already_there = False
-            g_c = goal.context
-            if len(g_c) == 0:
-                continue
-            if len(g_c) > 1:
-                raise Exception("Context extraction is supported only to goals with individual contracts")
-            if len(g_c) == 1:
-                g_c = g_c[0]
             for c in contexts:
-                if c == g_c:
+                if c == goal.context:
                     already_there = True
             if not already_there:
-                contexts.append(g_c)
+                contexts.append(goal.context)
+
+            #
+            #
+            # if g_c
+            # already_there = False
+            # g_c = goal.context
+            # if len(g_c) == 0:
+            #     continue
+            # if len(g_c) > 1:
+            #     raise Exception("Context extraction is supported only to goals with individual contracts")
+            # if len(g_c) == 1:
+            #     g_c = g_c[0]
+            # for c in contexts:
+            #     if c == g_c:
+            #         already_there = True
+            # if not already_there:
+            #     contexts.append(g_c)
 
     return contexts
 

@@ -5,7 +5,7 @@ echo "stopping existing containers..."
 docker stop cogomo_clustering || true && docker rm cogomo_clustering || true
 
 echo "pulling latest docker image..."
-docker pull pmallozzi/cogomo:latest
+docker pull pmallozzi/cogomo:dev
 
 if [ $# -eq 0 ]
   then
@@ -17,7 +17,7 @@ if [ $# -eq 0 ]
 
 
     echo "  creating new docker container..."
-    docker create -i -t  --name cogomo_clustering -v "$(pwd)/default/results":/home/cogomo/output/results pmallozzi/cogomo:sefm -c
+    docker create -i -t  --name cogomo_clustering -v "$(pwd)/default/results":/home/cogomo/output/results pmallozzi/cogomo:dev -c
 
 
     echo "  starting docker..."
@@ -36,7 +36,7 @@ if [ $# -eq 0 ]
     mkdir "$(pwd)/$1/results"
 
     echo "  creating new docker container..."
-    docker create -i -t  --name cogomo_clustering -v "$(pwd)/$1/results":/home/cogomo/output/results pmallozzi/cogomo:sefm -c
+    docker create -i -t  --name cogomo_clustering -v "$(pwd)/$1/results":/home/cogomo/output/results pmallozzi/cogomo:dev -c
 
     echo "copying input file $(pwd)/$1/mission_specification.py"
     docker cp "$(pwd)/$1/mission_specification.py" cogomo_clustering:/home/

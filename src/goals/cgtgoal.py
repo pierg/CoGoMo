@@ -18,7 +18,7 @@ class CGTGoal:
                  contracts: List[Contract] = None,
                  refined_by: List['CGTGoal'] = None,
                  refined_with: str = None,
-                 context: Context = None):
+                 context: LTL = None):
 
         self.__connected_to = None
 
@@ -53,7 +53,7 @@ class CGTGoal:
         if context is not None:
             self.set_context(context)
         else:
-            self.__context = Context()
+            self.__context = LTL()
 
         print(self)
 
@@ -105,7 +105,7 @@ class CGTGoal:
         return self.__context
 
     @context.setter
-    def context(self, value: Context):
+    def context(self, value: LTL):
         self.__context = value
         self.set_context(value)
 
@@ -192,7 +192,7 @@ class CGTGoal:
         self.__refined_with = "PROVIDED_BY"
         goal.connected_to = self
 
-    def set_context(self, context: Context):
+    def set_context(self, context: LTL):
         """Add context to guarantees as G(context -> guarantee)"""
         for contract in self.contracts:
             contract.set_context(context)

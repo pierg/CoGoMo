@@ -15,6 +15,7 @@ class Component(Contract):
     def __init__(self,
                  component_id: str,
                  description: str = None,
+                 context: LTL = None,
                  assumptions: Assumption = None,
                  guarantees: Guarantee = None):
         super().__init__(assumptions=assumptions,
@@ -28,6 +29,11 @@ class Component(Contract):
             self.__description = ""
         else:
             self.__description = description
+
+        if context is not None:
+            self.guarantees.set_context(context)
+        else:
+            self.__context = LTL()
 
     @property
     def id(self):
@@ -208,6 +214,7 @@ class ComponentsLibrary:
                 candidates_compositions_filtered.append(candidate)
 
         print(str(len(candidates_compositions_filtered)) + " candidate compositions found:")
+
         for i, candidate in enumerate(candidates_compositions_filtered):
             print("\tcandidate_" + str(i) + ":")
             for component in candidate:

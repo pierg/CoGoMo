@@ -94,7 +94,7 @@ def get_inputs():
         CGTGoal(
             name="night-time-patroling",
             description="patrol warehouse and shop during the night",
-            context=ap["s"]["night_time"],
+            context=Context(cnf={ap["s"]["night_time"]}),
             contracts=[PContract([
                 SequencedPatroling([
                     ap["l"]["go_entrace"], ap["l"]["go_counter"], ap["l"]["go_back"], ap["l"]["go_warehouse"]
@@ -104,7 +104,7 @@ def get_inputs():
         CGTGoal(
             name="get-meds-to-clients",
             description="if a clients request a medicine go to the warehouse, take the medicine and come back",
-            context=ap["s"]["shop"] & ap["s"]["day_time"],
+            context=Context(cnf={ap["s"]["shop"], ap["s"]["day_time"]}),
             contracts=[PContract([
                 DelayedReaction(
                     trigger=ap["s"]["get_med"],
@@ -135,7 +135,7 @@ def get_inputs():
         CGTGoal(
             name="welcome-visitors",
             description="welcome people at the entrance",
-            context=ap["s"]["day_time"] & ap["s"]["entrance"],
+            context=Context(cnf={ap["s"]["day_time"], ap["s"]["entrance"]}),
             contracts=[PContract([
                 DelayedReaction(
                     trigger=ap["s"]["human_entered"],
@@ -146,9 +146,9 @@ def get_inputs():
             name="shop-alarm",
             description="if the door_alarm goes off at any time go to safety "
                         "location and stay there until there is no more door_alarm",
-            context=ap["s"]["night_time"],
+            context=Context(cnf={ap["s"]["night_time"]}),
             contracts=[PContract([
-                Recurrence_P_after_Q_until_R(
+                P_after_Q_until_R(
                     q=ap["s"]["door_alarm"],
                     p=ap["l"]["go_entrace"],
                     r=ap["s"]["guard_entered"]

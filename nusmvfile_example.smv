@@ -1,0 +1,16 @@
+MODULE main
+VAR
+	entrance: boolean;
+	pharmacy: boolean;
+	care: boolean;
+	night:boolean;
+
+LTLSPEC (G (entrance -> care) & G (pharmacy -> care)) -> (( G(night -> G F (entrance) & G F (pharmacy))) -> (G night -> G F (care)))
+
+LTLSPEC (G (entrance -> care) & G (pharmacy -> care)) -> ( G(night -> G F (entrance) & G F (pharmacy)))
+
+LTLSPEC (G (entrance -> care) & G (pharmacy -> care)) -> (G night -> G F (care))
+
+
+
+

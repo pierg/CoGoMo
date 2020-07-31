@@ -110,15 +110,6 @@ class ComponentsLibrary:
         for component in components:
             self.add_component(component)
 
-    def extract_selection(self,
-                          to_be_refined: LTL) -> 'Component':
-        """"Returns the first component that can refine"""
-
-        for component in self.components:
-            if component.guarantees <= to_be_refined:
-                return component
-
-        return None
 
     def extract_selection_old(self,
                               assumptions: LTL,

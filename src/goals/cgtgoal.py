@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 from contracts.contract import Contract
 from typescogomo.formula import LTL
@@ -129,7 +129,7 @@ class CGTGoal:
             setattr(result, k, deepcopy(v, memo))
         return result
 
-    def get_refinement_by(self):
+    def get_refinement_by(self) -> Tuple[List['CGTGoal'], str]:
         return self.refined_by, self.refined_with
 
     def get_all_goals_with_name(self, name, copies=False):
@@ -167,25 +167,24 @@ class CGTGoal:
         else:
             raise Exception("Multiple goals with the same name")
 
-    def refine_by(self, refined_by: List['CGTGoal'], consolidate=True):
+    def refine_by(self, refined_by: 'CGTGoal', consolidate=True, skip_check=False):
         """Refine by 'refined_by' with 'refined_with'"""
         """If type 'REFINEMENT', propagating the assumptions from the refined goal"""
-        if len(refined_by) != 1:
-            raise Exception("At the moment the refinement of one goal must be performed by another single goal")
         for i, contract in enumerate(self.contracts):
             contract.propagate_assumptions_from(
-                refined_by[0].contracts[i]
+                refined_by.contracts[i]
             )
             from goals.operations import CGTFailException
-            if not contract <= refined_by[0].contracts[i]:
-                raise CGTFailException(
-                    failed_operation="propagation",
-                    faild_motivation="wrong refinement",
-                    goals_involved_a=[self],
-                    goals_involved_b=refined_by
-                )
+            if not skip_check:
+                if not refined_by.contracts[i] <= contract:
+                    raise CGTFailException(
+                        failed_operation="propagation",
+                        faild_motivation="wrong refinement",
+                        goals_involved_a=[self],
+                        goals_involved_b=[refined_by]
+                    )
 
-        self.__refined_by = refined_by
+        self.__refined_by = [refined_by]
         self.__refined_with = "REFINEMENT"
         if consolidate:
             self.consolidate_bottom_up()
@@ -220,18 +219,29 @@ class CGTGoal:
                         if len(rule.variables & c.variables) > 0:
                             c.add_assumption(rule)
 
+            if kind == "context_gridworld":
+                for rule in rules:
+                    for c in self.contracts:
+                        if len(rule.variables & c.variables) > 0:
+                            c.add_assumption(rule)
+
     def extend_from_library(self, library: 'GoalsLibrary', rules_dict: Dict):
 
-        if len(self.contracts) > 0:
+        if len(self.contracts) > 1:
             raise Exception("Goals that have multiple conjoined contracts are not supported for extension")
 
         try:
-            print(self)
             goal = library.extract_selection(self.contracts[0].guarantees)
-            self.refine_by(goal)
-            print(self)
+
         except NoGoalFoundException as e:
-            pass
+            return
+
+        goal.apply_rules(rules_dict)
+
+        self.refine_by(goal, skip_check=True)
+
+        goal.extend_from_library(library, rules_dict)
+
 
 
     def add_domain_properties(self):
@@ -325,7 +335,7 @@ class CGTGoal:
             goal.name = abstract_name
             goal.contracts[0].guarantees = guarantees
 
-            goal.refine_by([refined_goal])
+            goal.refine_by(refined_goal)
 
         print("Abstraction of " + goal_name + " completed")
 
@@ -401,22 +411,22 @@ class CGTGoal:
             if n > 0:
                 ret += "\t" * level + "\t/\\ \n"
 
-            ret += "\t" * level + "  A:\t\t" + str(contract.assumptions) + "\n"
-
+            a_assumed = contract.assumptions.get_kind("")
             a_context = contract.assumptions.get_kind("context")
-            a_domain = contract.assumptions.get_kind("domain")
-            a_expectation = contract.assumptions.get_kind("expectation")
+            a_context_gridworld = contract.assumptions.get_kind("context_gridworld")
+
+            if a_assumed is not None:
+                ret += "\t" * level + "  A:\t\t" + ' & '.join(map(str, a_assumed)) + "\n"
+            else:
+                ret += "\t" * level + "  A:\t\t" + "" + "\n"
 
             if a_context is not None:
                 ret += "\t" * level + " \tCTX:\t" + ', '.join(map(str, a_context)) + "\n"
 
-            if a_domain is not None:
-                ret += "\t" * level + " \tDOM:\t" + ', '.join(map(str, a_domain)) + "\n"
+            if a_context_gridworld is not None:
+                ret += "\t" * level + " \tCGR:\t" + ', '.join(map(str, a_context_gridworld)) + "\n"
 
-            if a_expectation is not None:
-                ret += "\t" * level + " \tEXP:\t" + ', '.join(map(str, a_expectation)) + "\n"
-
-            ret += "\t" * level + "  G:\t\t" + str(contract.guarantees) + "\n"
+            ret += "\t" * level + "  G:\t\t" + contract.guarantees.unsaturated + "\n"
 
         ret += "\n"
         if self.refined_by is not None:
@@ -476,7 +486,7 @@ class GoalsLibrary:
         """"Returns the first goal that can refine"""
 
         for goal in self.goals:
-            if goal.contracts[0].guarantees <= to_be_refined:
+            if goal.contracts[0].guarantees < to_be_refined:
                 return goal
 
         raise NoGoalFoundException()

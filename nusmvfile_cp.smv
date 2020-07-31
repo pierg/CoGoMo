@@ -1,0 +1,11 @@
+MODULE main
+VAR
+	pharmacy: boolean;
+	medical_room: boolean;
+	corridor: boolean;
+	entrance: boolean;
+	night_time: boolean;
+	day_time: boolean;
+	care_center: boolean;
+
+LTLSPEC ((((TRUE) -> (G((night_time) -> (G(F(corridor))))))) -> (((((((G(((day_time & !(night_time)) | (night_time & !(day_time)))) & G((entrance) -> (care_center))) & G((pharmacy) -> (care_center))) & G((medical_room) -> (care_center))) & G((corridor) -> (care_center)))) -> (G(((!(day_time) & night_time)) -> (G(F(care_center))))))))

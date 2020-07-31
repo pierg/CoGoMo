@@ -93,6 +93,9 @@ def composition(goals: List[CGTGoal],
     """Returns a new goal that is the result of the composition of 'goals'
     The new goal returned points to a copy of 'goals'"""
 
+    if len(goals) == 1:
+        return goals[0]
+
     for n, goal in enumerate(goals):
         if goal.connected_to is not None and connect_to is not None:
             if connect_to != goal.connected_to:
@@ -270,7 +273,7 @@ def mapping(component_library: ComponentsLibrary,
 
     """Link 'composition_goal' to the 'specification_goal' 
     This will also propagate the assumptions from composition_goal"""
-    specification_goal.refine_by([composition_goal])
+    specification_goal.refine_by(composition_goal)
 
 
 
@@ -278,12 +281,16 @@ def mapping(component_library: ComponentsLibrary,
 def extend_cgt(cgt: CGTGoal, library: ComponentsLibrary, rules: Dict):
     """Call the mapping function on the library, on all the leaf nodes of the CGT"""
 
+    print("\n\nCGT_BEFORE:\n" + str(cgt) + "\n\n")
+
     leafs = cgt.get_all_leaf_nodes()
 
     for leaf in leafs:
         leaf.extend_from_library(library, rules)
 
-    print(leafs)
+    print("\n\nCGT_AFTER:\n" + str(cgt) + "\n\n")
+
+
 
 
 

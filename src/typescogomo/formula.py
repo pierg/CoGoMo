@@ -92,6 +92,15 @@ class LTL:
 
         return formula
 
+    @property
+    def unsaturated(self) -> str:
+        formula = self.__formula
+
+        """Adding context"""
+        if self.__context is not None:
+            formula = "G((" + self.__context.formula + ") -> (" + self.__formula + "))"
+
+        return formula
 
     @property
     def variables(self) -> Variables:
@@ -124,7 +133,6 @@ class LTL:
     def saturation(self, value: 'LTL'):
         self.__saturation = value
         self.__variables |= value.variables
-
 
     def remove_kind(self, kind: str):
 

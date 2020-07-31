@@ -61,6 +61,7 @@ def generate_controller_from_cgt(cgt: CGTGoal, folder_path):
 
     exec_time = 0.0
     realizable = False
+    mealy_machine = None
     try:
         realizable, mealy_machine, exec_time = create_controller_if_exists(folder_path + "specification.txt")
 

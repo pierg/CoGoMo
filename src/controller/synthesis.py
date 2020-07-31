@@ -100,11 +100,11 @@ def create_controller_if_exists(controller_input_file: str) -> Tuple[bool, str, 
     print("controller_input_file: " + controller_input_file)
     a, g, i, o = parse_controller(controller_input_file)
 
-    variables = [var.strip() + ": boolean" for var in i.split(',')]
-    assumptions_satisfiable = check_satisfiability(variables, a)
-
-    if not assumptions_satisfiable:
-        raise SynthesisException("trivial")
+    # variables = [var.strip() + ": boolean" for var in i.split(',')]
+    # assumptions_satisfiable = check_satisfiability(variables, a)
+    #
+    # if not assumptions_satisfiable:
+    #     raise SynthesisException("trivial")
 
     mealy_machine, exec_time = get_controller(a, g, i, o)
 

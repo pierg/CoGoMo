@@ -3,7 +3,6 @@ from typing import Tuple
 from checks.tools import And
 
 ASSUMPTIONS_HEADER = 'ASSUMPTIONS'
-CONSTRAINTS_HEADER = 'CONSTRAINTS'
 GUARANTEES_HEADER = 'GUARANTEES'
 INS_HEADER = 'INPUTS'
 OUTS_HEADER = 'OUTPUTS'
@@ -41,14 +40,8 @@ def parse_controller(file_path: str) -> Tuple[str, str, str, str]:
                     else:
                         Exception("File format not supported")
 
-                elif CONSTRAINTS_HEADER == line:
-                    if file_header == ASSUMPTIONS_HEADER:
-                        file_header = line
-                    else:
-                        Exception("File format not supported")
-
                 elif GUARANTEES_HEADER == line:
-                    if file_header == CONSTRAINTS_HEADER:
+                    if file_header == ASSUMPTIONS_HEADER:
                         file_header = line
                     else:
                         Exception("File format not supported")
@@ -80,10 +73,6 @@ def parse_controller(file_path: str) -> Tuple[str, str, str, str]:
                 if ASSUMPTIONS_HEADER == file_header:
                     if ntabs == DATA_INDENT:
                         assumptions.append(line.strip())
-
-                if CONSTRAINTS_HEADER == file_header:
-                    if ntabs == DATA_INDENT:
-                        guarantees.append(line.strip())
 
                 if GUARANTEES_HEADER == file_header:
                     if ntabs == DATA_INDENT:

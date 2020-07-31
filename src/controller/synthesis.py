@@ -92,6 +92,7 @@ def get_controller(assumptions: str, guarantees: str, ins: str, outs: str) -> Tu
 def create_controller_if_exists(controller_input_file: str) -> Tuple[bool, str, float]:
     """Return true if controller has been synthesized False otherwise.
     It also return the time needed"""
+
     if platform.system() != "Linux":
         print(platform.system() + " is not supported for synthesis")
         raise SynthesisException("os_not_supported")

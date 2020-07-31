@@ -173,9 +173,9 @@ def parse(specfile):
                             var = Type(str(key), str(value))
                             contract.add_variable(var)
                         elif ASSUMPTIONS_HEADER in goal_header:
-                            contract.add_assumptions(Assumption(line.strip()))
+                            contract.add_assumptions(LTL(line.strip()))
                         elif GUARANTEES_HEADER in goal_header:
-                            contract.add_guarantee(Guarantee(line.strip()))
+                            contract.add_guarantee(LTL(line.strip()))
                         else:
                             raise Exception("Unexpected Goal Header: " + goal_header)
 

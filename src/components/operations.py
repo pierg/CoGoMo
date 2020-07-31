@@ -4,7 +4,92 @@ import operator
 from typing import Tuple, List
 
 
-def components_selection(component_library: ComponentsLibrary, specification: Contract) \
+
+
+def components_selection(component_library: ComponentsLibrary, specification: Contract):
+
+    spec_assumptions = specification.assumptions
+    spec_guarantees = specification.guarantees
+
+    set_components_to_return = []
+    try:
+        candidates_compositions = component_library.extract_selection(spec_guarantees)
+    except Exception as e:
+        raise e
+
+    first_selected_components = greedy_selection(candidates_compositions)
+
+    print("Selected components " + str([component.id for component in first_selected_components]) + " out of " +
+          str(len(candidates_compositions)) + " candidates")
+
+    set_components_to_return.append(first_selected_components)
+
+    components_to_search = first_selected_components.copy()
+    component_already_searched = []
+
+    component_provided_by = {}
+
+    while len(components_to_search) != 0:
+
+        print("Looking for components that refine the assumptions")
+        components_to_search_copy = components_to_search.copy()
+
+        for component in components_to_search_copy:
+
+            """Remove component from list of components to search 
+            and keep track that it has been searched (avoid loops)"""
+            components_to_search.remove(component)
+            component_already_searched.append(component)
+
+            component_assumptions = component.assumptions
+
+            if component_assumptions.is_universe():
+                continue
+
+            """Extract all candidate compositions that can provide the assumptions, if they exists"""
+            try:
+                candidates_compositions = component_library.extract_selection(spec_assumptions,
+                                                                              component_assumptions)
+            except NoComponentsAvailable:
+                print("No further found")
+                continue
+
+            """Greedly select one composition"""
+            new_selected_components = greedy_selection(candidates_compositions)
+            print("Selected components " + str(
+                [component.id for component in new_selected_components]) + " out of " +
+                  str(len(candidates_compositions)) + " candidates")
+
+            if new_selected_components not in set_components_to_return:
+                set_components_to_return.append(new_selected_components)
+
+            """Add components to be searched only if they have not already been searched before"""
+            for comp in new_selected_components:
+                if comp not in component_already_searched:
+                    components_to_search.append(comp)
+
+            if len(new_selected_components) > 0:
+                if component in component_provided_by:
+                    component_provided_by[component].extend(new_selected_components)
+                else:
+                    component_provided_by[component] = new_selected_components
+
+    """Flattening list of selections and eliminating duplicates"""
+    flat_list_refining_components = list(set([item for sublist in set_components_to_return for item in sublist]))
+
+    print(str(len(flat_list_refining_components)) +
+          " components found in the library that composed refine the specifications:")
+
+    for n, l in enumerate(set_components_to_return):
+        ret = "\t" * n
+        for component in l:
+            ret += component.id + " "
+        print(ret)
+
+    return flat_list_refining_components, component_provided_by
+
+
+def components_selection_old(component_library: ComponentsLibrary, specification: Contract) \
         -> Tuple[List[Component], Dict[Component, List[Component]]]:
     """ 1)  Search in the 'component_library' compositions of components that can refine the 'specification'.
         2)  It greedly selects one composition C.

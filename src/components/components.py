@@ -16,8 +16,8 @@ class Component(Contract):
                  component_id: str,
                  description: str = None,
                  context: LTL = None,
-                 assumptions: Assumption = None,
-                 guarantees: Guarantee = None):
+                 assumptions: LTL = None,
+                 guarantees: LTL = None):
         super().__init__(assumptions=assumptions,
                          guarantees=guarantees)
 
@@ -31,7 +31,7 @@ class Component(Contract):
             self.__description = description
 
         if context is not None:
-            self.guarantees.set_context(context)
+            self.guarantees.context = context
         else:
             self.__context = LTL()
 
@@ -111,15 +111,25 @@ class ComponentsLibrary:
             self.add_component(component)
 
     def extract_selection(self,
-                          assumptions: Assumption,
-                          to_be_refined: LTL) -> List[List['Component']]:
+                          to_be_refined: LTL) -> 'Component':
+        """"Returns the first component that can refine"""
+
+        for component in self.components:
+            if component.guarantees <= to_be_refined:
+                return component
+
+        return None
+
+    def extract_selection_old(self,
+                              assumptions: LTL,
+                              to_be_refined: LTL) -> List[List['Component']]:
         """Extract all candidate compositions in the library whose guarantees, once combined, refine 'to_be_refined'
         and are consistent 'assumptions'. It also performs other tasks (filters and select the candidates)."""
 
         """How many different variables are needed for each port"""
         ports_n: Dict[str, int] = {}
         variables = to_be_refined.variables
-        for v in variables.set:
+        for v in variables:
             if hasattr(v, "port_type"):
                 if v.port_type not in ports_n:
                     ports_n[v.port_type] = 1
@@ -133,15 +143,15 @@ class ComponentsLibrary:
 
         candidates_for_each_proposition = {}
 
-        if len(to_be_refined.list) == 0:
+        if len(to_be_refined.cnf) == 0:
             return []
 
-        for formula in to_be_refined.list:
+        for elem in to_be_refined.cnf:
 
             """Check if any component guarantees refine the to_be_refined"""
             for component in self.components:
 
-                if component.guarantees.formula.can_provide_for(formula):
+                if component.guarantees.can_provide_for(elem):
 
                     """Check if contracts have compatible assumptions with the one provided"""
                     compatible = assumptions.are_satisfiable_with(component.assumptions)
@@ -149,11 +159,11 @@ class ComponentsLibrary:
                     """If the contract has compatible assumptions, add it to the list of contracts 
                     that can refine to_be_refined"""
                     if compatible:
-                        if formula in candidates_for_each_proposition:
-                            if component not in candidates_for_each_proposition[formula]:
-                                candidates_for_each_proposition[formula].append(component)
+                        if elem in candidates_for_each_proposition:
+                            if component not in candidates_for_each_proposition[elem]:
+                                candidates_for_each_proposition[elem].append(component)
                         else:
-                            candidates_for_each_proposition[formula] = [component]
+                            candidates_for_each_proposition[elem] = [component]
 
         """Check that all the propositions of to_be_refined can be refined"""
         if not all(props in candidates_for_each_proposition for props in to_be_refined.list):
@@ -239,13 +249,13 @@ class BooleanComponent(Component):
         guarantees = []
 
         for a in assumptions_str:
-            assumptions.append(Assumption(a, Variables(Boolean(a))))
+            assumptions.append(LTL(a, Variables(Boolean(a))))
 
         for g in guarantees_str:
-            guarantees.append(Guarantee(g, Variables(Boolean(g))))
+            guarantees.append(LTL(g, Variables(Boolean(g))))
 
-        assumptions = Assumption(assumptions)
-        guarantees = Guarantee(guarantees)
+        assumptions = LTL(assumptions)
+        guarantees = LTL(guarantees)
 
         guarantees.saturate_with(assumptions)
 
@@ -269,10 +279,10 @@ class SimpleComponent(Component):
 
         if assumptions is not None:
             for a in assumptions:
-                assumptions_obj.append(Assumption(a, extract_variable(a)))
+                assumptions_obj.append(LTL(a, extract_variable(a)))
 
         for g in guarantees:
-            guarantees_obj.append(Guarantee(g, extract_variable(g)))
+            guarantees_obj.append(LTL(g, extract_variable(g)))
 
         assumptions_obj = Assumptions(assumptions_obj)
         guarantees_obj = Guarantees(guarantees_obj)

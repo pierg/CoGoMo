@@ -64,7 +64,7 @@ class Variables(set):
             super().add(other)
 
     def __or__(self, other):
-        return super().__or__(other)
+        return Variables(super().__or__(other))
 
     def get_nusmv_names(self):
         """Get List[str] for nuxmv"""

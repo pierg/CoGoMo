@@ -11,9 +11,13 @@ class LTL:
                  formula: str = None,
                  variables: Variables = None,
                  cnf: Set['LTL'] = None,
+                 kind: str = None,
+                 context: 'LTL' = None,
                  skip_checks: bool = False):
         """Basic LTL formula.
         It can be build by a single formula (str) or by a conjunction of other LTL formulae (CNF form)"""
+
+        self.__saturation = None
 
         if formula is not None and cnf is None:
 
@@ -28,6 +32,11 @@ class LTL:
 
             """Set of LTL that conjoined result in the formula"""
             self.__cnf: Set['LTL'] = {self}
+
+            """Adding context"""
+            self.__context = context
+            if context is not None:
+                self.__variables |= context.variables
 
             if not skip_checks:
                 if not self.is_satisfiable():
@@ -46,6 +55,11 @@ class LTL:
 
             self.__cnf: Set[Union['LTL']] = cnf
 
+            """Adding context"""
+            self.__context = context
+            if context is not None:
+                self.__variables |= context.variables
+
             if not skip_checks and len(cnf) > 1:
                 if not self.is_satisfiable():
                     raise InconsistentException(self, self)
@@ -54,21 +68,80 @@ class LTL:
             self.__formula: str = "TRUE"
             self.__cnf: Set['LTL'] = {self}
             self.__variables: Variables = Variables()
+            self.__context = None
 
         else:
             raise Exception("Wrong parameters LTL construction")
 
+        if kind is not None:
+            self.__kind: str = kind
+        else:
+            self.__kind: str = ""
+
     @property
     def formula(self) -> str:
-        return self.__formula
+        formula = self.__formula
+
+        """Adding context"""
+        if self.__context is not None:
+            formula = "G((" + self.__context.formula + ") -> (" + self.__formula + "))"
+
+        """Adding saturation"""
+        if self.__saturation is not None:
+            formula = "((" + self.__saturation.formula + ") -> (" + formula + "))"
+
+        return formula
+
 
     @property
     def variables(self) -> Variables:
+        if self.__saturation is not None:
+            return self.__variables | self.__saturation.variables
         return self.__variables
 
     @property
     def cnf(self) -> Set['LTL']:
         return self.__cnf
+
+    @property
+    def kind(self) -> str:
+        return self.__kind
+
+    @property
+    def context(self) -> 'LTL':
+        return self.__context
+
+    @context.setter
+    def context(self, value: 'LTL'):
+        self.__context = value
+        self.__variables |= value.variables
+
+    @property
+    def saturation(self) -> 'LTL':
+        return self.__saturation
+
+    @saturation.setter
+    def saturation(self, value: 'LTL'):
+        self.__saturation = value
+        self.__variables |= value.variables
+
+
+    def remove_kind(self, kind: str):
+
+        for elem in self.cnf:
+            if elem.kind == kind:
+                self.cnf.remove(elem)
+
+        super().__init__(cnf=self.cnf, skip_checks=True)
+
+    def get_kind(self, kind: str):
+        ret = []
+        for elem in self.cnf:
+            if elem.kind == kind:
+                ret.append(elem)
+        if len(ret) == 0:
+            return None
+        return ret
 
     def __deepcopy__(self, memo):
         cls = self.__class__
@@ -85,6 +158,23 @@ class LTL:
         Modifies self with the conjunction with other"""
         if not isinstance(other, LTL):
             return AttributeError
+
+        if self.context is not None and other.context is not None:
+            if self.context != other.context:
+                raise DifferentContextException(self.context, other.context)
+        if self.context is None and other.context is not None:
+            raise DifferentContextException(self.context, other.context)
+
+        if self.context is not None and other.context is None:
+            raise DifferentContextException(self.context, other.context)
+
+        """Contexts must be equal"""
+
+        if self.__formula == "TRUE":
+            self.__formula = other.formula
+            self.__variables = other.variables
+            self.__cnf = other.cnf
+            return self
 
         if other.formula == "TRUE":
             return self
@@ -107,6 +197,9 @@ class LTL:
         if not isinstance(other, LTL):
             return AttributeError
 
+        if self.__formula == "TRUE":
+            return self
+
         if other.formula == "FALSE":
             return self
         if other.formula == "TRUE":
@@ -117,9 +210,9 @@ class LTL:
         self.__formula = Or([self.formula, other.formula])
         self.__variables = Variables(self.variables | other.variables)
 
-        """TODO: maybe not needed"""
-        if not self.is_satisfiable():
-            raise InconsistentException(self, other)
+        # """TODO: maybe not needed"""
+        # if not self.is_satisfiable():
+        #     raise InconsistentException(self, other)
 
         return self
 
@@ -226,7 +319,6 @@ class LTL:
             variables.add(x.variables)
         self.__variables &= variables
 
-
     def is_true(self):
         return self.formula == "TRUE"
 
@@ -254,61 +346,11 @@ class LTL:
             proposition = proposition.replace(v.name, v.port_type)
         return check_validity(variables.get_nusmv_types(), proposition)
 
-    # def conjoin_with(self, others: Union['LTL', List['LTL']]) -> List['LTL']:
-    #     """Returns list of LTL that have been successfully conjoined"""
-    #     conjoined_formulae = []
-    #     if isinstance(others, list):
-    #         for other in others:
-    #             if self.conjoin_with_formula(other):
-    #                 conjoined_formulae.append(other)
-    #     elif isinstance(others, LTL):
-    #         if self.conjoin_with_formula(others):
-    #             conjoined_formulae.append(others)
-    #     else:
-    #         Exception("Type error when conjoining formulas")
-    #
-    #     return conjoined_formulae
-    #
-    # def conjoin_with_formula(self, other: 'LTL') -> bool:
-    #     """Returns True if other has been conjoined"""
-    #
-    #     if self.formula == "FALSE":
-    #         print("The conjunction has no effects since the current formula is FALSE")
-    #         return False
-    #     if self.formula == "TRUE":
-    #         self.formula = deepcopy(other.formula)
-    #         self.variables = deepcopy(other.variables)
-    #         return True
-    #
-    #     if other.formula == "FALSE":
-    #         self.formula = "FALSE"
-    #         return True
-    #     if other.formula == "TRUE":
-    #         print("The conjunction has no effects since the other formula is FALSE")
-    #         return False
-    #
-    #     if other <= self:
-    #         """the other formula is a refinement of the current formula"""
-    #         self.formula = deepcopy(other.formula)
-    #         self.variables = deepcopy(other.variables)
-    #         return True
-    #
-    #     if self.is_satisfiable_with(other):
-    #
-    #         new_formula = deepcopy(self)
-    #         new_formula.variables.extend(other.variables)
-    #         new_formula.formula = And([new_formula.formula, other.formula])
-    #
-    #         """If by conjoining other, the result should be a refinement of the existing formula"""
-    #         if new_formula <= self:
-    #             self.formula = deepcopy(new_formula.formula)
-    #             self.variables = deepcopy(new_formula.variables)
-    #             return True
-    #     else:
-    #         raise InconsistentException(self, other)
-
     def __str__(self):
-        return self.__formula
+        return self.formula
+
+    def are_satisfiable_with(self, assumptions):
+        pass
 
 
 class InconsistentException(Exception):
@@ -316,46 +358,10 @@ class InconsistentException(Exception):
     def __init__(self, conj_a: LTL, conj_b: LTL):
         self.conj_a = conj_a
         self.conj_b = conj_b
-#
-#
-# def AndLTL(formulas: List[LTL]) -> LTL:
-#     """Returns an LTL formula representing the logical AND of list_propoositions"""
-#     if len(formulas) > 1:
-#         vars = formulas[0].variables
-#         for i in range(1, len(formulas)):
-#             vars += formulas[i].variables
-#         conj = ' & '.join(s.formula for s in formulas)
-#         return LTL("(" + conj + ")", vars)
-#     elif len(formulas) == 1:
-#         return formulas[0]
-#     else:
-#         raise Exception("List of formulas is empty")
-#
-#
-# def ImpliesLTL(one: LTL, two: LTL) -> LTL:
-#     """Returns an LTL formula representing the logical implication of list_propoositions"""
-#     vars = one.variables
-#     vars += two.variables
-#     formula = "(" + one.formula + ") -> (" + two.formula + ")"
-#     return LTL(formula, vars)
-#
-#
-# def NotLTL(element: LTL) -> LTL:
-#     """Returns an str formula representing the logical AND of list_propoositions"""
-#     vars = element.variables
-#     formula = Not(element.formula)
-#     return LTL(formula, vars)
-#
-#
-# def OrLTL(formulas: List[LTL]) -> LTL:
-#     """Returns an str formula representing the logical OR of list_propoositions"""
-#     if len(formulas) > 1:
-#         vars = formulas[0].variables
-#         for i in range(1, len(formulas)):
-#             vars += formulas[i].variables
-#         conj = ' | '.join(s.formula for s in formulas)
-#         return LTL("(" + conj + ")", vars)
-#     elif len(formulas) == 1:
-#         return formulas[0]
-#     else:
-#         raise Exception("List of formulas is empty")
+
+
+class DifferentContextException(Exception):
+
+    def __init__(self, ctx_a: LTL, ctx_b: LTL):
+        self.ctx_a = ctx_a
+        self.ctx_b = ctx_b

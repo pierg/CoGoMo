@@ -58,12 +58,12 @@ if __name__ == "__main__":
     expectations = [
         Contract(
             assumptions=Assumptions(
-                Assumption(
+                LTL(
                     formula="G(weight_power > 10)",
                     variables=Variables(BoundedNat("weight_power")),
                     kind="expectation")),
             guarantees=Guarantees(
-                Guarantee(
+                LTL(
                     formula="G(heavy_item_pickup)",
                     variables=Variables(Boolean("heavy_item_pickup")))))
     ]
@@ -98,15 +98,15 @@ if __name__ == "__main__":
             Component(
                 component_id="collaborate",
                 assumptions=Assumptions([
-                    Assumption(
+                    LTL(
                         formula="power1 >= 8",
                         variables=Variables(BoundedNat(port_type="robot_power", name="power1"))),
-                    Assumption(
+                    LTL(
                         formula="power2 >= 8",
                         variables=Variables(BoundedNat(port_type="robot_power", name="power2")))
                 ]),
                 guarantees=Guarantees(
-                    Guarantee(
+                    LTL(
                         formula="G(weight_power > 12)",
                         variables=Variables(BoundedNat("weight_power")))
                 ),
@@ -137,7 +137,7 @@ if __name__ == "__main__":
 
     """The designer can specify to 'abstract' a goal to have fewer guarantees, however CoGoMo will keep the guarantees
     that are needed to 'relax' assumptions in other goals of the trees"""
-    guarantees = Guarantees(Guarantee("G(locB -> F(heavy_item_pickup))"))
+    guarantees = Guarantees(LTL("G(locB -> F(heavy_item_pickup))"))
     cgt.abstract_guarantees_of("collaborate||pick_up_item||robot_2||robot_3",
                                guarantees, "pick_up_item_abstracted")
     save_to_file(str(cgt), file_path + "/cgt_6_abstracted")

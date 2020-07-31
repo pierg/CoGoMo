@@ -3,7 +3,6 @@ import os
 from components.components import ComponentsLibrary, SimpleComponent, Component
 from contracts.contract import PContract
 from src.goals.cgtgoal import *
-from typescogomo.subtypes.assumption import Assumption
 from typescogomo.subtypes.patterns import *
 from typescogomo.subtypes.scopes import *
 
@@ -65,7 +64,7 @@ def get_inputs():
     }
 
     rules = {
-        "gridworld_map": {
+        "gridworld": {
             ap["l"]["a"]: [ap["l"]["a"], ap["l"]["b"], ap["l"]["d"]],
             ap["l"]["b"]: [ap["l"]["b"], ap["l"]["a"], ap["l"]["c"]],
             ap["l"]["c"]: [ap["l"]["c"], ap["l"]["b"], ap["l"]["d"], ap["l"]["e"]],
@@ -79,18 +78,18 @@ def get_inputs():
                 [ap["ct"]["day_time"], ap["ct"]["night_time"]],
                 [ap["ci"]["premium"], ap["ci"]["normal"]]
             ],
-            "inclusion": [
-                [ap["cl"]["entrance"], ap["cl"]["care_center"]],
-                [ap["cl"]["pharmacy"], ap["cl"]["care_center"]],
-                [ap["cl"]["medical_room"], ap["cl"]["care_center"]],
-                [ap["cl"]["corridor"], ap["cl"]["care_center"]]
-            ]
+            "inclusion": {
+                ap["cl"]["entrance"]: ap["cl"]["care_center"],
+                ap["cl"]["pharmacy"]: ap["cl"]["care_center"],
+                ap["cl"]["medical_room"]: ap["cl"]["care_center"],
+                ap["cl"]["corridor"]: ap["cl"]["care_center"]
+            }
         },
-        "context_locations_map": {
-            ap["l"]["a"]: [ap["cl"]["entrance"]],
-            ap["l"]["d"]: [ap["cl"]["pharmacy"]],
-            ap["l"]["b"] | ap["l"]["c"] | ap["l"]["e"] | ap["l"]["f"]: [ap["cl"]["corridor"]],
-            ap["l"]["g"]: [ap["cl"]["medical_room"]],
+        "context_gridworld": {
+            ap["l"]["a"]: ap["cl"]["entrance"],
+            ap["l"]["d"]: ap["cl"]["pharmacy"],
+            ap["l"]["b"] | ap["l"]["c"] | ap["l"]["e"] | ap["l"]["f"]: ap["cl"]["corridor"],
+            ap["l"]["g"]: ap["cl"]["medical_room"],
         },
         "system_constraints": {
             "mutex": [[
@@ -102,8 +101,7 @@ def get_inputs():
                 ap["l"]["f"],
                 ap["l"]["g"]
             ]],
-            "inclusion": [
-            ]
+            "inclusion": {}
         }
     }
 
@@ -120,7 +118,7 @@ def get_inputs():
         CGTGoal(
             name="day-time-patroling",
             description="patrol the care-center during the day",
-            context=ap["ct"]["night_time"],
+            context=ap["ct"]["day_time"],
             contracts=[PContract([
                 Patroling([ap["cl"]["care_center"]])
             ])]
@@ -128,29 +126,41 @@ def get_inputs():
     ]
 
     """Instantiating a Library of Goals"""
-    component_library = ComponentsLibrary(name="hospital")
+    component_library = GoalsLibrary(name="hospital")
 
-    component_library.add_components(
+    component_library.add_goals(
         [
-            Component(
-                component_id="day-patrol-entrance-pharmacy",
+            CGTGoal(
+                name="day-patrol-entrance-pharmacy",
+                description="patrol entrance and pharmacy",
                 context=ap["ct"]["day_time"],
-                guarantees=Guarantee(cnf={Patroling([ap["cl"]["entrance"], ap["cl"]["pharmacy"]])}),
+                contracts=[PContract([
+                    Patroling([ap["cl"]["entrance"], ap["cl"]["pharmacy"]])
+                ])]
             ),
-            Component(
-                component_id="night-patrol-corridor",
+            CGTGoal(
+                name="night-patrol-corridor",
+                description="patrol corridor during night",
                 context=ap["ct"]["night_time"],
-                guarantees=Guarantee(cnf={Patroling([ap["cl"]["corridor"]])}),
+                contracts=[PContract([
+                    Patroling([ap["cl"]["corridor"]])
+                ])]
             ),
-            Component(
-                component_id="patrol-b-c-e-f",
-                guarantees=Guarantee(cnf={Patroling([ap["l"]["b"], ap["l"]["c"], ap["l"]["e"], ap["l"]["f"]])}),
+            CGTGoal(
+                name="patrol-b-c-e-f",
+                description="patrol areas b, c, e and f",
+                contracts=[PContract([
+                    Patroling([ap["l"]["b"], ap["l"]["c"], ap["l"]["e"], ap["l"]["f"]])
+                ])]
             ),
-            Component(
-                component_id="patrol-a-d",
-                guarantees=Guarantee(cnf={Patroling([ap["l"]["a"], ap["l"]["d"]])}),
+            CGTGoal(
+                name="patrol-a-d",
+                description="patrol areas a and d",
+                contracts=[PContract([
+                    Patroling([ap["l"]["a"], ap["l"]["d"]])
+                ])]
             )
         ]
     )
 
-    return ap, rules, list_of_goals
+    return ap, rules, list_of_goals, component_library

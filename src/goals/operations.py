@@ -5,7 +5,7 @@ from components.components import ComponentsLibrary
 from src.contracts.contract import Contract, InconsistentContracts, IncompatibleContracts, UnfeasibleContracts
 from src.contracts.operations import compose_contracts
 from src.goals.cgtgoal import CGTGoal
-from typescogomo.subtypes.context import Context
+from typescogomo.formula import LTL
 from src.goals.helpers import extract_ltl_rules, extract_unique_contexts_from_goals, \
     extract_all_combinations_and_negations_from_contexts, \
     context_based_specification_clustering
@@ -68,8 +68,7 @@ def conjunction(goals: List[CGTGoal],
     for goal in goals:
         contracts = goal.contracts
         for contract in contracts:
-            new_contract = Contract(assumptions=contract.assumptions.copy(),
-                                    guarantees=contract.guarantees.copy())
+            new_contract = deepcopy(contract)
             list_of_new_contracts.append(new_contract)
 
     conjoined_goal = CGTGoal(name=name,
@@ -84,6 +83,7 @@ def conjunction(goals: List[CGTGoal],
         return conjoined_goal
     else:
         connect_to.update_with(conjoined_goal, consolidate=False)
+        return connect_to
 
 
 def composition(goals: List[CGTGoal],
@@ -273,11 +273,28 @@ def mapping(component_library: ComponentsLibrary,
     specification_goal.refine_by([composition_goal])
 
 
-def create_contextual_clusters(goals: List[CGTGoal], type: str, context_rules: Dict = None) -> Dict:
+
+
+def extend_cgt(cgt: CGTGoal, library: ComponentsLibrary, rules: Dict):
+    """Call the mapping function on the library, on all the leaf nodes of the CGT"""
+
+    leafs = cgt.get_all_leaf_nodes()
+
+    for leaf in leafs:
+        leaf.extend_from_library(library, rules)
+
+    print(leafs)
+
+
+
+
+
+
+def create_contextual_clusters(goals: List[CGTGoal], type: str, context_rules: List[LTL] = None) -> Dict:
     """Returns all combinations that are consistent"""
 
     if type == "MINIMAL":
-        """Context Creation"""
+        """LTL Creation"""
         """Among a pair of context combinations (two rows), save only the smaller context"""
         KEEP_SMALLER_COMBINATION = True
         """Goal Mapping"""
@@ -289,7 +306,7 @@ def create_contextual_clusters(goals: List[CGTGoal], type: str, context_rules: D
         SAVE_SMALLER_CONTEXT = False
 
     elif type == "MUTEX":
-        """Context Creation"""
+        """LTL Creation"""
         """Among a pair of context combinations (two rows), save only the smaller context"""
         KEEP_SMALLER_COMBINATION = False
         """Goal Mapping"""
@@ -302,14 +319,9 @@ def create_contextual_clusters(goals: List[CGTGoal], type: str, context_rules: D
     else:
         raise Exception("The type is not supported, either MINIMAL or MUTEX")
 
-    """Extract context rules in LTL"""
-    if context_rules is not None:
-        ltl_rules = extract_ltl_rules(context_rules)
-    else:
-        ltl_rules = []
 
     """Extract all unique contexts"""
-    contexts: List[Context] = extract_unique_contexts_from_goals(goals)
+    contexts: List[LTL] = extract_unique_contexts_from_goals(goals)
 
     print("\n\n\n\n" + str(len(goals)) + " GOALS\nCONTEXTS:" + str([str(c) for c in contexts]))
 
@@ -321,14 +333,14 @@ def create_contextual_clusters(goals: List[CGTGoal], type: str, context_rules: D
     context_goals = {}
 
     if type == "MINIMAL":
-        context_goals = context_based_specification_clustering(combs_all_contexts, ltl_rules, goals,
+        context_goals = context_based_specification_clustering(combs_all_contexts, context_rules, goals,
                                                                KEEP_SMALLER_COMBINATION,
                                                                GOAL_CTX_SAT,
                                                                GOAL_CTX_SMALLER,
                                                                SAVE_SMALLER_CONTEXT)
 
     if type == "MUTEX":
-        context_goals = context_based_specification_clustering(combs_all_contexts_neg, ltl_rules, goals,
+        context_goals = context_based_specification_clustering(combs_all_contexts_neg, context_rules, goals,
                                                                KEEP_SMALLER_COMBINATION,
                                                                GOAL_CTX_SAT,
                                                                GOAL_CTX_SMALLER,
@@ -337,21 +349,28 @@ def create_contextual_clusters(goals: List[CGTGoal], type: str, context_rules: D
     return context_goals
 
 
-def create_cgt(context_goals: Dict, compose_with_context: True) -> CGTGoal:
+def create_cgt(context_goals: Dict, rules: Dict) -> CGTGoal:
     """Compose all the set of goals in identified context"""
     composed_goals = []
     for i, (ctx, goals) in enumerate(context_goals.items()):
         new_goals = deepcopy(goals)
-        # if compose_with_context:
-        #     # Creating new context goal so its composition refined the assumptions:
-        #     ctx_goal = CGTGoal(
-        #         name="ctx_" + str(i),
-        #         contracts=[Contract(assumptions=Assumptions(ctx))])
-        #     new_goals.append(ctx_goal)
+
+        """Extracting the new context for the guarantees"""
+        guarantees_ctx = []
+        for elem in ctx.cnf:
+            if elem.kind == "context":
+                pass
+            else:
+                guarantees_ctx.append(elem)
+        guarantees_ctx = LTL(cnf=set(guarantees_ctx), skip_checks=True)
+
+        """Setting the new context to each goal"""
+        for g in new_goals:
+            """Adding rules to each node"""
+            g.apply_rules(rules)
+            g.set_context(guarantees_ctx)
         try:
             ctx_goals = composition(new_goals)
-            ctx_goals.goal_context_to_show = ctx
-            # ctx_goals.context = ctx
             composed_goals.append(ctx_goals)
         except CGTFailException as e:
             print("FAILED OPE:\t" + e.failed_operation)

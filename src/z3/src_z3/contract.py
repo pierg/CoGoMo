@@ -94,14 +94,6 @@ class Contract(object):
         name, value = constant
         self.variables[name] = value
 
-    def add_assumptions(self, assumptions):
-        if isinstance(assumptions, list):
-            for assumption in assumptions:
-                self.add_assumption(assumption)
-        else:
-            self.add_assumption(assumptions)
-
-
     def add_assumption(self, assumption):
         """Adds an assumption to the contract assumptions
 
@@ -118,6 +110,14 @@ class Contract(object):
                 self.assumptions.remove(True)
             self.assumptions.append(assumption)
             print(str(assumption) + "\nadded")
+
+
+    def add_assumptions(self, assumptions):
+        if isinstance(assumptions, list):
+            for assumption in assumptions:
+                self.add_assumption(assumption)
+        else:
+            self.add_assumption(assumptions)
 
     def add_guarantees(self, guarantees):
         for guarantee in guarantees:

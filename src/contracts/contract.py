@@ -1,30 +1,28 @@
 from copy import deepcopy
 from typing import List
-
-from typescogomo.subtypes.assumption import Assumption
 from typescogomo.formula import LTL, InconsistentException
-from typescogomo.subtypes.context import Context
-from typescogomo.subtypes.guarantee import Guarantee
 from typescogomo.variables import Variables, Boolean
 
 
 class Contract:
     def __init__(self,
-                 assumptions: Assumption = None,
-                 guarantees: Guarantee = None
+                 assumptions: LTL = None,
+                 guarantees: LTL = None
                  ):
 
         """List of assumptions in conjunction"""
         if assumptions is None:
-            self.__assumptions = Assumption()
+            self.__assumptions = LTL()
         else:
             self.__assumptions = assumptions
 
         """List of guarantees in conjunction. All guarantees are saturated"""
         if guarantees is None:
-            self.__guarantees = Guarantee()
+            self.__guarantees = LTL()
         else:
             self.__guarantees = guarantees
+
+        self.__guarantees.saturation = self.__assumptions
 
         self.check_feasibility()
 
@@ -33,25 +31,28 @@ class Contract:
         return self.assumptions.variables | self.guarantees.variables
 
     @property
-    def assumptions(self) -> Assumption:
+    def assumptions(self) -> LTL:
         return self.__assumptions
 
     @assumptions.setter
-    def assumptions(self, values: Assumption):
-        if not isinstance(values, Assumption):
+    def assumptions(self, values: LTL):
+        if not isinstance(values, LTL):
             raise AttributeError
         self.__assumptions = values
 
     @property
-    def guarantees(self) -> Guarantee:
+    def guarantees(self) -> LTL:
         return self.__guarantees
 
+    @property
+    def context(self) -> LTL:
+        return self.__guarantees.context
+
     @guarantees.setter
-    def guarantees(self, values: Guarantee):
-        if not isinstance(values, Guarantee):
+    def guarantees(self, values: LTL):
+        if not isinstance(values, LTL):
             raise AttributeError
         self.__guarantees = values
-
 
     def __deepcopy__(self, memo):
         cls = self.__class__
@@ -93,8 +94,16 @@ class Contract:
 
         self.assumptions &= c.assumptions
 
-    def set_context(self, context: Context):
-        self.guarantees.set_context(context)
+    def add_assumption(self, a: 'LTL'):
+        print(self.variables)
+        self.assumptions &= a
+        print(self.variables)
+        print(self.variables)
+
+
+    def set_context(self, context: LTL):
+        self.guarantees.context = context
+
 
     def cost(self):
         """Used for component selection. Always [0, 1]
@@ -156,13 +165,13 @@ class BooleanContract(Contract):
         guarantees = set()
 
         for a in assumptions_str:
-            assumptions.add(Assumption(a, Variables({Boolean(a)})))
+            assumptions.add(LTL(a, Variables({Boolean(a)})))
 
         for g in guarantees_str:
-            guarantees.add(Guarantee(g, Variables({Boolean(g)})))
+            guarantees.add(LTL(g, Variables({Boolean(g)})))
 
-        assumptions = Assumption(cnf=assumptions)
-        guarantees = Guarantee(cnf=guarantees)
+        assumptions = LTL(cnf=assumptions)
+        guarantees = LTL(cnf=guarantees)
 
         guarantees.saturate_with(assumptions)
 
@@ -181,20 +190,20 @@ class SimpleContract(Contract):
         from typescogomo.variables import extract_variable
 
         for g in guarantees:
-            guarantees_obj.add(Guarantee(g, extract_variable(g)))
+            guarantees_obj.add(LTL(g, extract_variable(g)))
 
-        guarantees_obj = Guarantee(cnf=guarantees_obj)
+        guarantees_obj = LTL(cnf=guarantees_obj)
 
         if assumptions is None:
-            assumptions_obj = Assumption()
+            assumptions_obj = LTL()
 
         else:
             assumptions_obj = set()
 
             for a in assumptions:
-                assumptions_obj.add(Assumption(a, extract_variable(a)))
+                assumptions_obj.add(LTL(a, extract_variable(a)))
 
-            assumptions_obj = Assumption(cnf=assumptions_obj)
+            assumptions_obj = LTL(cnf=assumptions_obj)
             guarantees_obj.saturate_with(assumptions_obj)
 
         super().__init__(assumptions=assumptions_obj,
@@ -212,8 +221,8 @@ class PContract(Contract):
         for p in patterns:
             guarantees.add(p)
             # variables |= p.variables
-            # guarantees.add(Guarantee(p.formula, p.variables))
+            # guarantees.add(LTL(p.formula, p.variables))
 
-        guarantees = Guarantee(cnf=guarantees)
+        guarantees = LTL(cnf=guarantees)
 
         super().__init__(guarantees=guarantees)

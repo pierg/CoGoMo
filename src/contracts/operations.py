@@ -1,7 +1,6 @@
 from copy import deepcopy
 from typing import List
 from src.contracts.contract import Contract, InconsistentContracts, IncompatibleContracts, UnfeasibleContracts
-from typescogomo.subtypes.assumption import Assumption
 
 
 def compose_contracts(contracts: List[Contract]) -> Contract:

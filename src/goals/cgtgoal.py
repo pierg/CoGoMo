@@ -1,11 +1,9 @@
 from copy import deepcopy
-from typing import List
+from typing import List, Dict
 
 from contracts.contract import Contract
-from typescogomo.subtypes.context import Context
 from typescogomo.formula import LTL
 from src.checks.tools import Or, And
-from typescogomo.subtypes.guarantee import Guarantee
 from typescogomo.variables import Variables
 
 
@@ -21,6 +19,9 @@ class CGTGoal:
                  context: LTL = None):
 
         self.__connected_to = None
+
+        for c in contracts:
+            print(c.context)
 
         if name is None:
             self.__name: str = ""
@@ -48,14 +49,8 @@ class CGTGoal:
         else:
             raise AttributeError
 
-        self.__context = context
-
         if context is not None:
             self.set_context(context)
-        else:
-            self.__context = LTL()
-
-        print(self)
 
     @property
     def name(self):
@@ -101,8 +96,11 @@ class CGTGoal:
         self.__refined_with = value
 
     @property
-    def context(self):
-        return self.__context
+    def context(self) -> LTL:
+        cgt_context = deepcopy(self.contracts[0].context)
+        for c in self.contracts[1:]:
+            cgt_context |= c.context
+        return cgt_context
 
     @context.setter
     def context(self, value: LTL):
@@ -117,7 +115,6 @@ class CGTGoal:
     def connected_to(self, value):
         self.__connected_to = value
 
-
     def __copy__(self):
         cls = self.__class__
         result = cls.__new__(cls)
@@ -131,8 +128,6 @@ class CGTGoal:
         for k, v in self.__dict__.items():
             setattr(result, k, deepcopy(v, memo))
         return result
-
-
 
     def get_refinement_by(self):
         return self.refined_by, self.refined_with
@@ -150,6 +145,16 @@ class CGTGoal:
                     result.append(child)
                 else:
                     result.extend(child.get_all_goals_with_name(name, copies))
+        return result
+
+    def get_all_leaf_nodes(self):
+        """Depth-first search. Returns all goals are name"""
+        result = []
+        if self.refined_by is not None:
+            for child in self.refined_by:
+                result.extend(child.get_all_leaf_nodes())
+        else:
+            result.append(self)
         return result
 
     def get_goal_with_name(self, name) -> 'CGTGoal':
@@ -196,6 +201,38 @@ class CGTGoal:
         """Add context to guarantees as G(context -> guarantee)"""
         for contract in self.contracts:
             contract.set_context(context)
+
+    def add_assumption(self, assumption: LTL):
+
+        for contract in self.contracts:
+            contract.add_assumption(assumption)
+
+        self.consolidate_bottom_up()
+
+    def apply_rules(self, rules_dict: Dict):
+        """Apply rules on the current node, if applicable"""
+
+        """Context rules -> Assumptions"""
+        for kind, rules in rules_dict.items():
+            if kind == "context":
+                for rule in rules:
+                    for c in self.contracts:
+                        if len(rule.variables & c.variables) > 0:
+                            c.add_assumption(rule)
+
+    def extend_from_library(self, library: 'GoalsLibrary', rules_dict: Dict):
+
+        if len(self.contracts) > 0:
+            raise Exception("Goals that have multiple conjoined contracts are not supported for extension")
+
+        try:
+            print(self)
+            goal = library.extract_selection(self.contracts[0].guarantees)
+            self.refine_by(goal)
+            print(self)
+        except NoGoalFoundException as e:
+            pass
+
 
     def add_domain_properties(self):
         """Adding Domain Properties to 'cgt' (i.e. descriptive statements about the problem world (such as physical laws)
@@ -266,7 +303,7 @@ class CGTGoal:
         else:
             print("No substitution has been performed")
 
-    def abstract_guarantees_of(self, goal_name: str, guarantees: Guarantee, abstract_name: str = None):
+    def abstract_guarantees_of(self, goal_name: str, guarantees: LTL, abstract_name: str = None):
 
         goals = self.get_all_goals_with_name(goal_name)
         if abstract_name is None:
@@ -364,21 +401,22 @@ class CGTGoal:
             if n > 0:
                 ret += "\t" * level + "\t/\\ \n"
 
+            ret += "\t" * level + "  A:\t\t" + str(contract.assumptions) + "\n"
+
             a_context = contract.assumptions.get_kind("context")
             a_domain = contract.assumptions.get_kind("domain")
             a_expectation = contract.assumptions.get_kind("expectation")
 
             if a_context is not None:
-                ret += "\t" * level + " CTX:\t" + ', '.join(map(str, a_context)) + "\n"
+                ret += "\t" * level + " \tCTX:\t" + ', '.join(map(str, a_context)) + "\n"
 
             if a_domain is not None:
-                ret += "\t" * level + " DOM:\t" + ', '.join(map(str, a_domain)) + "\n"
+                ret += "\t" * level + " \tDOM:\t" + ', '.join(map(str, a_domain)) + "\n"
 
             if a_expectation is not None:
-                ret += "\t" * level + " EXP:\t" + ', '.join(map(str, a_expectation)) + "\n"
+                ret += "\t" * level + " \tEXP:\t" + ', '.join(map(str, a_expectation)) + "\n"
 
-            ret += "\t" * level + "  A:\t" + str(contract.assumptions) + "\n"
-            ret += "\t" * level + "  G:\t" + str(contract.guarantees) + "\n"
+            ret += "\t" * level + "  G:\t\t" + str(contract.guarantees) + "\n"
 
         ret += "\n"
         if self.refined_by is not None:
@@ -390,3 +428,59 @@ class CGTGoal:
                 except:
                     print("ERROR IN PRINT")
         return ret
+
+
+class GoalsLibrary:
+    """Goals Library defined a list of goals and the operations on them"""
+
+    def __init__(self,
+                 name: str,
+                 goals: List[CGTGoal] = None):
+
+        """Name of the Goals Library"""
+        self.__name = name
+
+        """List of Goals in the Library"""
+        if goals is None:
+            self.__goals = []
+        else:
+            self.__goals = goals
+
+    @property
+    def name(self):
+        return self.__name
+
+    @name.setter
+    def name(self, value):
+        self.__name = value
+
+    @property
+    def goals(self):
+        return self.__goals
+
+    @goals.setter
+    def goals(self, value: List[CGTGoal]):
+        self.__goals = value
+
+    def add_goal(self, goal: CGTGoal):
+
+        self.goals.append(goal)
+
+    def add_goals(self, goals: List[CGTGoal]):
+
+        for goal in goals:
+            self.add_goal(goal)
+
+    def extract_selection(self,
+                          to_be_refined: LTL) -> 'CGTGoal':
+        """"Returns the first goal that can refine"""
+
+        for goal in self.goals:
+            if goal.contracts[0].guarantees <= to_be_refined:
+                return goal
+
+        raise NoGoalFoundException()
+
+
+class NoGoalFoundException(Exception):
+    pass

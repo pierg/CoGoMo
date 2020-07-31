@@ -143,6 +143,9 @@ def run(list_of_goals: List[CGTGoal], result_folder: str):
     """Generate a controller for each node of the CGT"""
     generate_controllers_for_cgt(cgt_1, result_folder + "/cgt_clusters_mutex/")
 
+    save_to_file(str(cgt_1.print_cgt_synthesis()), result_folder + "/cgt_clusters_mutex/CGT_synthesis.txt")
+
+
 
 
 if __name__ == "__main__":

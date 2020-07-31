@@ -469,6 +469,26 @@ class CGTGoal:
                     print("ERROR IN PRINT")
         return ret
 
+    def print_cgt_synthesis(self, level=0):
+        """Override the print behavior"""
+        ret = "\t" * level + "GOAL    :\t" + repr(self.name) + "\n"
+        if self.realizable:
+            ret += "\t" * level + "RALIZABLE :\tYES\n"
+            ret += "\t" * level + "SYNTH TIME:\t" + str(self.time_synthesis) + "\n"
+        else:
+            ret += "\t" * level + "RALIZABLE:\tNO\n"
+
+        ret += "\n"
+        if self.refined_by is not None:
+            ret += "\t" * level + "\t" + self.refined_with + "\n"
+            level += 1
+            for child in self.refined_by:
+                try:
+                    ret += child.print_cgt_synthesis(level + 1)
+                except:
+                    print("ERROR IN PRINT")
+        return ret
+
     def __str__(self, level=0):
         """Override the print behavior"""
         ret = "\t" * level + "GOAL:\t" + repr(self.name) + "\n"

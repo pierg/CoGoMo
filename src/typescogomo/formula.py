@@ -35,8 +35,6 @@ class LTL:
 
             """Adding context"""
             self.__context = context
-            if context is not None:
-                self.__variables |= context.variables
 
             if not skip_checks:
                 if not self.is_satisfiable():
@@ -57,8 +55,6 @@ class LTL:
 
             """Adding context"""
             self.__context = context
-            if context is not None:
-                self.__variables |= context.variables
 
             if not skip_checks and len(cnf) > 1:
                 if not self.is_satisfiable():
@@ -87,7 +83,7 @@ class LTL:
             formula = "G((" + self.__context.formula + ") -> (" + self.__formula + "))"
 
         """Adding saturation"""
-        if self.__saturation is not None:
+        if self.__saturation is not None and self.__saturation.formula != "TRUE":
             formula = "((" + self.__saturation.formula + ") -> (" + formula + "))"
 
         return formula
@@ -105,7 +101,18 @@ class LTL:
     @property
     def variables(self) -> Variables:
         if self.__saturation is not None:
-            return self.__variables | self.__saturation.variables
+            if self.__context is not None:
+                return self.__variables | self.__context.variables | self.__saturation.variables
+            else:
+                return self.__variables | self.__saturation.variables
+        else:
+            if self.__context is not None:
+                return self.__variables | self.__context.variables
+            else:
+                return self.__variables
+
+    @property
+    def objective_variables(self) -> Variables:
         return self.__variables
 
     @property
@@ -170,10 +177,8 @@ class LTL:
         if self.context is not None and other.context is not None:
             if self.context != other.context:
                 raise DifferentContextException(self.context, other.context)
-        if self.context is None and other.context is not None:
-            raise DifferentContextException(self.context, other.context)
 
-        if self.context is not None and other.context is None:
+        if self.context is None and other.context is not None:
             raise DifferentContextException(self.context, other.context)
 
         """Contexts must be equal"""
@@ -191,8 +196,8 @@ class LTL:
             self.__cnf |= other.cnf
             return self
 
-        self.__formula = And([self.formula, other.formula])
-        self.__variables = Variables(self.variables | other.variables)
+        self.__formula = And([self.__formula, other.unsaturated])
+        self.__variables = self.variables | other.variables
         self.__cnf |= other.cnf
 
         if not self.is_satisfiable():

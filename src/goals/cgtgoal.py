@@ -52,6 +52,15 @@ class CGTGoal:
         if context is not None:
             self.set_context(context)
 
+        """Is the current node realizable"""
+        self.__realizable: bool = None
+
+        """Mealy machine of the controller (if node is realizable)"""
+        self.__controller: str = None
+
+        """Synthesis time"""
+        self.__time_synthesis: int = None
+
     @property
     def name(self):
         return self.__name
@@ -115,6 +124,30 @@ class CGTGoal:
     def connected_to(self, value):
         self.__connected_to = value
 
+    @property
+    def realizable(self) -> bool:
+        return self.__realizable
+
+    @realizable.setter
+    def realizable(self, value: bool):
+        self.__realizable = value
+
+    @property
+    def controller(self) -> str:
+        return self.__controller
+
+    @controller.setter
+    def controller(self, value: str):
+        self.__controller = value
+
+    @property
+    def time_synthesis(self) -> int:
+        return self.__time_synthesis
+
+    @time_synthesis.setter
+    def time_synthesis(self, value: int):
+        self.__time_synthesis = value
+
     def __copy__(self):
         cls = self.__class__
         result = cls.__new__(cls)
@@ -147,8 +180,8 @@ class CGTGoal:
                     result.extend(child.get_all_goals_with_name(name, copies))
         return result
 
-    def get_all_leaf_nodes(self):
-        """Depth-first search. Returns all goals are name"""
+    def get_all_leaf_nodes(self) -> List['CGTGoal']:
+        """Depth-first search"""
         result = []
         if self.refined_by is not None:
             for child in self.refined_by:
@@ -156,6 +189,20 @@ class CGTGoal:
         else:
             result.append(self)
         return result
+
+    def get_all_nodes(self) -> List['CGTGoal']:
+
+        """Depth-first search"""
+        result = []
+        result.append(self)
+        if self.refined_by is not None:
+            for child in self.refined_by:
+                result.extend(child.get_all_nodes())
+        return result
+
+    def synthetize(self):
+        """Synthetize current node"""
+        pass
 
     def get_goal_with_name(self, name) -> 'CGTGoal':
         """Return the goal of name 'name'"""
@@ -211,8 +258,8 @@ class CGTGoal:
     def apply_rules(self, rules_dict: Dict):
         """Apply rules on the current node, if applicable"""
 
-        """Context rules -> Assumptions"""
         for kind, rules in rules_dict.items():
+            """Context rules -> Assumptions"""
             if kind == "context":
                 for rule in rules:
                     for c in self.contracts:
@@ -224,6 +271,19 @@ class CGTGoal:
                     for c in self.contracts:
                         if len(rule.variables & c.variables) > 0:
                             c.add_assumption(rule)
+
+            """System and transition map rules -> Guarantees"""
+            if kind == "gridworld":
+                for rule in rules:
+                    for c in self.contracts:
+                        if len(rule.variables & c.guarantees.objective_variables) > 0:
+                            c.add_guarantee(rule)
+
+            if kind == "system_constraints":
+                for rule in rules:
+                    for c in self.contracts:
+                        if len(rule.variables & c.guarantees.objective_variables) > 0:
+                            c.add_guarantee(rule)
 
     def extend_from_library(self, library: 'GoalsLibrary', rules_dict: Dict):
 
@@ -241,8 +301,6 @@ class CGTGoal:
         self.refine_by(goal, skip_check=True)
 
         goal.extend_from_library(library, rules_dict)
-
-
 
     def add_domain_properties(self):
         """Adding Domain Properties to 'cgt' (i.e. descriptive statements about the problem world (such as physical laws)
@@ -359,22 +417,29 @@ class CGTGoal:
             return
 
     def get_ltl_assumptions(self) -> LTL:
-        a_list = []
-        vars = Variables()
-        for c in self.contracts:
-            a_list.append(c.assumptions.formula)
-            vars |= c.assumptions.variables
-        new_formula = Or(a_list)
-        return LTL(new_formula, vars, skip_checks=True)
+        if len(self.contracts) > 1:
+            """conjunction"""
+            a_list = []
+            vars = Variables()
+            for c in self.contracts:
+                a_list.append(c.assumptions.formula)
+                vars |= c.assumptions.variables
+            new_formula = Or(a_list)
+            return LTL(new_formula, vars, skip_checks=True)
+        else:
+            """composition"""
+            return self.contracts[0].assumptions
 
     def get_ltl_guarantees(self) -> LTL:
-        g_list = []
-        vars = Variables()
-        for c in self.contracts:
-            g_list.append(c.guarantees.formula)
-            vars |= c.guarantees.variables
-        new_formula = And(g_list)
-        return LTL(new_formula, vars, skip_checks=True)
+        if len(self.contracts) > 1:
+            """conjunction"""
+            g_list = []
+            for c in self.contracts:
+                g_list.append(c.guarantees)
+            return LTL(cnf=set(g_list), skip_checks=True)
+        else:
+            """composition"""
+            return self.contracts[0].guarantees
 
     def get_variables(self) -> Variables:
         vars = Variables()
@@ -426,7 +491,18 @@ class CGTGoal:
             if a_context_gridworld is not None:
                 ret += "\t" * level + " \tCGR:\t" + ', '.join(map(str, a_context_gridworld)) + "\n"
 
-            ret += "\t" * level + "  G:\t\t" + contract.guarantees.unsaturated + "\n"
+            g_objective = contract.guarantees.get_kind("")
+            a_gridworld = contract.guarantees.get_kind("gridworld")
+            a_system_constraints = contract.guarantees.get_kind("system_constraints")
+
+            ret += "\t" * level + "  G:\t\t" + ' & '.join(map(str, g_objective)) + "\n"
+            # ret += "\t" * level + "  Gs:\t\t" + contract.guarantees.formula + "\n"
+
+            if a_gridworld is not None:
+                ret += "\t" * level + " \tGRD:\t" + ', '.join(map(str, a_gridworld)) + "\n"
+
+            if a_system_constraints is not None:
+                ret += "\t" * level + " \tSYS:\t" + ', '.join(map(str, a_system_constraints)) + "\n"
 
         ret += "\n"
         if self.refined_by is not None:

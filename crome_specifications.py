@@ -63,15 +63,34 @@ def get_inputs():
         }
     }
 
+    """Setting up controllable and uncontrollable"""
+    for t, aps in ap.items():
+        if t == "cl":
+            for elem in aps.values():
+                for v in elem.variables:
+                    v.controllable = False
+        if t == "ct":
+            for elem in aps.values():
+                for v in elem.variables:
+                    v.controllable = False
+        if t == "ci":
+            for elem in aps.values():
+                for v in elem.variables:
+                    v.controllable = False
+        if t == "s":
+            for elem in aps.values():
+                for v in elem.variables:
+                    v.controllable = False
+        if t == "l":
+            for elem in aps.values():
+                for v in elem.variables:
+                    v.controllable = True
+        if t == "a":
+            for elem in aps.values():
+                for v in elem.variables:
+                    v.controllable = True
+
     rules = {
-        "gridworld": {
-            ap["l"]["a"]: [ap["l"]["a"], ap["l"]["b"], ap["l"]["d"]],
-            ap["l"]["b"]: [ap["l"]["b"], ap["l"]["a"], ap["l"]["c"]],
-            ap["l"]["c"]: [ap["l"]["c"], ap["l"]["b"], ap["l"]["d"], ap["l"]["e"]],
-            ap["l"]["d"]: [ap["l"]["d"], ap["l"]["a"], ap["l"]["c"]],
-            ap["l"]["e"]: [ap["l"]["e"], ap["l"]["c"], ap["l"]["f"]],
-            ap["l"]["f"]: [ap["l"]["f"], ap["l"]["e"], ap["l"]["g"]]
-        },
         "context": {
             "mutex": [
                 [ap["cl"]["entrance"], ap["cl"]["pharmacy"], ap["cl"]["corridor"], ap["cl"]["medical_room"]],
@@ -90,6 +109,14 @@ def get_inputs():
             ap["l"]["d"]: ap["cl"]["pharmacy"],
             ap["l"]["b"] | ap["l"]["c"] | ap["l"]["e"] | ap["l"]["f"]: ap["cl"]["corridor"],
             ap["l"]["g"]: ap["cl"]["medical_room"],
+        },
+        "gridworld": {
+            ap["l"]["a"]: [ap["l"]["a"], ap["l"]["b"], ap["l"]["d"]],
+            ap["l"]["b"]: [ap["l"]["b"], ap["l"]["a"], ap["l"]["c"]],
+            ap["l"]["c"]: [ap["l"]["c"], ap["l"]["b"], ap["l"]["d"], ap["l"]["e"]],
+            ap["l"]["d"]: [ap["l"]["d"], ap["l"]["a"], ap["l"]["c"]],
+            ap["l"]["e"]: [ap["l"]["e"], ap["l"]["c"], ap["l"]["f"]],
+            ap["l"]["f"]: [ap["l"]["f"], ap["l"]["e"], ap["l"]["g"]]
         },
         "system_constraints": {
             "mutex": [[

@@ -276,25 +276,13 @@ def mapping(component_library: ComponentsLibrary,
     specification_goal.refine_by(composition_goal)
 
 
-
-
 def extend_cgt(cgt: CGTGoal, library: ComponentsLibrary, rules: Dict):
     """Call the mapping function on the library, on all the leaf nodes of the CGT"""
-
-    print("\n\nCGT_BEFORE:\n" + str(cgt) + "\n\n")
 
     leafs = cgt.get_all_leaf_nodes()
 
     for leaf in leafs:
         leaf.extend_from_library(library, rules)
-
-    print("\n\nCGT_AFTER:\n" + str(cgt) + "\n\n")
-
-
-
-
-
-
 
 
 def create_contextual_clusters(goals: List[CGTGoal], type: str, context_rules: List[LTL] = None) -> Dict:
@@ -325,7 +313,6 @@ def create_contextual_clusters(goals: List[CGTGoal], type: str, context_rules: L
         SAVE_SMALLER_CONTEXT = False
     else:
         raise Exception("The type is not supported, either MINIMAL or MUTEX")
-
 
     """Extract all unique contexts"""
     contexts: List[LTL] = extract_unique_contexts_from_goals(goals)

@@ -94,8 +94,11 @@ class Contract:
 
         self.assumptions &= c.assumptions
 
-    def add_assumption(self, a: 'LTL'):
+    def add_assumption(self, a: LTL):
         self.assumptions &= a
+
+    def add_guarantee(self, g: LTL):
+        self.guarantees &= g
 
     def set_context(self, context: LTL):
         self.guarantees.context = context

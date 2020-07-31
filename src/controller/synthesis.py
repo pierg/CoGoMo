@@ -89,7 +89,7 @@ def get_controller(assumptions: str, guarantees: str, ins: str, outs: str) -> Tu
         raise e
 
 
-def create_controller_if_exists(controller_input_file: str) -> Tuple[bool, float]:
+def create_controller_if_exists(controller_input_file: str) -> Tuple[bool, str, float]:
     """Return true if controller has been synthesized False otherwise.
     It also return the time needed"""
     if platform.system() != "Linux":
@@ -104,11 +104,11 @@ def create_controller_if_exists(controller_input_file: str) -> Tuple[bool, float
     if not assumptions_satisfiable:
         raise SynthesisException("trivial")
 
-    result, exec_time = get_controller(a, g, i, o)
+    mealy_machine, exec_time = get_controller(a, g, i, o)
 
-    if result.startswith("UNREALIZABLE"):
+    if mealy_machine.startswith("UNREALIZABLE"):
         print("UNREALIZABLE")
-        return False, exec_time
+        return False, None, exec_time
 
     print(controller_input_file + " IS REALIZABLE")
     dot_file_path = os.path.dirname(controller_input_file)
@@ -116,14 +116,14 @@ def create_controller_if_exists(controller_input_file: str) -> Tuple[bool, float
 
     dot_file_name = dot_file_name.replace("specification", "controller")
 
-    save_to_file(result, dot_file_name + ".dot")
+    save_to_file(mealy_machine, dot_file_name + ".dot")
     print("DOT file generated")
 
 
-    src = Source(result, directory=dot_file_path, filename=dot_file_name, format="eps")
+    src = Source(mealy_machine, directory=dot_file_path, filename=dot_file_name, format="eps")
     src.render(cleanup=True)
     print(dot_file_name + ".eps  ->   mealy machine generated")
-    return True, exec_time
+    return True, mealy_machine, exec_time
 
 
 if __name__ == '__main__':

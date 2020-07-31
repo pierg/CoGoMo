@@ -450,9 +450,6 @@ def generate_controller_input_text(assum, guaran, ins, outs):
     for p in assum:
         ret += "\t" + syntax_fix(p) + "\n"
 
-    ret += "\n\nCONSTRAINTS\n\n"
-    ret += "# constraints are included in the guarantees\n"
-
     ret += "\n\nGUARANTEES\n\n"
     for p in guaran:
         ret += "\t" + syntax_fix(p) + "\n\n"

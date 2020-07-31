@@ -7,9 +7,12 @@ class Type(object):
     and variable_type: used for example when a component requires multiple variables of the same type
     but having different names. If the port_type is not specified then it's the same as the name of the variable"""
 
-    def __init__(self, name: str, basic_type: str, port_type: str = None):
+    def __init__(self, name: str, basic_type: str, controllable=False, port_type: str = None):
         """Name of the variable"""
         self.name = name
+
+        """Controllable, for the synthesis"""
+        self.__controllable: bool = controllable
 
         """Basic type, for nuxmv """
         self.basic_type = basic_type
@@ -19,6 +22,15 @@ class Type(object):
 
     def __str__(self):
         return self.name
+
+    @property
+    def controllable(self) -> 'bool':
+        return self.__controllable
+
+    @controllable.setter
+    def controllable(self, value: bool):
+        self.__controllable = value
+
 
     def nuxmv_variable(self):
         return self.name + ": " + self.basic_type + ";\n"

@@ -52,9 +52,9 @@ def generate_controller_from_cgt(cgt: CGTGoal, folder_path):
     variables = cgt.get_variables()
     for var in variables:
         if var.controllable:
-            uncontrollable.append(var.name)
-        else:
             controllable.append(var.name)
+        else:
+            uncontrollable.append(var.name)
 
     save_to_file(generate_controller_input_text(assum, guaran, uncontrollable, controllable),
                  folder_path + "specification.txt")
@@ -79,8 +79,8 @@ def generate_controller_from_cgt(cgt: CGTGoal, folder_path):
 def generate_controllers_for_cgt(cgt: CGTGoal, folder_path):
     """Synthetize the controller for each node of the CGT"""
     list_cgt = cgt.get_all_nodes()
-    for goal in list_cgt:
-        sub_folder_path = folder_path + goal.name + "/"
+    for i, goal in enumerate(list_cgt):
+        sub_folder_path = folder_path + "GOAL_" + str(i) + "/"
         realizable, mealy_machine, exec_time = generate_controller_from_cgt(goal, sub_folder_path)
         goal.realizable = realizable
         goal.controller = mealy_machine

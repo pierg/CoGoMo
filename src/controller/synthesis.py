@@ -96,6 +96,7 @@ def create_controller_if_exists(controller_input_file: str) -> Tuple[bool, str, 
         print(platform.system() + " is not supported for synthesis")
         raise SynthesisException("os_not_supported")
 
+    print("controller_input_file: " + controller_input_file)
     a, g, i, o = parse_controller(controller_input_file)
 
     variables = [var.strip() + ": boolean" for var in i.split(',')]

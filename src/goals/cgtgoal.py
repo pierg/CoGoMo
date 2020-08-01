@@ -612,6 +612,7 @@ class GoalsLibrary:
         """"Returns the first goal that can refine"""
 
         for goal in self.goals:
+            print("\n\nMAPPING?\n" + goal.contracts[0].guarantees.formula + " -> " + to_be_refined.formula + "\n\n")
             if goal.contracts[0].guarantees < to_be_refined:
                 return goal
 

@@ -4,7 +4,7 @@ from typing import List, Dict
 from components.components import ComponentsLibrary
 from src.contracts.contract import Contract, InconsistentContracts, IncompatibleContracts, UnfeasibleContracts
 from src.contracts.operations import compose_contracts
-from src.goals.cgtgoal import CGTGoal
+from src.goals.cgtgoal import CGTGoal, GoalsLibrary
 from typescogomo.formula import LTL
 from src.goals.helpers import extract_ltl_rules, extract_unique_contexts_from_goals, \
     extract_all_combinations_and_negations_from_contexts, \
@@ -276,7 +276,7 @@ def mapping(component_library: ComponentsLibrary,
     specification_goal.refine_by(composition_goal)
 
 
-def extend_cgt(cgt: CGTGoal, library: ComponentsLibrary, rules: Dict):
+def extend_cgt(cgt: CGTGoal, library: GoalsLibrary, rules: Dict):
     """Call the mapping function on the library, on all the leaf nodes of the CGT"""
 
     leafs = cgt.get_all_leaf_nodes()

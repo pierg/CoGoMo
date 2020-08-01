@@ -6,6 +6,8 @@ from src.goals.cgtgoal import *
 from typescogomo.subtypes.patterns import *
 from typescogomo.subtypes.scopes import *
 
+print("CUSTOM SPEC v2")
+
 
 def get_inputs():
     """The designer specifies a mission using the predefined catalogue of patterns
@@ -41,6 +43,8 @@ def get_inputs():
             "low_battery": LTL("low_battery"),
             "full_battery": LTL("full_battery"),
             "get_med": LTL("get_med"),
+            "look_up_meds": LTL("look_up_meds"),
+            "label_correct": LTL("label_correct"),
             "human_entered": LTL("human_entered"),
             "guard_entered": LTL("guard_entered"),
             "door_alarm": LTL("door_alarm"),
@@ -58,8 +62,12 @@ def get_inputs():
         "a": {
             "contact_station": LTL("contact_station"),
             "welcome_client": LTL("welcome_client"),
-            "take_med": LTL("take_med"),
-            "give_med": LTL("give_med")
+            "search_shelf": LTL("search_shelf"),
+            "check_label": LTL("check_label"),
+            "pick_up_medicine": LTL("pick_up_medicine"),
+            "give_med": LTL("give_med"),
+            "identify_customer": LTL("identify_customer"),
+            "deliver_medicine": LTL("deliver_medicine")
         }
     }
 
@@ -101,14 +109,14 @@ def get_inputs():
                 ap["cl"]["entrance"]: ap["cl"]["care_center"],
                 ap["cl"]["pharmacy"]: ap["cl"]["care_center"],
                 ap["cl"]["medical_room"]: ap["cl"]["care_center"],
-                ap["cl"]["corridor"]: ap["cl"]["care_center"]
+                ap["cl"]["corridor"]: ap["cl"]["care_center"],
+                ap["l"]["a"]: ap["cl"]["entrance"],
+                ap["l"]["d"]: ap["cl"]["pharmacy"],
+                ap["l"]["b"] | ap["l"]["c"] | ap["l"]["e"] | ap["l"]["f"]: ap["cl"]["corridor"],
+                ap["l"]["g"]: ap["cl"]["medical_room"],
+                ap["a"]["deliver_medicine"]: ap["a"]["give_med"],
+                ap["s"]["get_med"]: ap["s"]["look_up_meds"]
             }
-        },
-        "context_gridworld": {
-            ap["l"]["a"]: ap["cl"]["entrance"],
-            ap["l"]["d"]: ap["cl"]["pharmacy"],
-            ap["l"]["b"] | ap["l"]["c"] | ap["l"]["e"] | ap["l"]["f"]: ap["cl"]["corridor"],
-            ap["l"]["g"]: ap["cl"]["medical_room"],
         },
         "gridworld": {
             ap["l"]["a"]: [ap["l"]["a"], ap["l"]["b"], ap["l"]["d"]],
@@ -127,27 +135,28 @@ def get_inputs():
                 ap["l"]["e"],
                 ap["l"]["f"],
                 ap["l"]["g"]
+            ], [
+                ap["a"]["search_shelf"],
+                ap["a"]["check_label"],
+                ap["a"]["deliver_medicine"]
+
             ]],
-            "inclusion": {}
+            "inclusion": {
+                # ap["a"]["search_shelf"] & ap["a"]["check_label"] & ap["a"]["pick_up_medicine"]: ap["a"]["give_med"]
+            }
         }
     }
 
     """List of specifications / goals"""
     list_of_goals = [
         CGTGoal(
-            name="night-time-patrolling",
+            name="serve-pharmacy",
             description="patrol the care-center during the night",
-            context=ap["ct"]["night"],
+            context=ap["ct"]["day"] & ap["cl"]["pharmacy"],
             contracts=[PContract([
-                Patrolling([ap["cl"]["care_center"]])
-            ])]
-        ),
-        CGTGoal(
-            name="day-time-patrolling",
-            description="patrol the care-center during the day",
-            context=ap["ct"]["day"],
-            contracts=[PContract([
-                Patrolling([ap["cl"]["care_center"]])
+                DelayedReaction(
+                    trigger=ap["s"]["get_med"],
+                    reaction=ap["a"]["give_med"])
             ])]
         )
     ]
@@ -157,37 +166,44 @@ def get_inputs():
 
     component_library.add_goals(
         [
+            # CGTGoal(
+            #     name="search-check-pickup",
+            #     description="go to d and take medicines",
+            #     context=ap["ct"]["day"],
+            #     contracts=[PContract([
+            #         DelayedReaction(
+            #             trigger=ap["s"]["get_med"],
+            #             reaction=ap["a"]["search_shelf"] & ap["a"]["check_label"] & ap["a"]["pick_up_medicine"])
+            #     ])],
+            # ),
             CGTGoal(
-                name="day-patrol-entrance-pharmacy",
-                description="patrol entrance and pharmacy",
-                context=ap["ct"]["day"],
+                name="search-check-pickup_2",
+                description="go to d and take medicines",
+                # context=ap["ct"]["day"],
                 contracts=[PContract([
-                    Patrolling([ap["cl"]["entrance"], ap["cl"]["pharmacy"]])
-                ])]
-            ),
-            CGTGoal(
-                name="night-patrol-corridor",
-                description="patrol corridor during night",
-                context=ap["ct"]["night"],
-                contracts=[PContract([
-                    Patrolling([ap["cl"]["corridor"]])
-                ])]
-            ),
-            CGTGoal(
-                name="patrol-b-c-e-f",
-                description="patrol areas b, c, e and f",
-                contracts=[PContract([
-                    Patrolling([ap["l"]["b"], ap["l"]["c"], ap["l"]["e"], ap["l"]["f"]])
-                ])]
-            ),
-            CGTGoal(
-                name="patrol-a-d",
-                description="patrol areas a and d",
-                contracts=[PContract([
-                    Patrolling([ap["l"]["a"], ap["l"]["d"]])
-                ])]
+                    DelayedReaction(
+                        trigger=ap["s"]["look_up_meds"],
+                        reaction=ap["a"]["search_shelf"] & ap["a"]["check_label"]),
+                    DelayedReaction(
+                        trigger=ap["a"]["check_label"] & ap["a"]["search_shelf"],
+                        reaction=ap["a"]["pick_up_medicine"]),
+                    DelayedReaction(
+                        trigger=ap["a"]["pick_up_medicine"],
+                        reaction=ap["a"]["deliver_medicine"])
+                ])],
             )
+            # CGTGoal(
+            #     name="go-to-d-and-serve_2",
+            #     description="go to d and take medicines",
+            #     context=ap["ct"]["day"],
+            #     contracts=[PContract([
+            #             ap["a"]["search_shelf"] & ap["a"]["check_label"] & ap["a"]["pick_up_medicine"]
+            #     ])]
+            # )
         ]
     )
+
+    for c in component_library.goals:
+        print(c.contracts[0].guarantees.formula)
 
     return ap, rules, list_of_goals, component_library

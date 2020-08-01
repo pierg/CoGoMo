@@ -205,25 +205,6 @@ def extract_unique_contexts_from_goals(goals: List[CGTGoal]) -> List[LTL]:
     return contexts
 
 
-def add_constraints_to_all_contexts(comb_contexts: List[List[LTL]], rules: List[LTL], add_to_all=False):
-    if add_to_all:
-        """Add all rules to all the combinations"""
-        for comb in comb_contexts:
-            for rule in rules:
-                comb.append(rule)
-    else:
-        """Add rules only to the combinations that predicate on the rule"""
-        for comb in comb_contexts:
-            rules_added = []
-            for c in comb:
-                for rule in rules:
-                    if rule in rules_added:
-                        continue
-                    if len(c.variables & rule.variables) > 0:
-                        comb.append(rule)
-                        rules_added.append(rule)
-
-
 def extract_all_combinations_and_negations_from_contexts(contexts: List[LTL]) \
         -> Tuple[List[List[LTL]], List[List[LTL]]]:
     """Extract the combinations of all contexts"""
@@ -250,6 +231,23 @@ def extract_all_combinations_and_negations_from_contexts(contexts: List[LTL]) \
             combs_all_contexts_neg.append(comb_contexts_neg)
 
     return combs_all_contexts, combs_all_contexts_neg
+
+
+def add_constraints_to_all_contexts(comb_contexts: List[List[LTL]], rules: List[LTL], add_to_all=False):
+    if add_to_all:
+        """Add all rules to all the combinations"""
+        for comb in comb_contexts:
+            for rule in rules:
+                comb.append(rule)
+    else:
+        """Add rules only to the combinations that predicate on the rule"""
+        for comb in comb_contexts:
+            comb_variables = Variables()
+            for c in comb:
+                comb_variables |= c.variables
+            for rule in rules:
+                if len(comb_variables & rule.variables) > 0:
+                    comb.append(rule)
 
 
 def merge_contexes(contexts: List[List[LTL]]) -> List[LTL]:

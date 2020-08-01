@@ -2,7 +2,7 @@ ASSUMPTIONS
 
 	G( F(! (fire_alarm)))
 	G(((shop & ! (warehouse)) | (warehouse & ! (shop))))
-	G(((day_time & ! (night_time)) | (night_time & ! (day_time))))
+	G(((day & ! (night)) | (night & ! (day))))
 	G(entrance -> shop)
 	G(human_entered -> shop)
 	G(get_med -> entrance)
@@ -26,7 +26,7 @@ GUARANTEES
 
 INPUTS
 
-	warehouse, door_alarm, entrance, guard_entered, shop, fire_alarm, get_med, low_battery, night_time, full_battery, day_time, human_entered
+	warehouse, door_alarm, entrance, guard_entered, shop, fire_alarm, get_med, low_battery, night, full_battery, day, human_entered
 
 OUTPUTS
 

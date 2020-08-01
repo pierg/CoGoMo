@@ -2,14 +2,14 @@ MODULE main
 VAR
 	care_center: boolean;
 	pharmacy: boolean;
-	night_time: boolean;
+	night: boolean;
 	entrance: boolean;
-	day_time: boolean;
+	day: boolean;
 	medical_room: boolean;
 	corridor: boolean;
 
 
-LTLSPEC ((((G((entrance) -> (care_center)) & G((pharmacy) -> (care_center))) -> (G((night_time) -> ((G(F(entrance)) & G(F(pharmacy)))))))) -> (((G((entrance) -> (care_center)) & G((pharmacy) -> (care_center)) & G((medical_room) -> (care_center)) & G((corridor) -> (care_center)) & (G(((day_time & !(night_time)) | (night_time & !(day_time)))))) -> (G(((!(day_time) & night_time)) -> (G(F(care_center))))))))
+LTLSPEC ((((G((entrance) -> (care_center)) & G((pharmacy) -> (care_center))) -> (G((night) -> ((G(F(entrance)) & G(F(pharmacy)))))))) -> (((G((entrance) -> (care_center)) & G((pharmacy) -> (care_center)) & G((medical_room) -> (care_center)) & G((corridor) -> (care_center)) & (G(((day & !(night)) | (night & !(day)))))) -> (G(((!(day) & night)) -> (G(F(care_center))))))))
 
 
-LTLSPEC ((((TRUE) -> (G((night_time) -> ((G(F(entrance)) & G(F(pharmacy)))))))) -> (((G((entrance) -> (care_center)) & G((pharmacy) -> (care_center)) & G((medical_room) -> (care_center)) & G((corridor) -> (care_center)) & (G(((day_time & !(night_time)) | (night_time & !(day_time)))))) -> (G(((!(day_time) & night_time)) -> (G(F(care_center))))))))
+LTLSPEC ((((TRUE) -> (G((night) -> ((G(F(entrance)) & G(F(pharmacy)))))))) -> (((G((entrance) -> (care_center)) & G((pharmacy) -> (care_center)) & G((medical_room) -> (care_center)) & G((corridor) -> (care_center)) & (G(((day & !(night)) | (night & !(day)))))) -> (G(((!(day) & night)) -> (G(F(care_center))))))))

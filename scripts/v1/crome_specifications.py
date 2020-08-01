@@ -7,7 +7,7 @@ from typescogomo.subtypes.patterns import *
 from typescogomo.subtypes.scopes import *
 
 
-print("CUSTOM SPEC")
+print("CUSTOM SPEC v1")
 
 
 def get_inputs():
@@ -33,8 +33,8 @@ def get_inputs():
             "care_center": LTL("care_center")
         },
         "ct": {
-            "day_time": LTL("day_time"),
-            "night_time": LTL("night_time")
+            "day": LTL("day"),
+            "night": LTL("night")
         },
         "ci": {
             "premium": LTL("premium"),
@@ -97,7 +97,7 @@ def get_inputs():
         "context": {
             "mutex": [
                 [ap["cl"]["entrance"], ap["cl"]["pharmacy"], ap["cl"]["corridor"], ap["cl"]["medical_room"]],
-                [ap["ct"]["day_time"], ap["ct"]["night_time"]],
+                [ap["ct"]["day"], ap["ct"]["night"]],
                 [ap["ci"]["premium"], ap["ci"]["normal"]]
             ],
             "inclusion": {
@@ -138,19 +138,19 @@ def get_inputs():
     """List of specifications / goals"""
     list_of_goals = [
         CGTGoal(
-            name="night-time-patroling",
+            name="night-time-patrolling",
             description="patrol the care-center during the night",
-            context=ap["ct"]["night_time"],
+            context=ap["ct"]["night"],
             contracts=[PContract([
-                Patroling([ap["cl"]["care_center"]])
+                Patrolling([ap["cl"]["care_center"]])
             ])]
         ),
         CGTGoal(
-            name="day-time-patroling",
+            name="day-time-patrolling",
             description="patrol the care-center during the day",
-            context=ap["ct"]["day_time"],
+            context=ap["ct"]["day"],
             contracts=[PContract([
-                Patroling([ap["cl"]["care_center"]])
+                Patrolling([ap["cl"]["care_center"]])
             ])]
         )
     ]
@@ -163,31 +163,31 @@ def get_inputs():
             CGTGoal(
                 name="day-patrol-entrance-pharmacy",
                 description="patrol entrance and pharmacy",
-                context=ap["ct"]["day_time"],
+                context=ap["ct"]["day"],
                 contracts=[PContract([
-                    Patroling([ap["cl"]["entrance"], ap["cl"]["pharmacy"]])
+                    Patrolling([ap["cl"]["entrance"], ap["cl"]["pharmacy"]])
                 ])]
             ),
             CGTGoal(
                 name="night-patrol-corridor",
                 description="patrol corridor during night",
-                context=ap["ct"]["night_time"],
+                context=ap["ct"]["night"],
                 contracts=[PContract([
-                    Patroling([ap["cl"]["corridor"]])
+                    Patrolling([ap["cl"]["corridor"]])
                 ])]
             ),
             CGTGoal(
                 name="patrol-b-c-e-f",
                 description="patrol areas b, c, e and f",
                 contracts=[PContract([
-                    Patroling([ap["l"]["b"], ap["l"]["c"], ap["l"]["e"], ap["l"]["f"]])
+                    Patrolling([ap["l"]["b"], ap["l"]["c"], ap["l"]["e"], ap["l"]["f"]])
                 ])]
             ),
             CGTGoal(
                 name="patrol-a-d",
                 description="patrol areas a and d",
                 contracts=[PContract([
-                    Patroling([ap["l"]["a"], ap["l"]["d"]])
+                    Patrolling([ap["l"]["a"], ap["l"]["d"]])
                 ])]
             )
         ]

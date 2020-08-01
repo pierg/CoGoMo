@@ -20,8 +20,8 @@ def get_inputs():
             a - action propositions (controllable)"""
     ap = {
         "s": {
-            "day_time": LTL("day_time"),
-            "night_time": LTL("night_time"),
+            "day": LTL("day"),
+            "night": LTL("night"),
             "warehouse": LTL("warehouse")
         },
         "l": {
@@ -40,11 +40,11 @@ def get_inputs():
     """List of specifications / goals"""
     list_of_goals = [
         CGTGoal(
-            name="night-time-patroling",
+            name="night-time-patrolling",
             description="patrol warehouse and shop during the night",
-            context=Context(cnf={ap["s"]["night_time"]}),
+            context=Context(cnf={ap["s"]["night"]}),
             contracts=[PContract([
-                SequencedPatroling([
+                SequencedPatrolling([
                     ap["l"]["go_entrace"], ap["l"]["go_counter"], ap["l"]["go_back"], ap["l"]["go_warehouse"]
                 ])
             ])]
@@ -52,7 +52,7 @@ def get_inputs():
         CGTGoal(
             name="day-time-visit",
             description="Visit three locations in order",
-            context=Context(cnf={ap["s"]["day_time"]}),
+            context=Context(cnf={ap["s"]["day"]}),
             contracts=[PContract([
                 OrderedVisit([
                     ap["l"]["go_entrace"], ap["l"]["go_counter"], ap["l"]["go_warehouse"]
@@ -62,7 +62,7 @@ def get_inputs():
         CGTGoal(
             name="day-time-avoidance",
             description="Avoid going to the back during the day",
-            context=Context(cnf={ap["s"]["day_time"]}),
+            context=Context(cnf={ap["s"]["day"]}),
             contracts=[PContract([
                 GlobalAvoidance(ap["l"]["go_back"])
             ])]
@@ -86,7 +86,7 @@ def get_inputs():
     rules = {
         "context": {
             "mutex": [
-                [ap["s"]["day_time"], ap["s"]["night_time"]]
+                [ap["s"]["day"], ap["s"]["night"]]
             ],
             "inclusion": [
             ]

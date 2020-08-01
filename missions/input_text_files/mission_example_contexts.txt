@@ -5,11 +5,11 @@ se chiamato fa delivery di oggetti (possiamo inventarci qualcosa di concreto)
 da un magazzino ai diversi reparti (ad esempio rifornire medicine ai vari reparti).
 Sempre, se la batteria sta sotto il 20% deve andare a ricaricarsi ma
 prima di farlo deve informare il sistema centrale cosi sarà in grado di sostituirlo con un altro robot,
-ad esempio per il patroling (non ci occupiamo di quest'aspetto, ma da concretezza).
+ad esempio per il patrolling (non ci occupiamo di quest'aspetto, ma da concretezza).
 Durante le azioni deve stare attento agli umani, avoidance di obstacles, controllare il suo stato, etc.
 
 
-Night -> patroling
+Night -> patrolling
 Day -> welcoming, delivery
 Day after closure -> shelf the warehouse
 TRUE -> charge if battery low and inform central system
@@ -19,7 +19,7 @@ warehouse -> shelfing
 
 # Initial mission:
 always -> avoid humans
-during night -> patroling
+during night -> patrolling
 shop during day -> visit, instant reaction
 
 Occurences of patterns:

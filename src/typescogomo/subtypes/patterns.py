@@ -102,7 +102,7 @@ class SequencedVisit(CoreMovement):
         super().__init__(pattern_formula, locations, variables)
 
 
-class Patroling(CoreMovement):
+class Patrolling(CoreMovement):
     """Keep visiting a set of locations, but not in a particular order"""
 
     def __init__(self, locations: List[LTL] = None):
@@ -118,7 +118,7 @@ class Patroling(CoreMovement):
         super().__init__(pattern_formula, locations, variables)
 
 
-class SequencedPatroling(CoreMovement):
+class SequencedPatrolling(CoreMovement):
     """Keep visiting a set of locations in sequence, one after the other"""
 
     def __init__(self, locations: List[LTL] = None):
@@ -140,7 +140,7 @@ class SequencedPatroling(CoreMovement):
         super().__init__(pattern_formula, locations, variables)
 
 
-class OrderPatroling(CoreMovement):
+class OrderPatrolling(CoreMovement):
     """Keep visiting a set of locations, but not in a particular order"""
 
     def __init__(self, locations: List[LTL] = None):
@@ -173,7 +173,7 @@ class OrderPatroling(CoreMovement):
         super().__init__(pattern_formula, locations, variables)
 
 
-class StrictOrderPatroling(CoreMovement):
+class StrictOrderPatrolling(CoreMovement):
     """Keep visiting a set of locations, but not in a particular order"""
 
     def __init__(self, locations: List[LTL] = None):
@@ -245,7 +245,7 @@ class StrictOrderVisit(CoreMovement):
 
 
 # if __name__ == '__main__':
-#     so = StrictOrderPatroling([LTL("l1"), LTL("l2"), LTL("l3")])
+#     so = StrictOrderPatrolling([LTL("l1"), LTL("l2"), LTL("l3")])
 #     print(so)
 
 class OrderedVisit(CoreMovement):

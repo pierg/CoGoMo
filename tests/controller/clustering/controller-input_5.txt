@@ -1,7 +1,7 @@
 ASSUMPTIONS
 
 	G(((shop & ! (warehouse)) | (warehouse & ! (shop))))
-	G(((day_time & ! (night_time)) | (night_time & ! (day_time))))
+	G(((day & ! (night)) | (night & ! (day))))
 	G(entrance -> shop)
 
 
@@ -13,13 +13,13 @@ CONSTRAINTS
 
 GUARANTEES
 
-	((((G(entrance) & G(day_time)) & (G(shop) & G(day_time)) & ! (G(night_time)) & ! (G(low_battery)) & G(((shop & ! (warehouse)) | (warehouse & ! (shop)))) & G(((day_time & ! (night_time)) | (night_time & ! (day_time)))) & G(entrance -> shop))) -> (G((human_entered) -> X(welcome))))
-	((((G(entrance) & G(day_time)) & (G(shop) & G(day_time)) & ! (G(night_time)) & ! (G(low_battery)) & G(((shop & ! (warehouse)) | (warehouse & ! (shop)))) & G(((day_time & ! (night_time)) | (night_time & ! (day_time)))) & G(entrance -> shop))) -> ((G((human_entered) -> X(welcome)) & ((F(slocA) & G((slocA))) & G((get_med) -> X(((F(wlocA) & G((wlocA))) & G((wlocA) -> X(slocA)))))))))
+	((((G(entrance) & G(day)) & (G(shop) & G(day)) & ! (G(night)) & ! (G(low_battery)) & G(((shop & ! (warehouse)) | (warehouse & ! (shop)))) & G(((day & ! (night)) | (night & ! (day)))) & G(entrance -> shop))) -> (G((human_entered) -> X(welcome))))
+	((((G(entrance) & G(day)) & (G(shop) & G(day)) & ! (G(night)) & ! (G(low_battery)) & G(((shop & ! (warehouse)) | (warehouse & ! (shop)))) & G(((day & ! (night)) | (night & ! (day)))) & G(entrance -> shop))) -> ((G((human_entered) -> X(welcome)) & ((F(slocA) & G((slocA))) & G((get_med) -> X(((F(wlocA) & G((wlocA))) & G((wlocA) -> X(slocA)))))))))
 
 
 INPUTS
 
-	human_entered, entrance, day_time, shop, night_time, low_battery, warehouse, get_med
+	human_entered, entrance, day, shop, night, low_battery, warehouse, get_med
 
 OUTPUTS
 

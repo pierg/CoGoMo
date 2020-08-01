@@ -19,8 +19,8 @@ def get_inputs():
             a - action propositions (controllable)"""
     ap = {
         "s": {
-            "night_time": LTL("night_time"),
-            "day_time": LTL("day_time"),
+            "night": LTL("night"),
+            "day": LTL("day"),
             "low_battery": LTL("low_battery"),
             "entrance": LTL("entrance"),
             "shop": LTL("shop"),
@@ -54,7 +54,7 @@ def get_inputs():
         "context": {
             "mutex": [
                 [ap["s"]["shop"], ap["s"]["warehouse"]],
-                [ap["s"]["day_time"], ap["s"]["night_time"]]
+                [ap["s"]["day"], ap["s"]["night"]]
             ],
             "inclusion": [
                 [ap["s"]["entrance"], ap["s"]["shop"]],
@@ -89,13 +89,13 @@ def get_inputs():
     """List of specifications / goals"""
     list_of_goals = [
         CGTGoal(
-            name="night-time-patroling",
+            name="night-time-patrolling",
             description="patrol warehouse and shop during the night",
             context=(Context(
-                    ap["s"]["night_time"]
+                    ap["s"]["night"]
             )),
             contracts=[PContract([
-                StrictOrderPatroling([
+                StrictOrderPatrolling([
                     ap["l"]["go_entrace"], ap["l"]["go_counter"], ap["l"]["go_back"], ap["l"]["go_warehouse"]
                 ])
             ])]
@@ -106,7 +106,7 @@ def get_inputs():
             context=(Context(
                 AndLTL([
                     ap["s"]["shop"],
-                    ap["s"]["day_time"]
+                    ap["s"]["day"]
                 ])
             )),
             contracts=[PContract([
@@ -159,7 +159,7 @@ def get_inputs():
             description="welcome people at the entrance",
             context=(Context(
                 AndLTL([
-                    ap["s"]["day_time"],
+                    ap["s"]["day"],
                     ap["s"]["entrance"]
                 ])
             )),

@@ -1,24 +1,24 @@
-GOAL:	'day-time-patroling^^night-time-patroling'
+GOAL:	'day-time-patrolling^^night-time-patrolling'
   A:		
- 	CTX:	G((corridor) -> (care_center)), G((medical_room) -> (care_center)), G((pharmacy) -> (care_center)), G(((day_time & !(night_time)) | (night_time & !(day_time)))), G((entrance) -> (care_center))
+ 	CTX:	G((corridor) -> (care_center)), G((medical_room) -> (care_center)), G((pharmacy) -> (care_center)), G(((day & !(night)) | (night & !(day)))), G((entrance) -> (care_center))
  	CGR:	G((d) -> (pharmacy)), G((a) -> (entrance)), G((g) -> (medical_room)), G(((((b | c) | e) | f)) -> (corridor))
-  G:		G(((night_time & !(day_time))) -> (G(F(care_center))))
+  G:		G(((night & !(day))) -> (G(F(care_center))))
 	/\ 
   A:		
- 	CTX:	G((corridor) -> (care_center)), G((medical_room) -> (care_center)), G((pharmacy) -> (care_center)), G(((day_time & !(night_time)) | (night_time & !(day_time)))), G((entrance) -> (care_center))
+ 	CTX:	G((corridor) -> (care_center)), G((medical_room) -> (care_center)), G((pharmacy) -> (care_center)), G(((day & !(night)) | (night & !(day)))), G((entrance) -> (care_center))
  	CGR:	G((d) -> (pharmacy)), G((a) -> (entrance)), G((g) -> (medical_room)), G(((((b | c) | e) | f)) -> (corridor))
-  G:		G(((!(night_time) & day_time)) -> (G(F(care_center))))
+  G:		G(((!(night) & day)) -> (G(F(care_center))))
 
 	CONJUNCTION
-		GOAL:	'night-time-patroling'
+		GOAL:	'night-time-patrolling'
 		  A:		
-		 	CTX:	G((corridor) -> (care_center)), G((medical_room) -> (care_center)), G((pharmacy) -> (care_center)), G(((day_time & !(night_time)) | (night_time & !(day_time)))), G((entrance) -> (care_center))
+		 	CTX:	G((corridor) -> (care_center)), G((medical_room) -> (care_center)), G((pharmacy) -> (care_center)), G(((day & !(night)) | (night & !(day)))), G((entrance) -> (care_center))
 		 	CGR:	G((d) -> (pharmacy)), G((a) -> (entrance)), G((g) -> (medical_room)), G(((((b | c) | e) | f)) -> (corridor))
-		  G:		G(((night_time & !(day_time))) -> (G(F(care_center))))
+		  G:		G(((night & !(day))) -> (G(F(care_center))))
 
-		GOAL:	'day-time-patroling'
+		GOAL:	'day-time-patrolling'
 		  A:		
-		 	CTX:	G((corridor) -> (care_center)), G((medical_room) -> (care_center)), G((pharmacy) -> (care_center)), G(((day_time & !(night_time)) | (night_time & !(day_time)))), G((entrance) -> (care_center))
+		 	CTX:	G((corridor) -> (care_center)), G((medical_room) -> (care_center)), G((pharmacy) -> (care_center)), G(((day & !(night)) | (night & !(day)))), G((entrance) -> (care_center))
 		 	CGR:	G((d) -> (pharmacy)), G((a) -> (entrance)), G((g) -> (medical_room)), G(((((b | c) | e) | f)) -> (corridor))
-		  G:		G(((!(night_time) & day_time)) -> (G(F(care_center))))
+		  G:		G(((!(night) & day)) -> (G(F(care_center))))
 

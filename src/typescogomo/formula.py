@@ -184,9 +184,9 @@ class LTL:
         """Contexts must be equal"""
 
         if self.__formula == "TRUE":
-            self.__formula = other.formula
-            self.__variables = other.variables
-            self.__cnf = other.cnf
+            self.__formula = deepcopy(other.formula)
+            self.__variables = deepcopy(other.variables)
+            self.__cnf = deepcopy(other.cnf)
             return self
 
         if other.formula == "TRUE":
@@ -197,7 +197,7 @@ class LTL:
             return self
 
         self.__formula = And([self.__formula, other.unsaturated])
-        self.__variables = self.variables | other.variables
+        self.__variables |= other.variables
         self.__cnf |= other.cnf
 
         if not self.is_satisfiable():

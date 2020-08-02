@@ -489,24 +489,26 @@ class CGTGoal:
                     print("ERROR IN PRINT")
         return ret
 
+    def print_cgt_summary(self, level=0):
+        """Override the print behavior"""
 
-    def print_cgt_simple(self, level=0):
         """Override the print behavior"""
         ret = "\t" * level + "GOAL:\t" + repr(self.name) + "\n"
         for n, contract in enumerate(self.contracts):
             if n > 0:
                 ret += "\t" * level + "\t/\\ \n"
 
-            a_assumed = contract.assumptions.get_kind("")
-
-            if a_assumed is not None:
-                ret += "\t" * level + "  A:\t\t" + ' & '.join(map(str, a_assumed)) + "\n"
-            else:
-                ret += "\t" * level + "  A:\t\t" + "" + "\n"
+            if contract.context is not None:
+                ret += "\t" * level + "  CTX:\t\t" + contract.context.formula + "\n"
 
             g_objective = contract.guarantees.get_kind("")
+            ret += "\t" * level + "  OBJ:\t\t" + ' & '.join(map(str, g_objective)) + "\n"
 
-            ret += "\t" * level + "  G:\t\t" + ' & '.join(map(str, g_objective)) + "\n"
+        if self.realizable:
+            ret += "\t" * level + "RALIZABLE :\tYES\n"
+            ret += "\t" * level + "SYNTH TIME:\t" + str(self.time_synthesis) + "\n"
+        else:
+            ret += "\t" * level + "RALIZABLE:\tNO\n"
 
         ret += "\n"
         if self.refined_by is not None:
@@ -514,7 +516,7 @@ class CGTGoal:
             level += 1
             for child in self.refined_by:
                 try:
-                    ret += child.print_cgt_simple(level + 1)
+                    ret += child.print_cgt_summary(level + 1)
                 except:
                     print("ERROR IN PRINT")
         return ret

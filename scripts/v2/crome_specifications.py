@@ -177,7 +177,7 @@ def get_inputs():
             #     ])],
             # ),
             CGTGoal(
-                name="search-check-pickup_2",
+                name="search-check-pickup",
                 description="go to d and take medicines",
                 # context=ap["ct"]["day"],
                 contracts=[PContract([
@@ -185,7 +185,7 @@ def get_inputs():
                         trigger=ap["s"]["look_up_meds"],
                         reaction=ap["a"]["search_shelf"] & ap["a"]["check_label"]),
                     DelayedReaction(
-                        trigger=ap["a"]["check_label"] & ap["a"]["search_shelf"],
+                        trigger=ap["a"]["check_label"] & ap["a"]["search_shelf"] & ap["a"]["label_correct"],
                         reaction=ap["a"]["pick_up_medicine"]),
                     DelayedReaction(
                         trigger=ap["a"]["pick_up_medicine"],

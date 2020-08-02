@@ -115,7 +115,7 @@ def get_inputs():
                 ap["l"]["b"] | ap["l"]["c"] | ap["l"]["e"] | ap["l"]["f"]: ap["cl"]["corridor"],
                 ap["l"]["g"]: ap["cl"]["medical_room"],
                 ap["a"]["deliver_medicine"]: ap["a"]["give_med"],
-                ap["s"]["get_med"]: ap["s"]["look_up_meds"]
+                ap["s"]["get_med"]: ap["s"]["look_up_meds"] & ap["s"]["label_correct"]
             }
         },
         "gridworld": {
@@ -142,7 +142,6 @@ def get_inputs():
 
             ]],
             "inclusion": {
-                # ap["a"]["search_shelf"] & ap["a"]["check_label"] & ap["a"]["pick_up_medicine"]: ap["a"]["give_med"]
             }
         }
     }
@@ -158,6 +157,22 @@ def get_inputs():
                     trigger=ap["s"]["get_med"],
                     reaction=ap["a"]["give_med"])
             ])]
+        ),
+        CGTGoal(
+            name="night-time-patrolling",
+            description="patrol the care-center during the night",
+            context=ap["ct"]["night"],
+            contracts=[PContract([
+                Patrolling([ap["cl"]["care_center"]])
+            ])]
+        ),
+        CGTGoal(
+            name="day-time-patrolling",
+            description="patrol the care-center during the day",
+            context=ap["ct"]["day"],
+            contracts=[PContract([
+                Patrolling([ap["cl"]["care_center"]])
+            ])]
         )
     ]
 
@@ -166,20 +181,9 @@ def get_inputs():
 
     component_library.add_goals(
         [
-            # CGTGoal(
-            #     name="search-check-pickup",
-            #     description="go to d and take medicines",
-            #     context=ap["ct"]["day"],
-            #     contracts=[PContract([
-            #         DelayedReaction(
-            #             trigger=ap["s"]["get_med"],
-            #             reaction=ap["a"]["search_shelf"] & ap["a"]["check_label"] & ap["a"]["pick_up_medicine"])
-            #     ])],
-            # ),
             CGTGoal(
-                name="search-check-pickup_2",
+                name="search-check-pickup",
                 description="go to d and take medicines",
-                # context=ap["ct"]["day"],
                 contracts=[PContract([
                     DelayedReaction(
                         trigger=ap["s"]["look_up_meds"],
@@ -191,15 +195,37 @@ def get_inputs():
                         trigger=ap["a"]["pick_up_medicine"],
                         reaction=ap["a"]["deliver_medicine"])
                 ])],
+            ),
+            CGTGoal(
+                name="day-patrol-entrance-pharmacy",
+                description="patrol entrance and pharmacy",
+                context=ap["ct"]["day"],
+                contracts=[PContract([
+                    Patrolling([ap["cl"]["entrance"], ap["cl"]["pharmacy"]])
+                ])]
+            ),
+            CGTGoal(
+                name="night-patrol-corridor",
+                description="patrol corridor during night",
+                context=ap["ct"]["night"],
+                contracts=[PContract([
+                    Patrolling([ap["cl"]["corridor"]])
+                ])]
+            ),
+            CGTGoal(
+                name="patrol-b-c-e-f",
+                description="patrol areas b, c, e and f",
+                contracts=[PContract([
+                    Patrolling([ap["l"]["b"], ap["l"]["c"], ap["l"]["e"], ap["l"]["f"]])
+                ])]
+            ),
+            CGTGoal(
+                name="patrol-a-d",
+                description="patrol areas a and d",
+                contracts=[PContract([
+                    Patrolling([ap["l"]["a"], ap["l"]["d"]])
+                ])]
             )
-            # CGTGoal(
-            #     name="go-to-d-and-serve_2",
-            #     description="go to d and take medicines",
-            #     context=ap["ct"]["day"],
-            #     contracts=[PContract([
-            #             ap["a"]["search_shelf"] & ap["a"]["check_label"] & ap["a"]["pick_up_medicine"]
-            #     ])]
-            # )
         ]
     )
 

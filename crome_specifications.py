@@ -6,8 +6,6 @@ from src.goals.cgtgoal import *
 from typescogomo.subtypes.patterns import *
 from typescogomo.subtypes.scopes import *
 
-print("CUSTOM SPEC v2")
-
 
 def get_inputs():
     """The designer specifies a mission using the predefined catalogue of patterns

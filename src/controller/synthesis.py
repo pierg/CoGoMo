@@ -29,7 +29,7 @@ class SynthesisException(Exception):
             self.os_not_supported = True
         elif reason == "trivial":
             self.trivial = True
-        elif reason == "our_of_memory":
+        elif reason == "out_of_memory":
             self.out_of_memory = True
         elif reason == "timeout":
             self.timeout = True

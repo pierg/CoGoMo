@@ -61,16 +61,8 @@ def generate_controller_from_cgt(cgt: CGTGoal, folder_path):
     exec_time = 0.0
     realizable = False
     mealy_machine = None
-    try:
-        realizable, mealy_machine, exec_time = create_controller_if_exists(folder_path + "specification.txt")
 
-    except SynthesisException as e:
-        if e.os_not_supported:
-            print("Os not supported for synthesis. Only linux can run strix")
-            return None, None, None
-        elif e.trivial:
-            print("The assumptions are not satisfiable. The controller is trivial.")
-            raise Exception("Assumptions unsatisfiable in a CGT is impossible.")
+    realizable, mealy_machine, exec_time = create_controller_if_exists(folder_path + "specification.txt")
 
     return realizable, mealy_machine, exec_time
 
@@ -80,10 +72,30 @@ def generate_controllers_for_cgt(cgt: CGTGoal, folder_path):
     list_cgt = cgt.get_all_nodes()
     for i, goal in enumerate(list_cgt):
         sub_folder_path = folder_path + "GOAL_" + goal.id + "/"
-        realizable, mealy_machine, exec_time = generate_controller_from_cgt(goal, sub_folder_path)
-        goal.realizable = realizable
-        goal.controller = mealy_machine
-        goal.time_synthesis = exec_time
+        try:
+            realizable, mealy_machine, exec_time = generate_controller_from_cgt(goal, sub_folder_path)
+
+            goal.realizable = realizable
+            goal.controller = mealy_machine
+            goal.time_synthesis = exec_time
+
+        except SynthesisException as e:
+            if e.os_not_supported:
+                print("Os not supported for synthesis. Only linux can run strix")
+                return
+            elif e.trivial:
+                print("The assumptions are not satisfiable. The controller is trivial.")
+                raise Exception("Assumptions unsatisfiable in a CGT is impossible.")
+            elif e.out_of_memory:
+                print("STRIX went out of memory")
+                goal.realizable = False
+                goal.controller = None
+                goal.time_synthesis = -200
+            elif e.timeout:
+                print("timeout occurred")
+                goal.realizable = False
+                goal.controller = None
+                goal.time_synthesis = -100
 
 
 def generate_controllers_from_cgt_clustered(cgt: CGTGoal, folder_path, complete=False):

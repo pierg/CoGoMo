@@ -22,12 +22,17 @@ class SynthesisException(Exception):
     def __init__(self, reason: "str"):
 
         self.os_not_supported = False
-        self.trivial = True
+        self.trivial = False
+        self.timeout = False
 
         if reason == "os_not_supported":
             self.os_not_supported = True
         elif reason == "trivial":
             self.trivial = True
+        elif reason == "our_of_memory":
+            self.out_of_memory = True
+        elif reason == "timeout":
+            self.timeout = True
         else:
             raise Exception("Unknown exeption: " + reason)
 
@@ -64,10 +69,11 @@ def get_controller(assumptions: str, guarantees: str, ins: str, outs: str) -> Tu
             # result = subprocess.check_output([strix_path + params], shell=True, encoding='UTF-8').split()
         except subprocess.TimeoutExpired as e:
             print("TIMEOUT for synthesis, more than 100 sec")
-            return "UNREALIZABLE", -100
+            raise SynthesisException("time_out")
         except Exception as e:
-            print("EXEPTION OCCURRED:\n" + str(e))
-            print("FINISH EXEPTION\n\n")
+            print("EXCEPTION OCCURRED:\n" + str(e))
+            print("FINISH EXCEPTION\n\n")
+            raise SynthesisException("out_of_memory")
         exec_time = time.time() - start_time
         if result[0] == "REALIZABLE":
             dot_format = ""

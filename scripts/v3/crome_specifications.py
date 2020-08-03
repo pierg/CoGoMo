@@ -144,7 +144,10 @@ def get_inputs():
                 ap["l"]["d"],
                 ap["l"]["e"],
                 ap["l"]["f"],
-                ap["l"]["g"]
+                ap["l"]["g"],
+                ap["l"]["waiting"],
+                ap["l"]["isolation"],
+                ap["l"]["charging"]
             ], [
                 ap["a"]["search_shelf"],
                 ap["a"]["check_label"],

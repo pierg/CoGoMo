@@ -505,6 +505,7 @@ class CGTGoal:
             ret += "\t" * level + "SYNTH TIME:\t" + str(self.time_synthesis) + "\n"
         else:
             ret += "\t" * level + "RALIZABLE:\tNO\n"
+            ret += "\t" * level + "ERROR CODE:\t" + str(self.time_synthesis) + "\n"
 
         ret += "\n"
         if self.refined_by is not None:

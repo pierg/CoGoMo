@@ -168,39 +168,39 @@ def get_inputs():
             contracts=[PContract([
                 Patrolling([ap["cl"]["care_center"]])
             ])]
+        ),
+        CGTGoal(
+            name="serve-pharmacy",
+            description="serve pharmacy during the day",
+            context=ap["ct"]["day"] & ap["cl"]["pharmacy"],
+            contracts=[PContract([
+                DelayedReaction(
+                    trigger=ap["s"]["get_med"],
+                    reaction=ap["a"]["give_med"])
+            ])]
+        ),
+        CGTGoal(
+            name="welcome-patients",
+            description="welcome patients at their arrival and check their temperature",
+            context=[ap["ct"]["day"] & ap["cl"]["entrance"] & ap["ci"]["mild"],
+                     ap["ct"]["day"] & ap["cl"]["entrance"] & ap["ci"]["severe"]],
+            contracts=[PContract([
+                PromptReaction(
+                    trigger=ap["s"]["human_entered"],
+                    reaction=ap["a"]["welcome_patient"])
+            ])]
+        ),
+        CGTGoal(
+            name="low-battery",
+            description="always go the charging point and contact the main station when the battery is low",
+            contracts=[PContract([
+                Recurrence_P_between_Q_and_R(
+                    q=ap["s"]["low_battery"],
+                    p=ap["l"]["charging"],
+                    r=ap["s"]["full_battery"]
+                )
+            ])]
         )
-        # CGTGoal(
-        #     name="serve-pharmacy",
-        #     description="serve pharmacy during the day",
-        #     context=ap["ct"]["day"] & ap["cl"]["pharmacy"],
-        #     contracts=[PContract([
-        #         DelayedReaction(
-        #             trigger=ap["s"]["get_med"],
-        #             reaction=ap["a"]["give_med"])
-        #     ])]
-        # ),
-        # CGTGoal(
-        #     name="welcome-patients",
-        #     description="welcome patients at their arrival and check their temperature",
-        #     context=[ap["ct"]["day"] & ap["cl"]["entrance"] & ap["ci"]["mild"],
-        #              ap["ct"]["day"] & ap["cl"]["entrance"] & ap["ci"]["severe"]],
-        #     contracts=[PContract([
-        #         DelayedReaction(
-        #             trigger=ap["s"]["human_entered"],
-        #             reaction=ap["a"]["welcome_patient"] & ap["a"]["measure_temperature"])
-        #     ])]
-        # ),
-        # CGTGoal(
-        #     name="low-battery",
-        #     description="always go the charging point and contact the main station when the battery is low",
-        #     contracts=[PContract([
-        #         Recurrence_P_between_Q_and_R(
-        #             q=ap["s"]["low_battery"],
-        #             p=ap["l"]["charging"],
-        #             r=ap["s"]["full_battery"]
-        #         )
-        #     ])]
-        # )
     ]
 
     """Instantiating a Library of Goals"""
@@ -212,13 +212,13 @@ def get_inputs():
                 name="search-check-pickup",
                 description="go to d and take medicines",
                 contracts=[PContract([
-                    DelayedReaction(
+                    PromptReaction(
                         trigger=ap["s"]["look_up_meds"],
                         reaction=ap["a"]["search_shelf"] & ap["a"]["check_label"]),
-                    DelayedReaction(
+                    PromptReaction(
                         trigger=ap["a"]["check_label"] & ap["a"]["search_shelf"],
                         reaction=ap["a"]["pick_up_medicine"]),
-                    DelayedReaction(
+                    PromptReaction(
                         trigger=ap["a"]["pick_up_medicine"],
                         reaction=ap["a"]["deliver_medicine"])
                 ])],
@@ -244,7 +244,7 @@ def get_inputs():
                 description="welcome patient with mild symptoms",
                 context=ap["ci"]["mild"],
                 contracts=[PContract([
-                    DelayedReaction(
+                    InstantReaction(
                         trigger=ap["s"]["human_entered"],
                         reaction=ap["a"]["welcome_patient"] & ap["a"]["measure_temperature"]),
                     Wait(
@@ -258,7 +258,7 @@ def get_inputs():
                 description="welcome patient with severe symptoms",
                 context=ap["ci"]["severe"],
                 contracts=[PContract([
-                    DelayedReaction(
+                    InstantReaction(
                         trigger=ap["s"]["human_entered"],
                         reaction=ap["a"]["welcome_patient"] & ap["a"]["measure_temperature"]),
                     Wait(

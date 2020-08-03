@@ -524,21 +524,22 @@ class CGTGoal:
         """Override the print behavior"""
         ret = "\t" * level + "GOAL:\t" + repr(self.name) + "\n"
         ret += "\t" * level + "ID:\t" + repr(self.id) + "\n"
-        for n, contract in enumerate(self.contracts):
-            if n > 0:
-                ret += "\t" * level + "\t/\\ \n"
-
-            if contract.context is not None:
-                ret += "\t" * level + "  CTX:\t\t" + contract.context.formula + "\n"
-
-            g_objective = contract.guarantees.get_kind("")
-            ret += "\t" * level + "  OBJ:\t\t" + ' & '.join(map(str, g_objective)) + "\n"
+        # for n, contract in enumerate(self.contracts):
+        #     if n > 0:
+        #         ret += "\t" * level + "\t/\\ \n"
+        #
+        #     if contract.context is not None:
+        #         ret += "\t" * level + "  CTX:\t\t" + contract.context.formula + "\n"
+        #
+        #     g_objective = contract.guarantees.get_kind("")
+        #     ret += "\t" * level + "  OBJ:\t\t" + ' & '.join(map(str, g_objective)) + "\n"
 
         if self.realizable:
             ret += "\t" * level + "RALIZABLE :\tYES\n"
             ret += "\t" * level + "SYNTH TIME:\t" + str(self.time_synthesis) + "\n"
         else:
             ret += "\t" * level + "RALIZABLE:\tNO\n"
+            ret += "\t" * level + "ERROR CODE:\t" + str(self.time_synthesis) + "\n"
 
         ret += "\n"
         if self.refined_by is not None:

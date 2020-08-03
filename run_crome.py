@@ -35,7 +35,6 @@ def pretty_print_goals(ap: dict, rules: dict, goals: List[CGTGoal]) -> str:
 
 
 def generate_controller_from_cgt(cgt: CGTGoal, folder_path):
-
     assum = []
     guaran = []
 
@@ -80,14 +79,11 @@ def generate_controllers_for_cgt(cgt: CGTGoal, folder_path):
     """Synthetize the controller for each node of the CGT"""
     list_cgt = cgt.get_all_nodes()
     for i, goal in enumerate(list_cgt):
-        sub_folder_path = folder_path + "GOAL_" + str(i) + "_(" + goal.name + ")/"
+        sub_folder_path = folder_path + "GOAL_" + goal.id + "/"
         realizable, mealy_machine, exec_time = generate_controller_from_cgt(goal, sub_folder_path)
         goal.realizable = realizable
         goal.controller = mealy_machine
         goal.time_synthesis = exec_time
-
-
-
 
 
 def generate_controllers_from_cgt_clustered(cgt: CGTGoal, folder_path, complete=False):
@@ -130,7 +126,6 @@ def run(list_of_goals: List[CGTGoal], result_folder: str):
 
     save_to_file(str(cgt), result_folder + "/CGT_clustered.txt")
 
-
     """Try to extent every leaf of the CGT by mapping to the library"""
     try:
         extend_cgt(cgt, library, rules_dict)
@@ -139,9 +134,8 @@ def run(list_of_goals: List[CGTGoal], result_folder: str):
         sys.exit()
 
     save_to_file(str(cgt), result_folder + "/CGT_refined.txt")
-    
-    save_to_file(str(cgt.print_cgt_summary()), result_folder + "/CGT_summary.txt")
 
+    save_to_file(str(cgt.print_cgt_summary()), result_folder + "/CGT_summary.txt")
 
     """Generate a controller for each node of the CGT"""
     generate_controllers_for_cgt(cgt, result_folder + "/all_goals/")
@@ -149,7 +143,6 @@ def run(list_of_goals: List[CGTGoal], result_folder: str):
     save_to_file(str(cgt.print_cgt_summary()), result_folder + "/CGT_summary.txt")
 
     print(cgt)
-
 
 
 if __name__ == "__main__":

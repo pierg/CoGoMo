@@ -1,3 +1,6 @@
+import hashlib
+import random
+import string
 from copy import deepcopy
 from typing import List, Dict, Tuple, Union
 
@@ -11,6 +14,7 @@ class CGTGoal:
     """Contract-based Goal Tree"""
 
     def __init__(self,
+                 id: str = None,
                  name: str = None,
                  description: str = None,
                  contracts: List[Contract] = None,
@@ -25,8 +29,15 @@ class CGTGoal:
 
         if name is None:
             self.__name: str = ""
+            random_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+
+            """5 character ID generated from a random string"""
+            self.__id = hashlib.sha1(random_string.encode("UTF-8")).hexdigest()[:5]
         else:
             self.__name: str = name
+
+            """5 character ID generated from the name"""
+            self.__id = hashlib.sha1(name.encode("UTF-8")).hexdigest()[:5]
 
         if description is None:
             self.__description: str = ""
@@ -72,6 +83,10 @@ class CGTGoal:
 
         """Synthesis time"""
         self.__time_synthesis: int = None
+
+    @property
+    def id(self):
+        return self.__id
 
     @property
     def name(self):
@@ -483,7 +498,8 @@ class CGTGoal:
 
     def print_cgt_synthesis(self, level=0):
         """Override the print behavior"""
-        ret = "\t" * level + "GOAL    :\t" + repr(self.name) + "\n"
+        ret = "\t" * level + "GOAL:\t" + repr(self.name) + "\n"
+        ret += "\t" * level + "ID:\t" + repr(self.id) + "\n"
         if self.realizable:
             ret += "\t" * level + "RALIZABLE :\tYES\n"
             ret += "\t" * level + "SYNTH TIME:\t" + str(self.time_synthesis) + "\n"
@@ -506,6 +522,7 @@ class CGTGoal:
 
         """Override the print behavior"""
         ret = "\t" * level + "GOAL:\t" + repr(self.name) + "\n"
+        ret += "\t" * level + "ID:\t" + repr(self.id) + "\n"
         for n, contract in enumerate(self.contracts):
             if n > 0:
                 ret += "\t" * level + "\t/\\ \n"
@@ -536,6 +553,7 @@ class CGTGoal:
     def __str__(self, level=0):
         """Override the print behavior"""
         ret = "\t" * level + "GOAL:\t" + repr(self.name) + "\n"
+        ret += "\t" * level + "ID:\t" + repr(self.id) + "\n"
         for n, contract in enumerate(self.contracts):
             if n > 0:
                 ret += "\t" * level + "\t/\\ \n"

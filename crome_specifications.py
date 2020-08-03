@@ -7,9 +7,6 @@ from typescogomo.subtypes.patterns import *
 from typescogomo.subtypes.scopes import *
 
 
-print("CUSTOM SPEC v1")
-
-
 def get_inputs():
     """The designer specifies a mission using the predefined catalogue of patterns
        In addition to the patterns to use the designer specifies also in which context each goal can be active"""
@@ -37,13 +34,18 @@ def get_inputs():
             "night": LTL("night")
         },
         "ci": {
-            "premium": LTL("premium"),
-            "normal": LTL("normal")
+            "severe": LTL("severe"),
+            "mild": LTL("mild")
         },
         "s": {
+            "temperature_checked": LTL("temperature_checked"),
             "low_battery": LTL("low_battery"),
+            "doctor_arrived": LTL("doctor_arrived"),
+            "patient_is_following": LTL("patient_is_following"),
             "full_battery": LTL("full_battery"),
             "get_med": LTL("get_med"),
+            "look_up_meds": LTL("look_up_meds"),
+            "label_correct": LTL("label_correct"),
             "human_entered": LTL("human_entered"),
             "guard_entered": LTL("guard_entered"),
             "door_alarm": LTL("door_alarm"),
@@ -56,13 +58,22 @@ def get_inputs():
             "d": LTL("d"),
             "e": LTL("e"),
             "f": LTL("f"),
-            "g": LTL("g")
+            "g": LTL("g"),
+            "waiting": LTL("waiting"),
+            "isolation": LTL("isolation"),
+            "charging": LTL("charging")
         },
         "a": {
+            "measure_temperature": LTL("measure_temperature"),
+            "stay_with_patient": LTL("stay_with_patient"),
             "contact_station": LTL("contact_station"),
-            "welcome_client": LTL("welcome_client"),
-            "take_med": LTL("take_med"),
-            "give_med": LTL("give_med")
+            "welcome_patient": LTL("welcome_patient"),
+            "search_shelf": LTL("search_shelf"),
+            "check_label": LTL("check_label"),
+            "pick_up_medicine": LTL("pick_up_medicine"),
+            "give_med": LTL("give_med"),
+            "identify_customer": LTL("identify_customer"),
+            "deliver_medicine": LTL("deliver_medicine")
         }
     }
 
@@ -98,28 +109,32 @@ def get_inputs():
             "mutex": [
                 [ap["cl"]["entrance"], ap["cl"]["pharmacy"], ap["cl"]["corridor"], ap["cl"]["medical_room"]],
                 [ap["ct"]["day"], ap["ct"]["night"]],
-                [ap["ci"]["premium"], ap["ci"]["normal"]]
+                [ap["ci"]["severe"], ap["ci"]["mild"]]
             ],
             "inclusion": {
                 ap["cl"]["entrance"]: ap["cl"]["care_center"],
                 ap["cl"]["pharmacy"]: ap["cl"]["care_center"],
                 ap["cl"]["medical_room"]: ap["cl"]["care_center"],
-                ap["cl"]["corridor"]: ap["cl"]["care_center"]
+                ap["cl"]["corridor"]: ap["cl"]["care_center"],
+                ap["l"]["a"]: ap["cl"]["entrance"],
+                ap["l"]["d"]: ap["cl"]["pharmacy"],
+                ap["l"]["b"] | ap["l"]["c"] | ap["l"]["e"] | ap["l"]["f"]: ap["cl"]["corridor"],
+                ap["l"]["g"]: ap["cl"]["medical_room"],
+                ap["a"]["deliver_medicine"]: ap["a"]["give_med"],
+                ap["s"]["get_med"]: ap["s"]["look_up_meds"] & ap["s"]["label_correct"],
+                ap["a"]["measure_temperature"]: ap["s"]["temperature_checked"],
             }
-        },
-        "context_gridworld": {
-            ap["l"]["a"]: ap["cl"]["entrance"],
-            ap["l"]["d"]: ap["cl"]["pharmacy"],
-            ap["l"]["b"] | ap["l"]["c"] | ap["l"]["e"] | ap["l"]["f"]: ap["cl"]["corridor"],
-            ap["l"]["g"]: ap["cl"]["medical_room"],
         },
         "gridworld": {
             ap["l"]["a"]: [ap["l"]["a"], ap["l"]["b"], ap["l"]["d"]],
-            ap["l"]["b"]: [ap["l"]["b"], ap["l"]["a"], ap["l"]["c"]],
-            ap["l"]["c"]: [ap["l"]["c"], ap["l"]["b"], ap["l"]["d"], ap["l"]["e"]],
+            ap["l"]["b"]: [ap["l"]["b"], ap["l"]["a"], ap["l"]["c"], ap["l"]["waiting"]],
+            ap["l"]["c"]: [ap["l"]["c"], ap["l"]["b"], ap["l"]["d"], ap["l"]["e"], ap["l"]["waiting"]],
             ap["l"]["d"]: [ap["l"]["d"], ap["l"]["a"], ap["l"]["c"]],
             ap["l"]["e"]: [ap["l"]["e"], ap["l"]["c"], ap["l"]["f"]],
-            ap["l"]["f"]: [ap["l"]["f"], ap["l"]["e"], ap["l"]["g"]]
+            ap["l"]["f"]: [ap["l"]["f"], ap["l"]["e"], ap["l"]["g"], ap["l"]["charging"]],
+            ap["l"]["waiting"]: [ap["l"]["waiting"], ap["l"]["b"], ap["l"]["isolation"]],
+            ap["l"]["isolation"]: [ap["l"]["isolation"], ap["l"]["waiting"], ap["l"]["c"]],
+            ap["l"]["charging"]: [ap["l"]["charging"], ap["l"]["f"]]
         },
         "system_constraints": {
             "mutex": [[
@@ -130,8 +145,14 @@ def get_inputs():
                 ap["l"]["e"],
                 ap["l"]["f"],
                 ap["l"]["g"]
+            ], [
+                ap["a"]["search_shelf"],
+                ap["a"]["check_label"],
+                ap["a"]["deliver_medicine"]
+
             ]],
-            "inclusion": {}
+            "inclusion": {
+            }
         }
     }
 
@@ -139,10 +160,42 @@ def get_inputs():
     list_of_goals = [
         CGTGoal(
             name="patrolling",
-            description="patrol the care-center during the night",
-            context=ap["ct"]["night"] | ap["ct"]["day"],
+            description="patrol the care-center",
+            context=[ap["ct"]["night"], ap["ct"]["day"]],
             contracts=[PContract([
                 Patrolling([ap["cl"]["care_center"]])
+            ])]
+        ),
+        CGTGoal(
+            name="serve-pharmacy",
+            description="serve pharmacy during the day",
+            context=ap["ct"]["day"] & ap["cl"]["pharmacy"],
+            contracts=[PContract([
+                DelayedReaction(
+                    trigger=ap["s"]["get_med"],
+                    reaction=ap["a"]["give_med"])
+            ])]
+        ),
+        CGTGoal(
+            name="welcome-patients",
+            description="welcome patients at their arrival and check their temperature",
+            context=[ap["ct"]["day"] & ap["cl"]["entrance"] & ap["ci"]["mild"],
+                     ap["ct"]["day"] & ap["cl"]["entrance"] & ap["ci"]["severe"]],
+            contracts=[PContract([
+                DelayedReaction(
+                    trigger=ap["s"]["human_entered"],
+                    reaction=ap["a"]["welcome_patient"] & ap["a"]["measure_temperature"])
+            ])]
+        ),
+        CGTGoal(
+            name="low-battery",
+            description="always go the charging point and contact the main station when the battery is low",
+            contracts=[PContract([
+                Recurrence_P_between_Q_and_R(
+                    q=ap["s"]["low_battery"],
+                    p=ap["l"]["charging"],
+                    r=ap["s"]["full_battery"]
+                )
             ])]
         )
     ]
@@ -152,6 +205,21 @@ def get_inputs():
 
     component_library.add_goals(
         [
+            CGTGoal(
+                name="search-check-pickup",
+                description="go to d and take medicines",
+                contracts=[PContract([
+                    DelayedReaction(
+                        trigger=ap["s"]["look_up_meds"],
+                        reaction=ap["a"]["search_shelf"] & ap["a"]["check_label"]),
+                    DelayedReaction(
+                        trigger=ap["a"]["check_label"] & ap["a"]["search_shelf"],
+                        reaction=ap["a"]["pick_up_medicine"]),
+                    DelayedReaction(
+                        trigger=ap["a"]["pick_up_medicine"],
+                        reaction=ap["a"]["deliver_medicine"])
+                ])],
+            ),
             CGTGoal(
                 name="day-patrol-entrance-pharmacy",
                 description="patrol entrance and pharmacy",
@@ -166,6 +234,34 @@ def get_inputs():
                 context=ap["ct"]["night"],
                 contracts=[PContract([
                     Patrolling([ap["cl"]["corridor"]])
+                ])]
+            ),
+            CGTGoal(
+                name="mild-symptoms-welcome",
+                description="welcome patient with mild symptoms",
+                context=ap["ci"]["mild"],
+                contracts=[PContract([
+                    DelayedReaction(
+                        trigger=ap["s"]["human_entered"],
+                        reaction=ap["a"]["welcome_patient"] & ap["a"]["measure_temperature"]),
+                    Wait(
+                        where=ap["cl"]["entrance"],
+                        until=ap["s"]["patient_is_following"]),
+                    Visit([ap["l"]["waiting"]])
+                ])]
+            ),
+            CGTGoal(
+                name="severe-symptoms-welcome",
+                description="welcome patient with severe symptoms",
+                context=ap["ci"]["severe"],
+                contracts=[PContract([
+                    DelayedReaction(
+                        trigger=ap["s"]["human_entered"],
+                        reaction=ap["a"]["welcome_patient"] & ap["a"]["measure_temperature"]),
+                    Wait(
+                        where=ap["cl"]["entrance"],
+                        until=ap["s"]["patient_is_following"]),
+                    Visit([ap["l"]["isolation"]])
                 ])]
             ),
             CGTGoal(
@@ -184,5 +280,8 @@ def get_inputs():
             )
         ]
     )
+
+    for c in component_library.goals:
+        print(c.contracts[0].guarantees.formula)
 
     return ap, rules, list_of_goals, component_library

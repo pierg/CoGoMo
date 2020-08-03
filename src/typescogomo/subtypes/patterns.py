@@ -342,3 +342,13 @@ class BoundDelay(Pattern):
         pattern_formula = "G( (({t}) -> X({r})) & (X({r}) -> ({t})))".format(t=trigger.formula, r=reaction.formula)
 
         super().__init__(pattern_formula, Variables(trigger.variables | reaction.variables))
+
+
+
+class Wait(TriggerPattern):
+    """Applies when a counteraction must be performed every time and only when a specific location is entered"""
+
+    def __init__(self, where: LTL, until: LTL):
+        pattern_formula = "(({w}) U ({u}))".format(w=where.formula, u=until.formula)
+
+        super().__init__(pattern_formula, Variables(where.variables | until.variables))

@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Union
 
 from contracts.contract import Contract
 from typescogomo.formula import LTL
@@ -16,7 +16,7 @@ class CGTGoal:
                  contracts: List[Contract] = None,
                  refined_by: List['CGTGoal'] = None,
                  refined_with: str = None,
-                 context: LTL = None):
+                 context: Union[LTL, List[LTL]] = None):
 
         self.__connected_to = None
 
@@ -50,7 +50,19 @@ class CGTGoal:
             raise AttributeError
 
         if context is not None:
-            self.set_context(context)
+            if isinstance(context, list):
+                list_of_goals = []
+                for c in context:
+                    list_of_goals.append(CGTGoal(
+                        name=name + " & " + c.formula,
+                        description=description + " in " + c.formula,
+                        context=c,
+                        contracts=deepcopy(contracts)
+                    ))
+                from goals.operations import conjunction
+                conjunction(list_of_goals, connect_to=self)
+            else:
+                self.set_context(context)
 
         """Is the current node realizable"""
         self.__realizable: bool = None

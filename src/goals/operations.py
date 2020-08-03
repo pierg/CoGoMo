@@ -314,6 +314,16 @@ def create_contextual_clusters(goals: List[CGTGoal], type: str, context_rules: L
     else:
         raise Exception("The type is not supported, either MINIMAL or MUTEX")
 
+    goals_flat = []
+    """Extract goals tjat are alreadu conjoined by the designer"""
+    for goal in goals:
+        if goal.refined_by is not None and goal.refined_with == "CONJUNCTION":
+            goals_flat.extend(goal.refined_by)
+        else:
+            goals_flat.append(goal)
+
+    goals = goals_flat
+
     """Extract all unique contexts"""
     contexts: List[LTL] = extract_unique_contexts_from_goals(goals)
 

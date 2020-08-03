@@ -269,8 +269,10 @@ class LTL:
         """Check if the set of behaviours is smaller or equal in the other set of behaviours"""
         variables_a = set(self.variables.get_nusmv_names())
         variables_b = set(other.variables.get_nusmv_names())
-        variables = variables_a | variables_b
-        return check_validity(list(variables), "((" + self.formula + ") -> (" + other.formula + "))")
+        if len(variables_b & variables_a) > 0:
+            variables = variables_a | variables_b
+            return check_validity(list(variables), "((" + self.formula + ") -> (" + other.formula + "))")
+        return False
 
     def __eq__(self, other: 'LTL'):
         """Check if the set of behaviours is equal to the other set of behaviours"""

@@ -15,6 +15,10 @@ if [ $# -eq 0 ]
     sudo rm -r "$(pwd)/default/results"
     mkdir "$(pwd)/default/results"
 
+    echo "stopping existing containers..."
+    docker stop crome_default || true && docker rm crome_default || true
+
+
 
     echo "  creating new docker container..."
     docker create -i -t  --name crome_default -v "$(pwd)/default/results":/home/cogomo/output/results pmallozzi/cogomo:dev -c
@@ -34,6 +38,9 @@ if [ $# -eq 0 ]
     echo "  cleaning up folder"
     sudo rm -r "$(pwd)/$1/results"
     mkdir "$(pwd)/$1/results"
+
+    echo "stopping existing containers..."
+    docker stop $1 || true && docker rm $1 || true
 
     echo "  creating new docker container..."
     echo "  name $1"

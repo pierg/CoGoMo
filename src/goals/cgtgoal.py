@@ -76,13 +76,13 @@ class CGTGoal:
                 self.set_context(context)
 
         """Is the current node realizable"""
-        self.__realizable: bool = None
+        self.__realizable = None
 
         """Mealy machine of the controller (if node is realizable)"""
-        self.__controller: str = None
+        self.__controller = None
 
         """Synthesis time"""
-        self.__time_synthesis: int = None
+        self.__time_synthesis = None
 
     @property
     def id(self):
@@ -534,12 +534,13 @@ class CGTGoal:
         #     g_objective = contract.guarantees.get_kind("")
         #     ret += "\t" * level + "  OBJ:\t\t" + ' & '.join(map(str, g_objective)) + "\n"
 
-        if self.realizable:
-            ret += "\t" * level + "RALIZABLE :\tYES\n"
-            ret += "\t" * level + "SYNTH TIME:\t" + str(self.time_synthesis) + "\n"
-        else:
-            ret += "\t" * level + "RALIZABLE:\tNO\n"
-            ret += "\t" * level + "ERROR CODE:\t" + str(self.time_synthesis) + "\n"
+        if self.realizable is not None:
+            if self.realizable:
+                ret += "\t" * level + "RALIZABLE :\tYES\n"
+                ret += "\t" * level + "SYNTH TIME:\t" + str(self.time_synthesis) + "\n"
+            else:
+                ret += "\t" * level + "RALIZABLE:\tNO\n"
+                ret += "\t" * level + "ERROR CODE:\t" + str(self.time_synthesis) + "\n"
 
         ret += "\n"
         if self.refined_by is not None:

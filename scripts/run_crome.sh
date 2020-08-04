@@ -36,7 +36,7 @@ if [ $# -eq 0 ]
     mkdir "$(pwd)/$1/results"
 
     echo "  creating new docker container..."
-    docker create -i -t  --name "$1" -v "$(pwd)/$1/results":/home/cogomo/output/results pmallozzi/cogomo:dev -c
+    docker create -i -t  --name $1 -v "$(pwd)/$1/results":/home/cogomo/output/results pmallozzi/cogomo:dev -c
 
     echo "copying input file $(pwd)/$1/crome_specifications.py"
     docker cp "$(pwd)/$1/crome_specifications.py" cogomo_clustering:/home/
@@ -47,7 +47,7 @@ if [ $# -eq 0 ]
     echo "  Or run 'docker ps' to see if the process is still running"
 
     echo "  results and logs will be saved in $(pwd)/$1/"
-    docker logs -f "$1" >& "$(pwd)/$1/logs.txt" &
+    docker logs -f $1 >& "$(pwd)/$1/logs.txt" &
 
 fi
 

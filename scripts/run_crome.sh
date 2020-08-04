@@ -17,7 +17,7 @@ if [ $# -eq 0 ]
 
 
     echo "  creating new docker container..."
-    docker create -i -t  --name default -v "$(pwd)/default/results":/home/cogomo/output/results pmallozzi/cogomo:dev -c
+    docker create -i -t  --name crome_default -v "$(pwd)/default/results":/home/cogomo/output/results pmallozzi/cogomo:dev -c
 
 
     echo "  starting docker..."
@@ -36,7 +36,7 @@ if [ $# -eq 0 ]
     mkdir "$(pwd)/$1/results"
 
     echo "  creating new docker container..."
-    docker create -i -t  --name $1 -v "$(pwd)/$1/results":/home/cogomo/output/results pmallozzi/cogomo:dev -c
+    docker create -i -t  --name "$1" -v "$(pwd)/$1/results":/home/cogomo/output/results pmallozzi/cogomo:dev -c
 
     echo "copying input file $(pwd)/$1/crome_specifications.py"
     docker cp "$(pwd)/$1/crome_specifications.py" cogomo_clustering:/home/

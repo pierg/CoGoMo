@@ -16,9 +16,9 @@ else
           exit 0
           ;;
         -c)
-          echo "Launching clustering..."
+          echo "Launching CROME..."
           echo "Copying custom input file if exists..."
-          cp /home/mission_specification.py /home/cogomo/
+          cp /home/crome_specifications.py /home/cogomo/
           echo "Launching clustering..."
           python3 ./run_crome.py
           echo "Process finished, results avilable"

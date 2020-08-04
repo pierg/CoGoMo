@@ -1,6 +1,9 @@
 #!/bin/bash
 echo "** make sure that docker running on this machine **"
 
+echo "updating repository..."
+git pull
+
 echo "stopping existing containers..."
 docker stop cogomo_clustering || true && docker rm cogomo_clustering || true
 

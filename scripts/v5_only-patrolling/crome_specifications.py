@@ -116,27 +116,31 @@ def get_inputs():
                 ap["cl"]["pharmacy"]: ap["cl"]["care_center"],
                 ap["cl"]["medical_room"]: ap["cl"]["care_center"],
                 ap["cl"]["corridor"]: ap["cl"]["care_center"],
+
+                ap["l"]["waiting"]: ap["cl"]["care_center"],
+                ap["l"]["isolation"]: ap["cl"]["care_center"],
+                ap["l"]["charging"]: ap["cl"]["care_center"],
+
                 ap["l"]["a"]: ap["cl"]["entrance"],
                 ap["l"]["d"]: ap["cl"]["pharmacy"],
                 ap["l"]["b"] | ap["l"]["c"] | ap["l"]["e"] | ap["l"]["f"]: ap["cl"]["corridor"],
                 ap["l"]["g"]: ap["cl"]["medical_room"],
+
                 ap["a"]["deliver_medicine"]: ap["a"]["give_med"],
                 ap["s"]["get_med"]: ap["s"]["look_up_meds"] & ap["s"]["label_correct"],
                 ap["a"]["measure_temperature"]: ap["s"]["temperature_checked"],
-                ap["l"]["waiting"]: ap["cl"]["care_center"],
-                ap["l"]["isolation"]: ap["cl"]["care_center"],
-                ap["l"]["charging"]: ap["cl"]["care_center"],
+
             }
         },
         "gridworld": {
             ap["l"]["a"]: [ap["l"]["a"], ap["l"]["b"], ap["l"]["d"]],
             ap["l"]["b"]: [ap["l"]["b"], ap["l"]["a"], ap["l"]["c"], ap["l"]["waiting"]],
-            ap["l"]["c"]: [ap["l"]["c"], ap["l"]["b"], ap["l"]["d"], ap["l"]["e"], ap["l"]["waiting"]],
+            ap["l"]["c"]: [ap["l"]["c"], ap["l"]["b"], ap["l"]["d"], ap["l"]["e"], ap["l"]["isolation"]],
             ap["l"]["d"]: [ap["l"]["d"], ap["l"]["a"], ap["l"]["c"]],
             ap["l"]["e"]: [ap["l"]["e"], ap["l"]["c"], ap["l"]["f"]],
             ap["l"]["f"]: [ap["l"]["f"], ap["l"]["e"], ap["l"]["g"], ap["l"]["charging"]],
-            ap["l"]["waiting"]: [ap["l"]["waiting"], ap["l"]["b"], ap["l"]["isolation"]],
-            ap["l"]["isolation"]: [ap["l"]["isolation"], ap["l"]["waiting"], ap["l"]["c"]],
+            ap["l"]["waiting"]: [ap["l"]["waiting"], ap["l"]["b"]],
+            ap["l"]["isolation"]: [ap["l"]["isolation"], ap["l"]["c"]],
             ap["l"]["charging"]: [ap["l"]["charging"], ap["l"]["f"]]
         },
         "constraints": {

@@ -126,7 +126,7 @@ def get_inputs():
             ap["l"]["e"]: [ap["l"]["e"], ap["l"]["c"], ap["l"]["f"]],
             ap["l"]["f"]: [ap["l"]["f"], ap["l"]["e"], ap["l"]["g"]]
         },
-        "system_constraints": {
+        "constraints": {
             "mutex": [[
                 ap["l"]["a"],
                 ap["l"]["b"],

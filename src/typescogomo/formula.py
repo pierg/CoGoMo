@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import Set, Union
+from typing import Set, Union, List
 from checks.nusmv import check_satisfiability, check_validity
 from checks.tools import And, Implies, Not, Or
 from typescogomo.variables import Variables, extract_variable
@@ -149,7 +149,7 @@ class LTL:
 
         super().__init__(cnf=self.cnf, skip_checks=True)
 
-    def get_kind(self, kind: str):
+    def get_kind(self, kind: str) -> List['LTL']:
         ret = []
         for elem in self.cnf:
             if elem.kind == kind:

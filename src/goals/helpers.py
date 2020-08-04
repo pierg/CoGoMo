@@ -108,10 +108,10 @@ def extract_rules(rules: Dict) -> Dict:
             ltl = "G((" + pre.formula + ") -> (" + post.formula + "))"
             rules_ltl["context_gridworld"].append(LTL(formula=ltl, variables=variables, kind="context_gridworld"))
 
-    if "system_constraints" in rules:
-        rules_ltl["system_constraints"] = []
-        if "mutex" in rules["system_constraints"]:
-            for mtx_elements in rules["system_constraints"]["mutex"]:
+    if "constraints" in rules:
+        rules_ltl["constraints"] = []
+        if "mutex" in rules["constraints"]:
+            for mtx_elements in rules["constraints"]["mutex"]:
                 if len(mtx_elements) > 0:
                     variables: Variables = Variables()
                     ltl = "G("
@@ -127,16 +127,16 @@ def extract_rules(rules: Dict) -> Dict:
                         clauses.append(And(clause))
                     ltl += Or(clauses)
                     ltl += ")"
-                    rules_ltl["system_constraints"].append(
-                        LTL(formula=ltl, variables=variables, kind="system_constraints"))
+                    rules_ltl["constraints"].append(
+                        LTL(formula=ltl, variables=variables, kind="constraints"))
 
-        if "inclusion" in rules["system_constraints"]:
-            for pre, post in rules["system_constraints"]["inclusion"].items():
+        if "inclusion" in rules["constraints"]:
+            for pre, post in rules["constraints"]["inclusion"].items():
                 variables = Variables()
                 variables |= pre.variables | post.variables
                 ltl = "G((" + pre.formula + ") -> (" + post.formula + "))"
-                rules_ltl["system_constraints"].append(
-                    LTL(formula=ltl, variables=variables, kind="system_constraints"))
+                rules_ltl["constraints"].append(
+                    LTL(formula=ltl, variables=variables, kind="constraints"))
 
     return rules_ltl
 

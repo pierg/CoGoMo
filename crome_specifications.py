@@ -11,7 +11,7 @@ def get_inputs():
     """The designer specifies a mission using the predefined catalogue of patterns
        In addition to the patterns to use the designer specifies also in which context each goal can be active"""
 
-    print("CUSTOM SPEC 6 PATROLLINBATTERY")
+    print("CUSTOM SPEC 5 complete")
     print(os.path.dirname(os.path.abspath(__file__)))
 
     """ Atomic propositions divided in
@@ -116,30 +116,34 @@ def get_inputs():
                 ap["cl"]["pharmacy"]: ap["cl"]["care_center"],
                 ap["cl"]["medical_room"]: ap["cl"]["care_center"],
                 ap["cl"]["corridor"]: ap["cl"]["care_center"],
+
+                ap["l"]["waiting"]: ap["cl"]["care_center"],
+                ap["l"]["isolation"]: ap["cl"]["care_center"],
+                ap["l"]["charging"]: ap["cl"]["care_center"],
+
                 ap["l"]["a"]: ap["cl"]["entrance"],
                 ap["l"]["d"]: ap["cl"]["pharmacy"],
                 ap["l"]["b"] | ap["l"]["c"] | ap["l"]["e"] | ap["l"]["f"]: ap["cl"]["corridor"],
                 ap["l"]["g"]: ap["cl"]["medical_room"],
+
                 ap["a"]["deliver_medicine"]: ap["a"]["give_med"],
                 ap["s"]["get_med"]: ap["s"]["look_up_meds"] & ap["s"]["label_correct"],
                 ap["a"]["measure_temperature"]: ap["s"]["temperature_checked"],
-                ap["l"]["waiting"]: ap["cl"]["care_center"],
-                ap["l"]["isolation"]: ap["cl"]["care_center"],
-                ap["l"]["charging"]: ap["cl"]["care_center"],
+
             }
         },
         "gridworld": {
             ap["l"]["a"]: [ap["l"]["a"], ap["l"]["b"], ap["l"]["d"]],
             ap["l"]["b"]: [ap["l"]["b"], ap["l"]["a"], ap["l"]["c"], ap["l"]["waiting"]],
-            ap["l"]["c"]: [ap["l"]["c"], ap["l"]["b"], ap["l"]["d"], ap["l"]["e"], ap["l"]["waiting"]],
+            ap["l"]["c"]: [ap["l"]["c"], ap["l"]["b"], ap["l"]["d"], ap["l"]["e"], ap["l"]["isolation"]],
             ap["l"]["d"]: [ap["l"]["d"], ap["l"]["a"], ap["l"]["c"]],
             ap["l"]["e"]: [ap["l"]["e"], ap["l"]["c"], ap["l"]["f"]],
             ap["l"]["f"]: [ap["l"]["f"], ap["l"]["e"], ap["l"]["g"], ap["l"]["charging"]],
-            ap["l"]["waiting"]: [ap["l"]["waiting"], ap["l"]["b"], ap["l"]["isolation"]],
-            ap["l"]["isolation"]: [ap["l"]["isolation"], ap["l"]["waiting"], ap["l"]["c"]],
+            ap["l"]["waiting"]: [ap["l"]["waiting"], ap["l"]["b"]],
+            ap["l"]["isolation"]: [ap["l"]["isolation"], ap["l"]["c"]],
             ap["l"]["charging"]: [ap["l"]["charging"], ap["l"]["f"]]
         },
-        "system_constraints": {
+        "constraints": {
             "mutex": [[
                 ap["l"]["a"],
                 ap["l"]["b"],
@@ -164,14 +168,14 @@ def get_inputs():
 
     """List of specifications / goals"""
     list_of_goals = [
-        # CGTGoal(
-        #     name="patrolling",
-        #     description="patrol the care-center",
-        #     context=[ap["ct"]["night"], ap["ct"]["day"]],
-        #     contracts=[PContract([
-        #         Patrolling([ap["cl"]["care_center"]])
-        #     ])]
-        # ),
+        CGTGoal(
+            name="patrolling",
+            description="patrol the care-center",
+            context=[ap["ct"]["night"], ap["ct"]["day"]],
+            contracts=[PContract([
+                Patrolling([ap["cl"]["care_center"]])
+            ])]
+        ),
         # CGTGoal(
         #     name="serve-pharmacy",
         #     description="serve pharmacy during the day",

@@ -11,9 +11,6 @@ class Type(object):
         """Name of the variable"""
         self.name = name
 
-        if name == "charging":
-            print("SETTINT CONTROLLABLE")
-
         """Controllable, for the synthesis"""
         self.__controllable: bool = controllable
 
@@ -32,8 +29,6 @@ class Type(object):
 
     @controllable.setter
     def controllable(self, value: bool):
-        if self.name == "charging":
-            print("SETTINT CONTROLLABLE")
         self.__controllable = value
 
 

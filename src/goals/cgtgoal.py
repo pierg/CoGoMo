@@ -306,7 +306,7 @@ class CGTGoal:
                         if len(rule.variables & c.guarantees.objective_variables) > 0:
                             c.add_guarantee(rule)
 
-            if kind == "system_constraints":
+            if kind == "constraints":
                 for rule in rules:
                     for c in self.contracts:
                         if len(rule.variables & c.guarantees.objective_variables) > 0:
@@ -502,15 +502,6 @@ class CGTGoal:
         """Override the print behavior"""
         ret = "\t" * level + "GOAL:\t" + repr(self.name) + "\n"
         ret += "\t" * level + "ID:\t" + repr(self.id) + "\n"
-        # for n, contract in enumerate(self.contracts):
-        #     if n > 0:
-        #         ret += "\t" * level + "\t/\\ \n"
-        #
-        #     if contract.context is not None:
-        #         ret += "\t" * level + "  CTX:\t\t" + contract.context.formula + "\n"
-        #
-        #     g_objective = contract.guarantees.get_kind("")
-        #     ret += "\t" * level + "  OBJ:\t\t" + ' & '.join(map(str, g_objective)) + "\n"
 
         if self.realizable is not None:
             if self.realizable:
@@ -530,6 +521,32 @@ class CGTGoal:
             for child in self.refined_by:
                 try:
                     ret += child.print_cgt_summary(level + 1)
+                except:
+                    print("ERROR IN PRINT")
+        return ret
+
+    def print_cgt_detaild(self, level=0):
+        """Override the print behavior"""
+        ret = "\t" * level + "GOAL:\t" + repr(self.name) + "\n"
+        ret += "\t" * level + "ID:\t" + repr(self.id) + "\n"
+        for n, contract in enumerate(self.contracts):
+            if n > 0:
+                ret += "\t" * level + "\t/\\ \n"
+            ret += "\t" * level + "  ASSUMPTIONS:\n"
+            for a in contract.assumptions.cnf:
+                ret += "\t" * level + "  \t\t(" + a.kind + ")\t" + a.formula + "\n"
+
+            ret += "\t" * level + "  GUARANTEES:\n"
+            for g in contract.guarantees.cnf:
+                ret += "\t" * level + "  \t\t(" + g.kind + ")\t" + g.formula + "\n"
+
+        ret += "\n"
+        if self.refined_by is not None:
+            ret += "\t" * level + "\t" + self.refined_with + "\n"
+            level += 1
+            for child in self.refined_by:
+                try:
+                    ret += child.print_cgt_detaild(level + 1)
                 except:
                     print("ERROR IN PRINT")
         return ret
@@ -557,9 +574,11 @@ class CGTGoal:
             if a_context_gridworld is not None:
                 ret += "\t" * level + " \tCGR:\t" + ', '.join(map(str, a_context_gridworld)) + "\n"
 
-            g_objective = contract.guarantees.get_kind("")
+            g_objective = contract.guarantees.get_kind("pattern")
+            g_objective.extend(contract.guarantees.get_kind("scope"))
+
             a_gridworld = contract.guarantees.get_kind("gridworld")
-            a_system_constraints = contract.guarantees.get_kind("system_constraints")
+            a_constraints = contract.guarantees.get_kind("constraints")
 
             ret += "\t" * level + "  G:\t\t" + ' & '.join(map(str, g_objective)) + "\n"
             # ret += "\t" * level + "  Gs:\t\t" + contract.guarantees.formula + "\n"
@@ -567,8 +586,8 @@ class CGTGoal:
             if a_gridworld is not None:
                 ret += "\t" * level + " \tGRD:\t" + ', '.join(map(str, a_gridworld)) + "\n"
 
-            if a_system_constraints is not None:
-                ret += "\t" * level + " \tSYS:\t" + ', '.join(map(str, a_system_constraints)) + "\n"
+            if a_constraints is not None:
+                ret += "\t" * level + " \tSYS:\t" + ', '.join(map(str, a_constraints)) + "\n"
 
         ret += "\n"
         if self.refined_by is not None:

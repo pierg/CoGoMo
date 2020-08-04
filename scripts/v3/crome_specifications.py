@@ -136,7 +136,7 @@ def get_inputs():
             ap["l"]["isolation"]: [ap["l"]["isolation"], ap["l"]["waiting"], ap["l"]["c"]],
             ap["l"]["charging"]: [ap["l"]["charging"], ap["l"]["f"]]
         },
-        "system_constraints": {
+        "constraints": {
             "mutex": [[
                 ap["l"]["a"],
                 ap["l"]["b"],

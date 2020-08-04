@@ -10,7 +10,7 @@ class Pattern(LTL):
     """
 
     def __init__(self, formula: str, variables: Variables):
-        super().__init__(formula=formula, variables=variables)
+        super().__init__(formula=formula, variables=variables, kind="pattern")
         self.domain_properties = []
 
 

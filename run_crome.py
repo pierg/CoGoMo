@@ -137,6 +137,8 @@ def run(list_of_goals: List[CGTGoal], result_folder: str):
         sys.exit()
 
     save_to_file(str(cgt), result_folder + "/CGT_clustered.txt")
+    save_to_file(str(cgt.print_cgt_detaild()), result_folder + "/CGT_clustered_details.txt")
+
 
     """Try to extent every leaf of the CGT by mapping to the library"""
     try:
@@ -146,6 +148,7 @@ def run(list_of_goals: List[CGTGoal], result_folder: str):
         sys.exit()
 
     save_to_file(str(cgt), result_folder + "/CGT_refined.txt")
+    save_to_file(str(cgt.print_cgt_detaild()), result_folder + "/CGT_refined_detailed.txt")
 
     save_to_file(str(cgt.print_cgt_summary()), result_folder + "/CGT_summary.txt")
 

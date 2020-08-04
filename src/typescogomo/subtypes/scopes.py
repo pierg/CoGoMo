@@ -10,7 +10,7 @@ from typescogomo.variables import Variables
 class Scope(LTL):
 
     def __init__(self, formula: str, variables: Variables):
-        super().__init__(formula=formula, variables=variables)
+        super().__init__(formula=formula, variables=variables, kind="scope")
 
 
 """Scopes for the property 'P is true' defined by Dwyer"""

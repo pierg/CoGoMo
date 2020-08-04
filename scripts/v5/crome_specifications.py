@@ -268,14 +268,14 @@ def get_inputs():
                 ])]
             ),
             CGTGoal(
-                name="patrol-b-c-e-f",
+                name="seq-patrol-b-c-e-f",
                 description="patrol areas b, c, e and f",
                 contracts=[PContract([
                     SequencedPatrolling([ap["l"]["b"], ap["l"]["c"], ap["l"]["e"], ap["l"]["f"]])
                 ])]
             ),
             CGTGoal(
-                name="patrol-a-d",
+                name="seq-patrol-a-d",
                 description="patrol areas a and d",
                 contracts=[PContract([
                     SequencedPatrolling([ap["l"]["a"], ap["l"]["d"]])

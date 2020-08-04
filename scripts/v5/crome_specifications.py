@@ -123,6 +123,9 @@ def get_inputs():
                 ap["a"]["deliver_medicine"]: ap["a"]["give_med"],
                 ap["s"]["get_med"]: ap["s"]["look_up_meds"] & ap["s"]["label_correct"],
                 ap["a"]["measure_temperature"]: ap["s"]["temperature_checked"],
+                ap["cl"]["waiting"]: ap["cl"]["care_center"],
+                ap["cl"]["isolation"]: ap["cl"]["care_center"],
+                ap["cl"]["charging"]: ap["cl"]["care_center"],
             }
         },
         "gridworld": {

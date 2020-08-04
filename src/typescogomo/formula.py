@@ -22,7 +22,8 @@ class LTL:
         if formula is not None and cnf is None:
 
             if variables is None:
-                variables = extract_variable(str(formula))
+                raise Exception("No variables provided")
+                # variables = extract_variable(str(formula))
 
             """String representing the LTL"""
             self.__formula: str = formula
@@ -254,6 +255,16 @@ class LTL:
         formula = Not(self.formula)
 
         return LTL(formula=formula, variables=self.variables)
+
+
+    def __rshift__(self, other: 'LTL') -> 'LTL':
+        """>> self
+        Returns a new LTL that is the result of self -> other (implies)"""
+        return LTL(
+            formula=Implies(self.formula, other.formula),
+            variables=Variables(self.variables | other.variables)
+        )
+
 
     """Refinement operators"""
 

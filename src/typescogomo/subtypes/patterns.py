@@ -9,53 +9,9 @@ class Pattern(LTL):
     General Pattern Class
     """
 
-    def __init__(self, formula: str = None, variables: Variables = None, cnf: Set['Pattern'] = None):
-        super().__init__(formula, variables, cnf)
+    def __init__(self, formula: str, variables: Variables):
+        super().__init__(formula=formula, variables=variables)
         self.domain_properties = []
-        
-    def __and__(self, other: 'LTL') -> Union['Pattern', 'LTL']:
-        """self & other
-        Returns a new LTL that is the conjunction of self with other"""
-        if isinstance(other, Pattern):
-            return Pattern(cnf={self, other})
-        else:
-            return LTL(cnf={self, other})
-
-    def __or__(self, other: 'LTL') -> Union['Pattern', 'LTL']:
-        """self | other
-        Returns a new LTL that is the disjunction of self with other"""
-        if isinstance(other, Pattern):
-            return Pattern(
-                formula=Or([self.formula, other.formula]),
-                variables=Variables(self.variables | other.variables)
-            )
-        else:
-            return LTL(
-                formula=Or([self.formula, other.formula]),
-                variables=Variables(self.variables | other.variables)
-            )
-
-    def __invert__(self) -> 'Pattern':
-        """~ self
-        Returns a new LTL that is the negation of self"""
-        return Pattern(
-            formula=Not(self.formula),
-            variables=self.variables
-        )
-
-    def __rshift__(self, other: 'LTL') -> Union['Pattern', 'LTL']:
-        """>> self
-        Returns a new LTL that is the result of self -> other (implies)"""
-        if isinstance(other, Pattern):
-            return Pattern(
-                formula=Implies(self.formula, other.formula),
-                variables=Variables(self.variables | other.variables)
-            )
-        else:
-            return LTL(
-                formula=Implies(self.formula, other.formula),
-                variables=Variables(self.variables | other.variables)
-            )
 
 
 class CoreMovement(Pattern):
@@ -351,4 +307,4 @@ class Wait(TriggerPattern):
     def __init__(self, where: LTL, until: LTL):
         pattern_formula = "(({w}) U ({u}))".format(w=where.formula, u=until.formula)
 
-        super().__init__(pattern_formula, Variables(where.variables | until.variables))
+        super().__init__(pattern_formula, where.variables | until.variables)

@@ -11,7 +11,7 @@ def get_inputs():
     """The designer specifies a mission using the predefined catalogue of patterns
        In addition to the patterns to use the designer specifies also in which context each goal can be active"""
 
-    print("DEFAULT CONFIG")
+    print("CUSTOM SPEC 6 PATROLLINBATTERY")
     print(os.path.dirname(os.path.abspath(__file__)))
 
     """ Atomic propositions divided in
@@ -123,6 +123,9 @@ def get_inputs():
                 ap["a"]["deliver_medicine"]: ap["a"]["give_med"],
                 ap["s"]["get_med"]: ap["s"]["look_up_meds"] & ap["s"]["label_correct"],
                 ap["a"]["measure_temperature"]: ap["s"]["temperature_checked"],
+                ap["l"]["waiting"]: ap["cl"]["care_center"],
+                ap["l"]["isolation"]: ap["cl"]["care_center"],
+                ap["l"]["charging"]: ap["cl"]["care_center"],
             }
         },
         "gridworld": {
@@ -161,40 +164,40 @@ def get_inputs():
 
     """List of specifications / goals"""
     list_of_goals = [
-        CGTGoal(
-            name="patrolling",
-            description="patrol the care-center",
-            context=[ap["ct"]["night"], ap["ct"]["day"]],
-            contracts=[PContract([
-                Patrolling([ap["cl"]["care_center"]])
-            ])]
-        ),
-        CGTGoal(
-            name="serve-pharmacy",
-            description="serve pharmacy during the day",
-            context=ap["ct"]["day"] & ap["cl"]["pharmacy"],
-            contracts=[PContract([
-                DelayedReaction(
-                    trigger=ap["s"]["get_med"],
-                    reaction=ap["a"]["give_med"])
-            ])]
-        ),
-        CGTGoal(
-            name="welcome-patients",
-            description="welcome patients at their arrival and check their temperature",
-            context=[ap["ct"]["day"] & ap["cl"]["entrance"] & ap["ci"]["mild"],
-                     ap["ct"]["day"] & ap["cl"]["entrance"] & ap["ci"]["severe"]],
-            contracts=[PContract([
-                PromptReaction(
-                    trigger=ap["s"]["human_entered"],
-                    reaction=ap["a"]["welcome_patient"])
-            ])]
-        ),
+        # CGTGoal(
+        #     name="patrolling",
+        #     description="patrol the care-center",
+        #     context=[ap["ct"]["night"], ap["ct"]["day"]],
+        #     contracts=[PContract([
+        #         Patrolling([ap["cl"]["care_center"]])
+        #     ])]
+        # ),
+        # CGTGoal(
+        #     name="serve-pharmacy",
+        #     description="serve pharmacy during the day",
+        #     context=ap["ct"]["day"] & ap["cl"]["pharmacy"],
+        #     contracts=[PContract([
+        #         DelayedReaction(
+        #             trigger=ap["s"]["get_med"],
+        #             reaction=ap["a"]["give_med"])
+        #     ])]
+        # ),
+        # CGTGoal(
+        #     name="welcome-patients",
+        #     description="welcome patients at their arrival and check their temperature",
+        #     context=[ap["ct"]["day"] & ap["cl"]["entrance"] & ap["ci"]["mild"],
+        #              ap["ct"]["day"] & ap["cl"]["entrance"] & ap["ci"]["severe"]],
+        #     contracts=[PContract([
+        #         PromptReaction(
+        #             trigger=ap["s"]["human_entered"],
+        #             reaction=ap["a"]["welcome_patient"])
+        #     ])]
+        # ),
         CGTGoal(
             name="low-battery",
-            description="always go the charging point and contact the main station when the battery is low",
+            description="always go the charging point when the battery is low",
             contracts=[PContract([
-                Recurrence_P_between_Q_and_R(
+                FP_between_Q_and_R(
                     q=ap["s"]["low_battery"],
                     p=ap["l"]["charging"],
                     r=ap["s"]["full_battery"]
@@ -268,14 +271,14 @@ def get_inputs():
                 ])]
             ),
             CGTGoal(
-                name="patrol-b-c-e-f",
+                name="seq-patrol-b-c-e-f",
                 description="patrol areas b, c, e and f",
                 contracts=[PContract([
                     SequencedPatrolling([ap["l"]["b"], ap["l"]["c"], ap["l"]["e"], ap["l"]["f"]])
                 ])]
             ),
             CGTGoal(
-                name="patrol-a-d",
+                name="seq-patrol-a-d",
                 description="patrol areas a and d",
                 contracts=[PContract([
                     SequencedPatrolling([ap["l"]["a"], ap["l"]["d"]])

@@ -11,6 +11,9 @@ class Type(object):
         """Name of the variable"""
         self.name = name
 
+        if name == "charging":
+            print("SETTINT CONTROLLABLE")
+
         """Controllable, for the synthesis"""
         self.__controllable: bool = controllable
 
@@ -29,6 +32,8 @@ class Type(object):
 
     @controllable.setter
     def controllable(self, value: bool):
+        if self.name == "charging":
+            print("SETTINT CONTROLLABLE")
         self.__controllable = value
 
 
@@ -75,7 +80,7 @@ class Variables(set):
         else:
             super().add(other)
 
-    def __or__(self, other):
+    def __or__(self, other) -> 'Variables':
         return Variables(super().__or__(other))
 
     def get_nusmv_names(self):

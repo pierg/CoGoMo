@@ -327,6 +327,10 @@ def create_contextual_clusters(goals: List[CGTGoal], type: str, context_rules: L
     """Extract all unique contexts"""
     contexts: List[LTL] = extract_unique_contexts_from_goals(goals)
 
+    if len(contexts) == 0:
+        conj = conjunction(goals)
+        return {LTL(): conj}
+
     print("\n\n\n\n" + str(len(goals)) + " GOALS\nCONTEXTS:" + str([str(c) for c in contexts]))
 
     print("\n\n")

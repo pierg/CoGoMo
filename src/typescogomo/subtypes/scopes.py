@@ -147,6 +147,7 @@ class FP_after_Q_until_R(Scope):
 
 
 class Recurrence_P_between_Q_and_R(Scope):
+    """TODO: Pattern as defined is always TRUE, TO BE FIXED"""
     """G((q & ! r & F r) -> ((F(p | r)) U r))"""
 
     def __init__(self, p: LTL, q: LTL, r: LTL):

@@ -11,7 +11,7 @@ def get_inputs():
     """The designer specifies a mission using the predefined catalogue of patterns
        In addition to the patterns to use the designer specifies also in which context each goal can be active"""
 
-    print("CUSTOM SPEC c2:")
+    print("CUSTOM SPEC 5 complete")
     print(os.path.dirname(os.path.abspath(__file__)))
 
     """ Atomic propositions divided in
@@ -171,39 +171,39 @@ def get_inputs():
             contracts=[PContract([
                 Patrolling([ap["cl"]["care_center"]])
             ])]
-        ),
-        CGTGoal(
-            name="serve-pharmacy",
-            description="serve pharmacy during the day",
-            context=ap["ct"]["day"] & ap["cl"]["pharmacy"],
-            contracts=[PContract([
-                DelayedReaction(
-                    trigger=ap["s"]["get_med"],
-                    reaction=ap["a"]["give_med"])
-            ])]
-        ),
-        CGTGoal(
-            name="welcome-patients",
-            description="welcome patients at their arrival and check their temperature",
-            context=[ap["ct"]["day"] & ap["cl"]["entrance"] & ap["ci"]["mild"],
-                     ap["ct"]["day"] & ap["cl"]["entrance"] & ap["ci"]["severe"]],
-            contracts=[PContract([
-                PromptReaction(
-                    trigger=ap["s"]["human_entered"],
-                    reaction=ap["a"]["welcome_patient"])
-            ])]
-        ),
-        CGTGoal(
-            name="low-battery",
-            description="always go the charging point and contact the main station when the battery is low",
-            contracts=[PContract([
-                Recurrence_P_between_Q_and_R(
-                    q=ap["s"]["low_battery"],
-                    p=ap["l"]["charging"],
-                    r=ap["s"]["full_battery"]
-                )
-            ])]
         )
+        # CGTGoal(
+        #     name="serve-pharmacy",
+        #     description="serve pharmacy during the day",
+        #     context=ap["ct"]["day"] & ap["cl"]["pharmacy"],
+        #     contracts=[PContract([
+        #         DelayedReaction(
+        #             trigger=ap["s"]["get_med"],
+        #             reaction=ap["a"]["give_med"])
+        #     ])]
+        # ),
+        # CGTGoal(
+        #     name="welcome-patients",
+        #     description="welcome patients at their arrival and check their temperature",
+        #     context=[ap["ct"]["day"] & ap["cl"]["entrance"] & ap["ci"]["mild"],
+        #              ap["ct"]["day"] & ap["cl"]["entrance"] & ap["ci"]["severe"]],
+        #     contracts=[PContract([
+        #         PromptReaction(
+        #             trigger=ap["s"]["human_entered"],
+        #             reaction=ap["a"]["welcome_patient"])
+        #     ])]
+        # )
+        # CGTGoal(
+        #     name="low-battery",
+        #     description="always go the charging point and contact the main station when the battery is low",
+        #     contracts=[PContract([
+        #         Recurrence_P_between_Q_and_R(
+        #             q=ap["s"]["low_battery"],
+        #             p=ap["l"]["charging"],
+        #             r=ap["s"]["full_battery"]
+        #         )
+        #     ])]
+        # )
     ]
 
     """Instantiating a Library of Goals"""
@@ -211,21 +211,21 @@ def get_inputs():
 
     component_library.add_goals(
         [
-            CGTGoal(
-                name="search-check-pickup",
-                description="go to d and take medicines",
-                contracts=[PContract([
-                    PromptReaction(
-                        trigger=ap["s"]["look_up_meds"],
-                        reaction=ap["a"]["search_shelf"] & ap["a"]["check_label"]),
-                    PromptReaction(
-                        trigger=ap["a"]["check_label"] & ap["a"]["search_shelf"],
-                        reaction=ap["a"]["pick_up_medicine"]),
-                    PromptReaction(
-                        trigger=ap["a"]["pick_up_medicine"],
-                        reaction=ap["a"]["deliver_medicine"])
-                ])],
-            ),
+            # CGTGoal(
+            #     name="search-check-pickup",
+            #     description="go to d and take medicines",
+            #     contracts=[PContract([
+            #         PromptReaction(
+            #             trigger=ap["s"]["look_up_meds"],
+            #             reaction=ap["a"]["search_shelf"] & ap["a"]["check_label"]),
+            #         PromptReaction(
+            #             trigger=ap["a"]["check_label"] & ap["a"]["search_shelf"],
+            #             reaction=ap["a"]["pick_up_medicine"]),
+            #         PromptReaction(
+            #             trigger=ap["a"]["pick_up_medicine"],
+            #             reaction=ap["a"]["deliver_medicine"])
+            #     ])],
+            # ),
             CGTGoal(
                 name="day-patrol-entrance-pharmacy",
                 description="patrol entrance and pharmacy",
@@ -242,34 +242,34 @@ def get_inputs():
                     Patrolling([ap["cl"]["corridor"]])
                 ])]
             ),
-            CGTGoal(
-                name="mild-symptoms-welcome",
-                description="welcome patient with mild symptoms",
-                context=ap["ci"]["mild"],
-                contracts=[PContract([
-                    InstantReaction(
-                        trigger=ap["s"]["human_entered"],
-                        reaction=ap["a"]["welcome_patient"] & ap["a"]["measure_temperature"]),
-                    Wait(
-                        where=ap["cl"]["entrance"],
-                        until=ap["s"]["patient_is_following"]),
-                    Visit([ap["l"]["waiting"]])
-                ])]
-            ),
-            CGTGoal(
-                name="severe-symptoms-welcome",
-                description="welcome patient with severe symptoms",
-                context=ap["ci"]["severe"],
-                contracts=[PContract([
-                    InstantReaction(
-                        trigger=ap["s"]["human_entered"],
-                        reaction=ap["a"]["welcome_patient"] & ap["a"]["measure_temperature"]),
-                    Wait(
-                        where=ap["cl"]["entrance"],
-                        until=ap["s"]["patient_is_following"]),
-                    Visit([ap["l"]["isolation"]])
-                ])]
-            ),
+            # CGTGoal(
+            #     name="mild-symptoms-welcome",
+            #     description="welcome patient with mild symptoms",
+            #     context=ap["ci"]["mild"],
+            #     contracts=[PContract([
+            #         InstantReaction(
+            #             trigger=ap["s"]["human_entered"],
+            #             reaction=ap["a"]["welcome_patient"] & ap["a"]["measure_temperature"]),
+            #         Wait(
+            #             where=ap["cl"]["entrance"],
+            #             until=ap["s"]["patient_is_following"]),
+            #         Visit([ap["l"]["waiting"]])
+            #     ])]
+            # ),
+            # CGTGoal(
+            #     name="severe-symptoms-welcome",
+            #     description="welcome patient with severe symptoms",
+            #     context=ap["ci"]["severe"],
+            #     contracts=[PContract([
+            #         InstantReaction(
+            #             trigger=ap["s"]["human_entered"],
+            #             reaction=ap["a"]["welcome_patient"] & ap["a"]["measure_temperature"]),
+            #         Wait(
+            #             where=ap["cl"]["entrance"],
+            #             until=ap["s"]["patient_is_following"]),
+            #         Visit([ap["l"]["isolation"]])
+            #     ])]
+            # ),
             CGTGoal(
                 name="seq-patrol-b-c-e-f",
                 description="patrol areas b, c, e and f",

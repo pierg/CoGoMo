@@ -505,7 +505,10 @@ class CGTGoal:
             ret += "\t" * level + "SYNTH TIME:\t" + str(self.time_synthesis) + "\n"
         else:
             ret += "\t" * level + "RALIZABLE:\tNO\n"
-            ret += "\t" * level + "ERROR CODE:\t" + str(self.time_synthesis) + "\n"
+            if self.time_synthesis == -200:
+                ret += "\t" * level + "OUT OF MEMORY" + "\n"
+            else:
+                ret += "\t" * level + "TIME-OUT OCCURRED : " + str(self.time_synthesis) + " seconds\n"
 
         ret += "\n"
         if self.refined_by is not None:

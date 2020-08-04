@@ -95,7 +95,7 @@ def generate_controllers_for_cgt(cgt: CGTGoal, folder_path):
                 print("timeout occurred")
                 goal.realizable = False
                 goal.controller = None
-                goal.time_synthesis = -100
+                goal.time_synthesis = e.timeout_value
 
 
 def generate_controllers_from_cgt_clustered(cgt: CGTGoal, folder_path, complete=False):

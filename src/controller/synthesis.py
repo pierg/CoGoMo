@@ -19,11 +19,12 @@ output_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'
 
 
 class SynthesisException(Exception):
-    def __init__(self, reason: "str"):
+    def __init__(self, reason: str, timeout_value: int = None):
 
         self.os_not_supported = False
         self.trivial = False
         self.timeout = False
+        self.timeout_value = timeout_value
 
         if reason == "os_not_supported":
             self.os_not_supported = True
@@ -64,12 +65,13 @@ def get_controller(assumptions: str, guarantees: str, ins: str, outs: str) -> Tu
         print("\n\nRUNNING COMMAND:\n\n" + command + "\n\n")
         start_time = time.time()
         result = []
+        timeout = 3600
         try:
-            result = subprocess.check_output([strix_path + params], shell=True, timeout=3600, encoding='UTF-8').split()
+            result = subprocess.check_output([strix_path + params], shell=True, timeout=timeout, encoding='UTF-8').split()
             # result = subprocess.check_output([strix_path + params], shell=True, encoding='UTF-8').split()
         except subprocess.TimeoutExpired as e:
             print("TIMEOUT for synthesis, more than 100 sec")
-            raise SynthesisException("timeout")
+            raise SynthesisException("timeout", timeout=timeout)
         except Exception as e:
             print("EXCEPTION OCCURRED:\n" + str(e))
             print("FINISH EXCEPTION\n\n")

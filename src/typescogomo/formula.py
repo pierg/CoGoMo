@@ -154,8 +154,6 @@ class LTL:
         for elem in self.cnf:
             if elem.kind == kind:
                 ret.append(elem)
-        if len(ret) == 0:
-            return None
         return ret
 
     def __deepcopy__(self, memo):
@@ -269,6 +267,8 @@ class LTL:
 
     def __lt__(self, other: 'LTL'):
         """Check if the set of behaviours is smaller in the other set of behaviours"""
+        if self.formula == other.formula:
+            return False
         lt = self <= other
         neq = self != other
         return lt and neq

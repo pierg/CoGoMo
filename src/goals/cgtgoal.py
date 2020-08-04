@@ -317,17 +317,17 @@ class CGTGoal:
         if len(self.contracts) > 1:
             raise Exception("Goals that have multiple conjoined contracts are not supported for extension")
 
+        print("Extending\t" + self.name + "\t...")
         try:
-            goal = library.extract_selection(self.contracts[0].guarantees)
+            goal = library.extract_selection(self)
+            print("Extending\t" + self.name + "\t...")
+            goal.apply_rules(rules_dict)
+            self.refine_by(goal, skip_check=True)
+            print(self.name + "\textended with\t" + goal.name)
+            goal.extend_from_library(library, rules_dict)
 
-        except NoGoalFoundException as e:
+        except NoGoalFoundException:
             return
-
-        goal.apply_rules(rules_dict)
-
-        self.refine_by(goal, skip_check=True)
-
-        goal.extend_from_library(library, rules_dict)
 
     def add_domain_properties(self):
         """Adding Domain Properties to 'cgt' (i.e. descriptive statements about the problem world (such as physical laws)
@@ -525,7 +525,7 @@ class CGTGoal:
                     print("ERROR IN PRINT")
         return ret
 
-    def print_cgt_detaild(self, level=0):
+    def print_cgt_detailed(self, level=0):
         """Override the print behavior"""
         ret = "\t" * level + "GOAL:\t" + repr(self.name) + "\n"
         ret += "\t" * level + "ID:\t" + repr(self.id) + "\n"
@@ -534,11 +534,16 @@ class CGTGoal:
                 ret += "\t" * level + "\t/\\ \n"
             ret += "\t" * level + "  ASSUMPTIONS:\n"
             for a in contract.assumptions.cnf:
-                ret += "\t" * level + "  \t\t(" + a.kind + ")\t" + a.formula + "\n"
+                ret += "\t" * level + "  \t\t[" + a.kind + "]\t\t\t" + a.formula + "\n"
 
             ret += "\t" * level + "  GUARANTEES:\n"
             for g in contract.guarantees.cnf:
-                ret += "\t" * level + "  \t\t(" + g.kind + ")\t" + g.formula + "\n"
+                if g.kind == "constraints":
+                    ret += "\t" * level + "  \t\t[" + g.kind + "]\t\t" + g.formula + "\n"
+                elif g.kind == "scope":
+                    ret += "\t" * level + "  \t\t[" + g.kind + "]\t\t\t\t" + g.formula + "\n"
+                else:
+                    ret += "\t" * level + "  \t\t[" + g.kind + "]\t\t\t" + g.formula + "\n"
 
         ret += "\n"
         if self.refined_by is not None:
@@ -546,7 +551,7 @@ class CGTGoal:
             level += 1
             for child in self.refined_by:
                 try:
-                    ret += child.print_cgt_detaild(level + 1)
+                    ret += child.print_cgt_detailed(level + 1)
                 except:
                     print("ERROR IN PRINT")
         return ret
@@ -643,13 +648,17 @@ class GoalsLibrary:
             self.add_goal(goal)
 
     def extract_selection(self,
-                          to_be_refined: LTL) -> 'CGTGoal':
+                          goal_to_refine: 'CGTGoal') -> 'CGTGoal':
         """"Returns the first goal that can refine"""
 
+        to_be_refined = goal_to_refine.contracts[0].guarantees
+
         for goal in self.goals:
-            print("\n\nMAPPING?\n" + goal.contracts[0].guarantees.formula + " -> " + to_be_refined.formula + "\n\n")
-            if goal.contracts[0].guarantees < to_be_refined:
-                return goal
+            if goal.id != goal_to_refine.id:
+                print("\n\nMAPPING?\n" + goal.contracts[0].guarantees.formula + " -> " + to_be_refined.formula + "\n\n")
+                if goal.contracts[0].guarantees < to_be_refined:
+                    goal_copy = deepcopy(goal)
+                    return goal_copy
 
         raise NoGoalFoundException()
 

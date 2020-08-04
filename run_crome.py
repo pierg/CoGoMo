@@ -71,7 +71,7 @@ def generate_controllers_for_cgt(cgt: CGTGoal, folder_path):
     """Synthetize the controller for each node of the CGT"""
     list_cgt = cgt.get_all_nodes()
     for i, goal in enumerate(list_cgt):
-        sub_folder_path = folder_path + "GOAL_" + goal.id + "/"
+        sub_folder_path = folder_path + goal.id + "/"
         try:
             realizable, mealy_machine, exec_time = generate_controller_from_cgt(goal, sub_folder_path)
 

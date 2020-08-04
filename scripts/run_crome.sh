@@ -26,7 +26,7 @@ if [ $# -eq 0 ]
     echo "  Or run 'docker ps' to see if the process is still running"
 
     echo "  results and logs will be saved in $(pwd)/default/"
-    docker logs -f cogomo_clustering >& "$(pwd)/default/logs.txt" &
+    docker logs -f crome_default >& "$(pwd)/default/logs.txt" &
 
   else
     echo "  custom input file provided, launching with: $1/crome_specifications.py"
@@ -47,7 +47,7 @@ if [ $# -eq 0 ]
     echo "  Or run 'docker ps' to see if the process is still running"
 
     echo "  results and logs will be saved in $(pwd)/$1/"
-    docker logs -f cogomo_clustering >& "$(pwd)/$1/logs.txt" &
+    docker logs -f "$1" >& "$(pwd)/$1/logs.txt" &
 
 fi
 

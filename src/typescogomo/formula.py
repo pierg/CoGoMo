@@ -22,8 +22,7 @@ class LTL:
         if formula is not None and cnf is None:
 
             if variables is None:
-                raise Exception("No variables provided")
-                # variables = extract_variable(str(formula))
+                variables = extract_variable(str(formula))
 
             """String representing the LTL"""
             self.__formula: str = formula

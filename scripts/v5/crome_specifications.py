@@ -193,17 +193,17 @@ def get_inputs():
                     reaction=ap["a"]["welcome_patient"])
             ])]
         ),
-        CGTGoal(
-            name="low-battery",
-            description="always go the charging point and contact the main station when the battery is low",
-            contracts=[PContract([
-                Recurrence_P_between_Q_and_R(
-                    q=ap["s"]["low_battery"],
-                    p=ap["l"]["charging"],
-                    r=ap["s"]["full_battery"]
-                )
-            ])]
-        )
+        # CGTGoal(
+        #     name="low-battery",
+        #     description="always go the charging point and contact the main station when the battery is low",
+        #     contracts=[PContract([
+        #         Recurrence_P_between_Q_and_R(
+        #             q=ap["s"]["low_battery"],
+        #             p=ap["l"]["charging"],
+        #             r=ap["s"]["full_battery"]
+        #         )
+        #     ])]
+        # )
     ]
 
     """Instantiating a Library of Goals"""

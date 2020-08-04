@@ -164,14 +164,14 @@ def get_inputs():
 
     """List of specifications / goals"""
     list_of_goals = [
-        # CGTGoal(
-        #     name="patrolling",
-        #     description="patrol the care-center",
-        #     context=[ap["ct"]["night"], ap["ct"]["day"]],
-        #     contracts=[PContract([
-        #         Patrolling([ap["cl"]["care_center"]])
-        #     ])]
-        # ),
+        CGTGoal(
+            name="patrolling",
+            description="patrol the care-center",
+            context=[ap["ct"]["night"], ap["ct"]["day"]],
+            contracts=[PContract([
+                Patrolling([ap["cl"]["care_center"]])
+            ])]
+        ),
         # CGTGoal(
         #     name="serve-pharmacy",
         #     description="serve pharmacy during the day",

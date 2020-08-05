@@ -505,10 +505,10 @@ class CGTGoal:
 
         if self.realizable is not None:
             if self.realizable:
-                ret += "\t" * level + "RALIZABLE :\tYES\n"
+                ret += "\t" * level + "REALIZABLE :\tYES\n"
                 ret += "\t" * level + "SYNTH TIME:\t" + str(self.time_synthesis) + "\n"
             else:
-                ret += "\t" * level + "RALIZABLE:\tNO\n"
+                ret += "\t" * level + "REALIZABLE:\tNO\n"
                 if self.time_synthesis == -200:
                     ret += "\t" * level + "OUT OF MEMORY" + "\n"
                 else:

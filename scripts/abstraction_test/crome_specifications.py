@@ -172,7 +172,7 @@ def get_inputs():
             name="patrolling",
             description="patrol the care-center",
             contracts=[PContract([
-                Patrolling([ap["cl"]["entrance"], ap["cl"]["pharmacy"], ap["cl"]["corridor"]])
+                SequencedPatrolling([ap["cl"]["entrance"], ap["cl"]["pharmacy"], ap["cl"]["corridor"]])
             ])]
         )
     ]

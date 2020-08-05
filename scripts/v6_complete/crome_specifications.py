@@ -142,6 +142,7 @@ def get_inputs():
             ap["l"]["waiting"]: [ap["l"]["waiting"], ap["l"]["b"]],
             ap["l"]["isolation"]: [ap["l"]["isolation"], ap["l"]["c"]],
             ap["l"]["charging"]: [ap["l"]["charging"], ap["l"]["f"]]
+        #     TODO: g i missing
         },
         "constraints": {
             "mutex": [[

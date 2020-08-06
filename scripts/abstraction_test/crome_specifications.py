@@ -112,7 +112,8 @@ def get_inputs():
             "inclusion": {
                 ap["l"]["a"]: ap["cl"]["entrance"],
                 ap["l"]["d"]: ap["cl"]["pharmacy"],
-                ap["l"]["b"] | ap["l"]["c"] | ap["l"]["e"] | ap["l"]["f"]: ap["cl"]["corridor"],
+                SequencedPatrolling([ap["l"]["b"], ap["l"]["c"], ap["l"]["e"], ap["l"]["f"]]):
+                    SequencedPatrolling([ap["cl"]["corridor"]]),
 
             }
         },
@@ -158,7 +159,8 @@ def get_inputs():
                 name="seq-patrol-b-c-e-f",
                 description="patrol areas b, c, e and f",
                 contracts=[PContract([
-                    SequencedPatrolling([ap["l"]["a"], ap["l"]["d"], ap["l"]["b"], ap["l"]["c"], ap["l"]["e"], ap["l"]["f"]])
+                    SequencedPatrolling(
+                        [ap["l"]["a"], ap["l"]["d"], ap["l"]["b"], ap["l"]["c"], ap["l"]["e"], ap["l"]["f"]])
                 ])]
             )
         ]

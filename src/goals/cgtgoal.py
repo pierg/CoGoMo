@@ -169,7 +169,7 @@ class CGTGoal:
 
     @property
     def time_synthesis(self) -> int:
-        return self.__time_synthesis
+        return round(self.__time_synthesis, 2)
 
     @time_synthesis.setter
     def time_synthesis(self, value: int):
@@ -521,6 +521,34 @@ class CGTGoal:
             for child in self.refined_by:
                 try:
                     ret += child.print_cgt_summary(level + 1)
+                except:
+                    print("ERROR IN PRINT")
+        return ret
+
+    def pretty_print_cgt_summary(self, level=0):
+        """Override the print behavior"""
+
+        """Override the print behavior"""
+        ret = "\t" * level + "GOAL NAME:\t" + repr(self.name) + "\n"
+        # ret += "\t" * level + "ID:\t" + repr(self.id) + "\n"
+        if self.realizable is not None:
+            if self.realizable:
+                ret += "\t" * level + "REALIZABLE :\tYES\n"
+                ret += "\t" * level + "SYNTH TIME:\t" + str(self.time_synthesis) + "\n"
+            else:
+                ret += "\t" * level + "REALIZABLE:\tNO"
+                if self.time_synthesis == -200:
+                    ret += "\t" * level + "(OUT OF MEMORY)" + "\n"
+                else:
+                    ret += "\t" * level + "(TIME-OUT OCCURRED : " + str(self.time_synthesis) + " seconds)\n"
+
+        ret += "\n"
+        if self.refined_by is not None:
+            ret += "\t" * level + "\t" + self.refined_with + "\n"
+            level += 1
+            for child in self.refined_by:
+                try:
+                    ret += child.pretty_print_cgt_summary(level + 1)
                 except:
                     print("ERROR IN PRINT")
         return ret

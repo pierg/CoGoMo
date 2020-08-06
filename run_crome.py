@@ -156,6 +156,7 @@ def run(list_of_goals: List[CGTGoal], result_folder: str):
     generate_controllers_for_cgt(cgt, result_folder + "/all_goals/")
 
     save_to_file(str(cgt.print_cgt_summary()), result_folder + "/CGT_summary.txt")
+    save_to_file(str(cgt.pretty_print_cgt_summary()), result_folder + "/CGT_summary_pretty.txt")
 
     print(cgt)
 

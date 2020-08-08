@@ -9,8 +9,27 @@ docker pull pmallozzi/cogomo:latest
 
 if [ $# -eq 0 ]
   then
-    echo "PROVIDE CONFIG FOLDER"
-    exit 0
+    echo "  cleaning up folder"
+    sudo rm -r "$(pwd)/case_study_care_center/results"
+    mkdir "$(pwd)/case_study_care_center/results"
+
+    echo "stopping existing containers..."
+    docker stop case_study_care_center || true && docker rm case_study_care_center || true
+
+    echo "  creating new docker container..."
+    echo "  name case_study_care_center"
+    docker create -i -t  --name case_study_care_center -v "$(pwd)/case_study_care_center/results":/home/cogomo/output/results pmallozzi/cogomo:latest -c
+
+    echo "copying input file $(pwd)/case_study_care_center/crome_specifications.py"
+    docker cp "$(pwd)/case_study_care_center/crome_specifications.py" case_study_care_center:/home/
+
+    echo "  starting docker..."
+    docker start case_study_care_center
+    echo "  process started...check the log file to see when it finishes."
+    echo "  Or run 'docker ps' to see if the process is still running"
+
+    echo "  results and logs will be saved in $(pwd)/case_study_care_center/"
+    docker logs -f case_study_care_center >& "$(pwd)/case_study_care_center/logs.txt" &
 
   else
     echo "  custom input file provided, launching with: $1/crome_specifications.py"

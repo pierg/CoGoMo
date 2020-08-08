@@ -1,0 +1,35 @@
+ASSUMPTIONS
+
+	G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+	G((get_med) -> ((look_up_meds & label_correct)))
+	G((charging) -> (care_center))
+	G((deliver_medicine) -> (give_med))
+	G((a) -> (entrance))
+	G(((entrance & ! (pharmacy) & ! (corridor) & ! (medical_room)) | (pharmacy & ! (entrance) & ! (corridor) & ! (medical_room)) | (corridor & ! (entrance) & ! (pharmacy) & ! (medical_room)) | (medical_room & ! (entrance) & ! (pharmacy) & ! (corridor))))
+	G(((day & ! (night)) | (night & ! (day))))
+	G((waiting) -> (care_center))
+	G((corridor) -> (care_center))
+	G((medical_room) -> (care_center))
+	G((g) -> (medical_room))
+	G((d) -> (pharmacy))
+	G((isolation) -> (care_center))
+	G((pharmacy) -> (care_center))
+	G((entrance) -> (care_center))
+
+
+GUARANTEES
+
+	(((((((((((((((((G(((entrance & ! (pharmacy) & ! (corridor) & ! (medical_room)) | (pharmacy & ! (entrance) & ! (corridor) & ! (medical_room)) | (corridor & ! (entrance) & ! (pharmacy) & ! (medical_room)) | (medical_room & ! (entrance) & ! (pharmacy) & ! (corridor)))) & G(((day & ! (night)) | (night & ! (day))))) & G((entrance) -> (care_center))) & G((pharmacy) -> (care_center))) & G((medical_room) -> (care_center))) & G((corridor) -> (care_center))) & G((waiting) -> (care_center))) & G((isolation) -> (care_center))) & G((charging) -> (care_center))) & G((a) -> (entrance))) & G((d) -> (pharmacy))) & G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))) & G((g) -> (medical_room))) & G((deliver_medicine) -> (give_med))) & G((get_med) -> ((look_up_meds & label_correct)))) & (G((deliver_medicine) -> (give_med)) & G((get_med) -> ((look_up_meds & label_correct)))))) -> (G((((day & pharmacy) & ! (night) & ! (((entrance & day) & mild)) & day & ! (((entrance & day) & severe)))) -> (G((get_med) -> F(give_med))))))
+
+
+
+INPUTS
+
+	label_correct, pharmacy, severe, medical_room, corridor, get_med, day, mild, entrance, care_center, night, look_up_meds
+
+OUTPUTS
+
+	give_med, a, waiting, deliver_medicine, g, e, c, b, isolation, charging, f, d
+
+END
+

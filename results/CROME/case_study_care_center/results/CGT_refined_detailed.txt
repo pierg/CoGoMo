@@ -1,0 +1,710 @@
+GOAL:	'low-battery||patrolling & day^^low-battery||patrolling & day||serve-pharmacy^^low-battery||patrolling & day||welcome-patients & ((entrance & day) & mild)^^low-battery||patrolling & day||welcome-patients & ((entrance & day) & severe)^^low-battery||patrolling & night'
+ID:	'f3197'
+  ASSUMPTIONS:
+  		[context]			G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+  		[context]			G((charging) -> (care_center))
+  		[context]			G((a) -> (entrance))
+  		[context]			G(((day & !(night)) | (night & !(day))))
+  		[context]			G((waiting) -> (care_center))
+  		[context]			G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor))))
+  		[context]			G((corridor) -> (care_center))
+  		[context]			G((medical_room) -> (care_center))
+  		[context]			G((g) -> (medical_room))
+  		[context]			G((d) -> (pharmacy))
+  		[context]			G((isolation) -> (care_center))
+  		[context]			G((pharmacy) -> (care_center))
+  		[context]			G((entrance) -> (care_center))
+  GUARANTEES:
+  		[gridworld]			G(g -> X (g | f))
+  		[gridworld]			G(f -> X (f | e | g | charging))
+  		[pattern]			G(F(care_center))
+  		[constraints]		G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+  		[gridworld]			G(charging -> X (charging | f))
+  		[scope]				(G((low_battery & F(full_battery)) -> (!(full_battery) U (charging))))
+	/\ 
+  ASSUMPTIONS:
+  		[context]			G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+  		[context]			G((charging) -> (care_center))
+  		[context]			G((a) -> (entrance))
+  		[context]			G(((day & !(night)) | (night & !(day))))
+  		[context]			G((waiting) -> (care_center))
+  		[context]			G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor))))
+  		[context]			G((corridor) -> (care_center))
+  		[context]			G((medical_room) -> (care_center))
+  		[context]			G((g) -> (medical_room))
+  		[context]			G((d) -> (pharmacy))
+  		[context]			G((isolation) -> (care_center))
+  		[context]			G((pharmacy) -> (care_center))
+  		[context]			G((entrance) -> (care_center))
+  GUARANTEES:
+  		[gridworld]			G(g -> X (g | f))
+  		[gridworld]			G(f -> X (f | e | g | charging))
+  		[pattern]			G(F(care_center))
+  		[constraints]		G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+  		[gridworld]			G(charging -> X (charging | f))
+  		[scope]				(G((low_battery & F(full_battery)) -> (!(full_battery) U (charging))))
+	/\ 
+  ASSUMPTIONS:
+  		[context]			G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+  		[context]			G((get_med) -> ((look_up_meds & label_correct)))
+  		[context]			G((medical_room) -> (care_center))
+  		[context]			G((deliver_medicine) -> (give_med))
+  		[context]			G((a) -> (entrance))
+  		[context]			G(((day & !(night)) | (night & !(day))))
+  		[context]			G((waiting) -> (care_center))
+  		[context]			G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor))))
+  		[context]			G((corridor) -> (care_center))
+  		[context]			G((charging) -> (care_center))
+  		[context]			G((g) -> (medical_room))
+  		[context]			G((d) -> (pharmacy))
+  		[context]			G((isolation) -> (care_center))
+  		[context]			G((pharmacy) -> (care_center))
+  		[context]			G((entrance) -> (care_center))
+  GUARANTEES:
+  		[gridworld]			G(g -> X (g | f))
+  		[gridworld]			G(f -> X (f | e | g | charging))
+  		[pattern]			G(F(care_center))
+  		[constraints]		G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+  		[pattern]			G((get_med) -> F(give_med))
+  		[gridworld]			G(charging -> X (charging | f))
+  		[scope]				(G((low_battery & F(full_battery)) -> (!(full_battery) U (charging))))
+	/\ 
+  ASSUMPTIONS:
+  		[context]			G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+  		[context]			G((medical_room) -> (care_center))
+  		[context]			G((a) -> (entrance))
+  		[context]			G(((day & !(night)) | (night & !(day))))
+  		[context]			G((waiting) -> (care_center))
+  		[context]			G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor))))
+  		[context]			G((corridor) -> (care_center))
+  		[context]			G(((severe & !(mild)) | (mild & !(severe))))
+  		[context]			G((charging) -> (care_center))
+  		[context]			G((g) -> (medical_room))
+  		[context]			G((d) -> (pharmacy))
+  		[context]			G((isolation) -> (care_center))
+  		[context]			G((pharmacy) -> (care_center))
+  		[context]			G((entrance) -> (care_center))
+  GUARANTEES:
+  		[gridworld]			G(g -> X (g | f))
+  		[gridworld]			G(f -> X (f | e | g | charging))
+  		[pattern]			G(F(care_center))
+  		[constraints]		G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+  		[pattern]			G((human_entered) -> X(welcome_patient))
+  		[gridworld]			G(charging -> X (charging | f))
+  		[scope]				(G((low_battery & F(full_battery)) -> (!(full_battery) U (charging))))
+	/\ 
+  ASSUMPTIONS:
+  		[context]			G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+  		[context]			G((medical_room) -> (care_center))
+  		[context]			G((a) -> (entrance))
+  		[context]			G(((day & !(night)) | (night & !(day))))
+  		[context]			G((waiting) -> (care_center))
+  		[context]			G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor))))
+  		[context]			G((corridor) -> (care_center))
+  		[context]			G(((severe & !(mild)) | (mild & !(severe))))
+  		[context]			G((charging) -> (care_center))
+  		[context]			G((g) -> (medical_room))
+  		[context]			G((d) -> (pharmacy))
+  		[context]			G((isolation) -> (care_center))
+  		[context]			G((pharmacy) -> (care_center))
+  		[context]			G((entrance) -> (care_center))
+  GUARANTEES:
+  		[gridworld]			G(g -> X (g | f))
+  		[gridworld]			G(f -> X (f | e | g | charging))
+  		[pattern]			G(F(care_center))
+  		[constraints]		G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+  		[pattern]			G((human_entered) -> X(welcome_patient))
+  		[gridworld]			G(charging -> X (charging | f))
+  		[scope]				(G((low_battery & F(full_battery)) -> (!(full_battery) U (charging))))
+
+	CONJUNCTION
+		GOAL:	'low-battery||patrolling & night'
+		ID:	'0169f'
+		  ASSUMPTIONS:
+		  		[context]			G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+		  		[context]			G((medical_room) -> (care_center))
+		  		[context]			G((a) -> (entrance))
+		  		[context]			G(((day & !(night)) | (night & !(day))))
+		  		[context]			G((waiting) -> (care_center))
+		  		[context]			G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor))))
+		  		[context]			G((corridor) -> (care_center))
+		  		[context]			G((charging) -> (care_center))
+		  		[context]			G((g) -> (medical_room))
+		  		[context]			G((d) -> (pharmacy))
+		  		[context]			G((isolation) -> (care_center))
+		  		[context]			G((pharmacy) -> (care_center))
+		  		[context]			G((entrance) -> (care_center))
+		  GUARANTEES:
+		  		[scope]				(G((low_battery & F(full_battery)) -> (!(full_battery) U (charging))))
+		  		[constraints]		G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+		  		[gridworld]			G(g -> X (g | f))
+		  		[gridworld]			G(f -> X (f | e | g | charging))
+		  		[gridworld]			G(charging -> X (charging | f))
+		  		[pattern]			G(F(care_center))
+
+			COMPOSITION
+				GOAL:	'patrolling & night'
+				ID:	'0754a'
+				  ASSUMPTIONS:
+				  		[context]			G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+				  		[context]			G((charging) -> (care_center))
+				  		[context]			G(((day & !(night)) | (night & !(day))))
+				  		[context]			G((corridor) -> (care_center))
+				  		[context]			G((g) -> (medical_room))
+				  		[context]			G((isolation) -> (care_center))
+				  		[context]			G((a) -> (entrance))
+				  		[context]			G((waiting) -> (care_center))
+				  		[context]			G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor))))
+				  		[context]			G((medical_room) -> (care_center))
+				  		[context]			G((d) -> (pharmacy))
+				  		[context]			G((pharmacy) -> (care_center))
+				  		[context]			G((entrance) -> (care_center))
+				  GUARANTEES:
+				  		[pattern]			G(F(care_center))
+
+					REFINEMENT
+						GOAL:	'night-patrol-corridor'
+						ID:	'b750a'
+						  ASSUMPTIONS:
+						  		[context]			G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+						  		[context]			G(((day & !(night)) | (night & !(day))))
+						  		[context]			G((corridor) -> (care_center))
+						  		[context]			G((g) -> (medical_room))
+						  		[context]			G((isolation) -> (care_center))
+						  		[context]			G((medical_room) -> (care_center))
+						  		[context]			G((a) -> (entrance))
+						  		[context]			G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor))))
+						  		[context]			G((waiting) -> (care_center))
+						  		[context]			G((charging) -> (care_center))
+						  		[context]			G((d) -> (pharmacy))
+						  		[context]			G((pharmacy) -> (care_center))
+						  		[context]			G((entrance) -> (care_center))
+						  GUARANTEES:
+						  		[pattern]			G(F(corridor))
+
+							REFINEMENT
+								GOAL:	'seq-patrol-b-c-e-f'
+								ID:	'fde12'
+								  ASSUMPTIONS:
+								  		[context]			G((waiting) -> (care_center))
+								  		[context]			G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+								  		[context]			G((charging) -> (care_center))
+								  		[context]			G((g) -> (medical_room))
+								  		[context]			G((d) -> (pharmacy))
+								  		[context]			G((isolation) -> (care_center))
+								  		[context]			G((a) -> (entrance))
+								  GUARANTEES:
+								  		[gridworld]			G(charging -> X (charging | f))
+								  		[gridworld]			G(waiting -> X (waiting | b))
+								  		[gridworld]			G(g -> X (g | f))
+								  		[gridworld]			G(b -> X (b | a | c | waiting))
+								  		[gridworld]			G(isolation -> X (isolation | c))
+								  		[gridworld]			G(f -> X (f | e | g | charging))
+								  		[gridworld]			G(d -> X (d | a | c))
+								  		[gridworld]			G(a -> X (a | b | d))
+								  		[constraints]		G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+								  		[pattern]			G(F(b & F(c & F(e & F(f)))))
+								  		[gridworld]			G(e -> X (e | c | f))
+								  		[gridworld]			G(c -> X (c | b | d | e | isolation))
+
+				GOAL:	'low-battery'
+				ID:	'6e453'
+				  ASSUMPTIONS:
+				  		[context]			G((g) -> (medical_room))
+				  		[context]			G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+				  		[context]			G((charging) -> (care_center))
+				  GUARANTEES:
+				  		[constraints]		G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+				  		[gridworld]			G(g -> X (g | f))
+				  		[gridworld]			G(f -> X (f | e | g | charging))
+				  		[gridworld]			G(charging -> X (charging | f))
+				  		[scope]				(G((low_battery & F(full_battery)) -> (!(full_battery) U (charging))))
+
+		GOAL:	'low-battery||patrolling & day'
+		ID:	'ea5b0'
+		  ASSUMPTIONS:
+		  		[context]			G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+		  		[context]			G((medical_room) -> (care_center))
+		  		[context]			G((a) -> (entrance))
+		  		[context]			G(((day & !(night)) | (night & !(day))))
+		  		[context]			G((waiting) -> (care_center))
+		  		[context]			G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor))))
+		  		[context]			G((corridor) -> (care_center))
+		  		[context]			G((charging) -> (care_center))
+		  		[context]			G((g) -> (medical_room))
+		  		[context]			G((d) -> (pharmacy))
+		  		[context]			G((isolation) -> (care_center))
+		  		[context]			G((pharmacy) -> (care_center))
+		  		[context]			G((entrance) -> (care_center))
+		  GUARANTEES:
+		  		[scope]				(G((low_battery & F(full_battery)) -> (!(full_battery) U (charging))))
+		  		[constraints]		G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+		  		[gridworld]			G(g -> X (g | f))
+		  		[gridworld]			G(f -> X (f | e | g | charging))
+		  		[gridworld]			G(charging -> X (charging | f))
+		  		[pattern]			G(F(care_center))
+
+			COMPOSITION
+				GOAL:	'patrolling & day'
+				ID:	'5e476'
+				  ASSUMPTIONS:
+				  		[context]			G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+				  		[context]			G((charging) -> (care_center))
+				  		[context]			G(((day & !(night)) | (night & !(day))))
+				  		[context]			G((corridor) -> (care_center))
+				  		[context]			G((g) -> (medical_room))
+				  		[context]			G((isolation) -> (care_center))
+				  		[context]			G((a) -> (entrance))
+				  		[context]			G((waiting) -> (care_center))
+				  		[context]			G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor))))
+				  		[context]			G((medical_room) -> (care_center))
+				  		[context]			G((d) -> (pharmacy))
+				  		[context]			G((pharmacy) -> (care_center))
+				  		[context]			G((entrance) -> (care_center))
+				  GUARANTEES:
+				  		[pattern]			G(F(care_center))
+
+					REFINEMENT
+						GOAL:	'day-patrol-entrance-pharmacy'
+						ID:	'2057b'
+						  ASSUMPTIONS:
+						  		[context]			G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+						  		[context]			G(((day & !(night)) | (night & !(day))))
+						  		[context]			G((corridor) -> (care_center))
+						  		[context]			G((g) -> (medical_room))
+						  		[context]			G((isolation) -> (care_center))
+						  		[context]			G((medical_room) -> (care_center))
+						  		[context]			G((a) -> (entrance))
+						  		[context]			G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor))))
+						  		[context]			G((waiting) -> (care_center))
+						  		[context]			G((charging) -> (care_center))
+						  		[context]			G((d) -> (pharmacy))
+						  		[context]			G((pharmacy) -> (care_center))
+						  		[context]			G((entrance) -> (care_center))
+						  GUARANTEES:
+						  		[pattern]			(G(F(entrance)) & G(F(pharmacy)))
+
+							REFINEMENT
+								GOAL:	'seq-patrol-a-d'
+								ID:	'a4c9b'
+								  ASSUMPTIONS:
+								  		[context]			G((waiting) -> (care_center))
+								  		[context]			G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+								  		[context]			G((charging) -> (care_center))
+								  		[context]			G((g) -> (medical_room))
+								  		[context]			G((d) -> (pharmacy))
+								  		[context]			G((isolation) -> (care_center))
+								  		[context]			G((a) -> (entrance))
+								  GUARANTEES:
+								  		[gridworld]			G(charging -> X (charging | f))
+								  		[gridworld]			G(waiting -> X (waiting | b))
+								  		[gridworld]			G(g -> X (g | f))
+								  		[gridworld]			G(b -> X (b | a | c | waiting))
+								  		[gridworld]			G(isolation -> X (isolation | c))
+								  		[gridworld]			G(f -> X (f | e | g | charging))
+								  		[pattern]			G(F(a & F(d)))
+								  		[gridworld]			G(d -> X (d | a | c))
+								  		[gridworld]			G(a -> X (a | b | d))
+								  		[constraints]		G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+								  		[gridworld]			G(e -> X (e | c | f))
+								  		[gridworld]			G(c -> X (c | b | d | e | isolation))
+
+				GOAL:	'low-battery'
+				ID:	'6e453'
+				  ASSUMPTIONS:
+				  		[context]			G((g) -> (medical_room))
+				  		[context]			G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+				  		[context]			G((charging) -> (care_center))
+				  GUARANTEES:
+				  		[constraints]		G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+				  		[gridworld]			G(g -> X (g | f))
+				  		[gridworld]			G(f -> X (f | e | g | charging))
+				  		[gridworld]			G(charging -> X (charging | f))
+				  		[scope]				(G((low_battery & F(full_battery)) -> (!(full_battery) U (charging))))
+
+		GOAL:	'low-battery||patrolling & day||serve-pharmacy'
+		ID:	'c5e82'
+		  ASSUMPTIONS:
+		  		[context]			G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+		  		[context]			G((charging) -> (care_center))
+		  		[context]			G(((day & !(night)) | (night & !(day))))
+		  		[context]			G((corridor) -> (care_center))
+		  		[context]			G((g) -> (medical_room))
+		  		[context]			G((isolation) -> (care_center))
+		  		[context]			G((get_med) -> ((look_up_meds & label_correct)))
+		  		[context]			G((a) -> (entrance))
+		  		[context]			G((waiting) -> (care_center))
+		  		[context]			G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor))))
+		  		[context]			G((medical_room) -> (care_center))
+		  		[context]			G((deliver_medicine) -> (give_med))
+		  		[context]			G((d) -> (pharmacy))
+		  		[context]			G((pharmacy) -> (care_center))
+		  		[context]			G((entrance) -> (care_center))
+		  GUARANTEES:
+		  		[scope]				(G((low_battery & F(full_battery)) -> (!(full_battery) U (charging))))
+		  		[constraints]		G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+		  		[gridworld]			G(g -> X (g | f))
+		  		[gridworld]			G(f -> X (f | e | g | charging))
+		  		[pattern]			G((get_med) -> F(give_med))
+		  		[gridworld]			G(charging -> X (charging | f))
+		  		[pattern]			G(F(care_center))
+
+			COMPOSITION
+				GOAL:	'patrolling & day'
+				ID:	'5e476'
+				  ASSUMPTIONS:
+				  		[context]			G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+				  		[context]			G((charging) -> (care_center))
+				  		[context]			G(((day & !(night)) | (night & !(day))))
+				  		[context]			G((corridor) -> (care_center))
+				  		[context]			G((g) -> (medical_room))
+				  		[context]			G((isolation) -> (care_center))
+				  		[context]			G((a) -> (entrance))
+				  		[context]			G((waiting) -> (care_center))
+				  		[context]			G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor))))
+				  		[context]			G((medical_room) -> (care_center))
+				  		[context]			G((d) -> (pharmacy))
+				  		[context]			G((pharmacy) -> (care_center))
+				  		[context]			G((entrance) -> (care_center))
+				  GUARANTEES:
+				  		[pattern]			G(F(care_center))
+
+					REFINEMENT
+						GOAL:	'day-patrol-entrance-pharmacy'
+						ID:	'2057b'
+						  ASSUMPTIONS:
+						  		[context]			G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+						  		[context]			G(((day & !(night)) | (night & !(day))))
+						  		[context]			G((corridor) -> (care_center))
+						  		[context]			G((g) -> (medical_room))
+						  		[context]			G((isolation) -> (care_center))
+						  		[context]			G((medical_room) -> (care_center))
+						  		[context]			G((a) -> (entrance))
+						  		[context]			G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor))))
+						  		[context]			G((waiting) -> (care_center))
+						  		[context]			G((charging) -> (care_center))
+						  		[context]			G((d) -> (pharmacy))
+						  		[context]			G((pharmacy) -> (care_center))
+						  		[context]			G((entrance) -> (care_center))
+						  GUARANTEES:
+						  		[pattern]			(G(F(entrance)) & G(F(pharmacy)))
+
+							REFINEMENT
+								GOAL:	'seq-patrol-a-d'
+								ID:	'a4c9b'
+								  ASSUMPTIONS:
+								  		[context]			G((waiting) -> (care_center))
+								  		[context]			G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+								  		[context]			G((charging) -> (care_center))
+								  		[context]			G((g) -> (medical_room))
+								  		[context]			G((d) -> (pharmacy))
+								  		[context]			G((isolation) -> (care_center))
+								  		[context]			G((a) -> (entrance))
+								  GUARANTEES:
+								  		[gridworld]			G(charging -> X (charging | f))
+								  		[gridworld]			G(waiting -> X (waiting | b))
+								  		[gridworld]			G(g -> X (g | f))
+								  		[gridworld]			G(b -> X (b | a | c | waiting))
+								  		[gridworld]			G(isolation -> X (isolation | c))
+								  		[gridworld]			G(f -> X (f | e | g | charging))
+								  		[pattern]			G(F(a & F(d)))
+								  		[gridworld]			G(d -> X (d | a | c))
+								  		[gridworld]			G(a -> X (a | b | d))
+								  		[constraints]		G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+								  		[gridworld]			G(e -> X (e | c | f))
+								  		[gridworld]			G(c -> X (c | b | d | e | isolation))
+
+				GOAL:	'serve-pharmacy'
+				ID:	'd2aaa'
+				  ASSUMPTIONS:
+				  		[context]			G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+				  		[context]			G((get_med) -> ((look_up_meds & label_correct)))
+				  		[context]			G((charging) -> (care_center))
+				  		[context]			G((deliver_medicine) -> (give_med))
+				  		[context]			G((a) -> (entrance))
+				  		[context]			G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor))))
+				  		[context]			G(((day & !(night)) | (night & !(day))))
+				  		[context]			G((waiting) -> (care_center))
+				  		[context]			G((corridor) -> (care_center))
+				  		[context]			G((medical_room) -> (care_center))
+				  		[context]			G((g) -> (medical_room))
+				  		[context]			G((d) -> (pharmacy))
+				  		[context]			G((isolation) -> (care_center))
+				  		[context]			G((pharmacy) -> (care_center))
+				  		[context]			G((entrance) -> (care_center))
+				  GUARANTEES:
+				  		[pattern]			G((get_med) -> F(give_med))
+
+					REFINEMENT
+						GOAL:	'search-check-pickup'
+						ID:	'd37f7'
+						  ASSUMPTIONS:
+						  		[context]			G((deliver_medicine) -> (give_med))
+						  		[context]			G((get_med) -> ((look_up_meds & label_correct)))
+						  GUARANTEES:
+						  		[constraints]		G(((search_shelf & !(check_label) & !(deliver_medicine)) | (check_label & !(search_shelf) & !(deliver_medicine)) | (deliver_medicine & !(search_shelf) & !(check_label))))
+						  		[pattern]			G((pick_up_medicine) -> X(deliver_medicine))
+						  		[pattern]			G((look_up_meds) -> X((search_shelf & check_label)))
+						  		[pattern]			G(((search_shelf & check_label)) -> X(pick_up_medicine))
+
+				GOAL:	'low-battery'
+				ID:	'6e453'
+				  ASSUMPTIONS:
+				  		[context]			G((g) -> (medical_room))
+				  		[context]			G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+				  		[context]			G((charging) -> (care_center))
+				  GUARANTEES:
+				  		[constraints]		G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+				  		[gridworld]			G(g -> X (g | f))
+				  		[gridworld]			G(f -> X (f | e | g | charging))
+				  		[gridworld]			G(charging -> X (charging | f))
+				  		[scope]				(G((low_battery & F(full_battery)) -> (!(full_battery) U (charging))))
+
+		GOAL:	'low-battery||patrolling & day||welcome-patients & ((entrance & day) & mild)'
+		ID:	'2e634'
+		  ASSUMPTIONS:
+		  		[context]			G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+		  		[context]			G((charging) -> (care_center))
+		  		[context]			G(((day & !(night)) | (night & !(day))))
+		  		[context]			G((corridor) -> (care_center))
+		  		[context]			G((g) -> (medical_room))
+		  		[context]			G((isolation) -> (care_center))
+		  		[context]			G((a) -> (entrance))
+		  		[context]			G((waiting) -> (care_center))
+		  		[context]			G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor))))
+		  		[context]			G((medical_room) -> (care_center))
+		  		[context]			G((d) -> (pharmacy))
+		  		[context]			G(((severe & !(mild)) | (mild & !(severe))))
+		  		[context]			G((pharmacy) -> (care_center))
+		  		[context]			G((entrance) -> (care_center))
+		  GUARANTEES:
+		  		[scope]				(G((low_battery & F(full_battery)) -> (!(full_battery) U (charging))))
+		  		[constraints]		G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+		  		[gridworld]			G(g -> X (g | f))
+		  		[gridworld]			G(f -> X (f | e | g | charging))
+		  		[pattern]			G((human_entered) -> X(welcome_patient))
+		  		[gridworld]			G(charging -> X (charging | f))
+		  		[pattern]			G(F(care_center))
+
+			COMPOSITION
+				GOAL:	'patrolling & day'
+				ID:	'5e476'
+				  ASSUMPTIONS:
+				  		[context]			G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+				  		[context]			G((charging) -> (care_center))
+				  		[context]			G(((day & !(night)) | (night & !(day))))
+				  		[context]			G((corridor) -> (care_center))
+				  		[context]			G((g) -> (medical_room))
+				  		[context]			G((isolation) -> (care_center))
+				  		[context]			G((a) -> (entrance))
+				  		[context]			G((waiting) -> (care_center))
+				  		[context]			G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor))))
+				  		[context]			G((medical_room) -> (care_center))
+				  		[context]			G((d) -> (pharmacy))
+				  		[context]			G((pharmacy) -> (care_center))
+				  		[context]			G((entrance) -> (care_center))
+				  GUARANTEES:
+				  		[pattern]			G(F(care_center))
+
+					REFINEMENT
+						GOAL:	'day-patrol-entrance-pharmacy'
+						ID:	'2057b'
+						  ASSUMPTIONS:
+						  		[context]			G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+						  		[context]			G(((day & !(night)) | (night & !(day))))
+						  		[context]			G((corridor) -> (care_center))
+						  		[context]			G((g) -> (medical_room))
+						  		[context]			G((isolation) -> (care_center))
+						  		[context]			G((medical_room) -> (care_center))
+						  		[context]			G((a) -> (entrance))
+						  		[context]			G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor))))
+						  		[context]			G((waiting) -> (care_center))
+						  		[context]			G((charging) -> (care_center))
+						  		[context]			G((d) -> (pharmacy))
+						  		[context]			G((pharmacy) -> (care_center))
+						  		[context]			G((entrance) -> (care_center))
+						  GUARANTEES:
+						  		[pattern]			(G(F(entrance)) & G(F(pharmacy)))
+
+							REFINEMENT
+								GOAL:	'seq-patrol-a-d'
+								ID:	'a4c9b'
+								  ASSUMPTIONS:
+								  		[context]			G((waiting) -> (care_center))
+								  		[context]			G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+								  		[context]			G((charging) -> (care_center))
+								  		[context]			G((g) -> (medical_room))
+								  		[context]			G((d) -> (pharmacy))
+								  		[context]			G((isolation) -> (care_center))
+								  		[context]			G((a) -> (entrance))
+								  GUARANTEES:
+								  		[gridworld]			G(charging -> X (charging | f))
+								  		[gridworld]			G(waiting -> X (waiting | b))
+								  		[gridworld]			G(g -> X (g | f))
+								  		[gridworld]			G(b -> X (b | a | c | waiting))
+								  		[gridworld]			G(isolation -> X (isolation | c))
+								  		[gridworld]			G(f -> X (f | e | g | charging))
+								  		[pattern]			G(F(a & F(d)))
+								  		[gridworld]			G(d -> X (d | a | c))
+								  		[gridworld]			G(a -> X (a | b | d))
+								  		[constraints]		G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+								  		[gridworld]			G(e -> X (e | c | f))
+								  		[gridworld]			G(c -> X (c | b | d | e | isolation))
+
+				GOAL:	'welcome-patients & ((entrance & day) & mild)'
+				ID:	'a73fa'
+				  ASSUMPTIONS:
+				  		[context]			G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+				  		[context]			G((charging) -> (care_center))
+				  		[context]			G((a) -> (entrance))
+				  		[context]			G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor))))
+				  		[context]			G(((day & !(night)) | (night & !(day))))
+				  		[context]			G((waiting) -> (care_center))
+				  		[context]			G((isolation) -> (care_center))
+				  		[context]			G((corridor) -> (care_center))
+				  		[context]			G((medical_room) -> (care_center))
+				  		[context]			G((g) -> (medical_room))
+				  		[context]			G((d) -> (pharmacy))
+				  		[context]			G(((severe & !(mild)) | (mild & !(severe))))
+				  		[context]			G((pharmacy) -> (care_center))
+				  		[context]			G((entrance) -> (care_center))
+				  GUARANTEES:
+				  		[pattern]			G((human_entered) -> X(welcome_patient))
+
+				GOAL:	'low-battery'
+				ID:	'6e453'
+				  ASSUMPTIONS:
+				  		[context]			G((g) -> (medical_room))
+				  		[context]			G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+				  		[context]			G((charging) -> (care_center))
+				  GUARANTEES:
+				  		[constraints]		G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+				  		[gridworld]			G(g -> X (g | f))
+				  		[gridworld]			G(f -> X (f | e | g | charging))
+				  		[gridworld]			G(charging -> X (charging | f))
+				  		[scope]				(G((low_battery & F(full_battery)) -> (!(full_battery) U (charging))))
+
+		GOAL:	'low-battery||patrolling & day||welcome-patients & ((entrance & day) & severe)'
+		ID:	'fe1ef'
+		  ASSUMPTIONS:
+		  		[context]			G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+		  		[context]			G((charging) -> (care_center))
+		  		[context]			G(((day & !(night)) | (night & !(day))))
+		  		[context]			G((corridor) -> (care_center))
+		  		[context]			G((g) -> (medical_room))
+		  		[context]			G((isolation) -> (care_center))
+		  		[context]			G((a) -> (entrance))
+		  		[context]			G((waiting) -> (care_center))
+		  		[context]			G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor))))
+		  		[context]			G((medical_room) -> (care_center))
+		  		[context]			G((d) -> (pharmacy))
+		  		[context]			G(((severe & !(mild)) | (mild & !(severe))))
+		  		[context]			G((pharmacy) -> (care_center))
+		  		[context]			G((entrance) -> (care_center))
+		  GUARANTEES:
+		  		[scope]				(G((low_battery & F(full_battery)) -> (!(full_battery) U (charging))))
+		  		[constraints]		G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+		  		[gridworld]			G(g -> X (g | f))
+		  		[gridworld]			G(f -> X (f | e | g | charging))
+		  		[pattern]			G((human_entered) -> X(welcome_patient))
+		  		[gridworld]			G(charging -> X (charging | f))
+		  		[pattern]			G(F(care_center))
+
+			COMPOSITION
+				GOAL:	'patrolling & day'
+				ID:	'5e476'
+				  ASSUMPTIONS:
+				  		[context]			G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+				  		[context]			G((charging) -> (care_center))
+				  		[context]			G(((day & !(night)) | (night & !(day))))
+				  		[context]			G((corridor) -> (care_center))
+				  		[context]			G((g) -> (medical_room))
+				  		[context]			G((isolation) -> (care_center))
+				  		[context]			G((a) -> (entrance))
+				  		[context]			G((waiting) -> (care_center))
+				  		[context]			G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor))))
+				  		[context]			G((medical_room) -> (care_center))
+				  		[context]			G((d) -> (pharmacy))
+				  		[context]			G((pharmacy) -> (care_center))
+				  		[context]			G((entrance) -> (care_center))
+				  GUARANTEES:
+				  		[pattern]			G(F(care_center))
+
+					REFINEMENT
+						GOAL:	'day-patrol-entrance-pharmacy'
+						ID:	'2057b'
+						  ASSUMPTIONS:
+						  		[context]			G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+						  		[context]			G(((day & !(night)) | (night & !(day))))
+						  		[context]			G((corridor) -> (care_center))
+						  		[context]			G((g) -> (medical_room))
+						  		[context]			G((isolation) -> (care_center))
+						  		[context]			G((medical_room) -> (care_center))
+						  		[context]			G((a) -> (entrance))
+						  		[context]			G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor))))
+						  		[context]			G((waiting) -> (care_center))
+						  		[context]			G((charging) -> (care_center))
+						  		[context]			G((d) -> (pharmacy))
+						  		[context]			G((pharmacy) -> (care_center))
+						  		[context]			G((entrance) -> (care_center))
+						  GUARANTEES:
+						  		[pattern]			(G(F(entrance)) & G(F(pharmacy)))
+
+							REFINEMENT
+								GOAL:	'seq-patrol-a-d'
+								ID:	'a4c9b'
+								  ASSUMPTIONS:
+								  		[context]			G((waiting) -> (care_center))
+								  		[context]			G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+								  		[context]			G((charging) -> (care_center))
+								  		[context]			G((g) -> (medical_room))
+								  		[context]			G((d) -> (pharmacy))
+								  		[context]			G((isolation) -> (care_center))
+								  		[context]			G((a) -> (entrance))
+								  GUARANTEES:
+								  		[gridworld]			G(charging -> X (charging | f))
+								  		[gridworld]			G(waiting -> X (waiting | b))
+								  		[gridworld]			G(g -> X (g | f))
+								  		[gridworld]			G(b -> X (b | a | c | waiting))
+								  		[gridworld]			G(isolation -> X (isolation | c))
+								  		[gridworld]			G(f -> X (f | e | g | charging))
+								  		[pattern]			G(F(a & F(d)))
+								  		[gridworld]			G(d -> X (d | a | c))
+								  		[gridworld]			G(a -> X (a | b | d))
+								  		[constraints]		G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+								  		[gridworld]			G(e -> X (e | c | f))
+								  		[gridworld]			G(c -> X (c | b | d | e | isolation))
+
+				GOAL:	'welcome-patients & ((entrance & day) & severe)'
+				ID:	'e19db'
+				  ASSUMPTIONS:
+				  		[context]			G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+				  		[context]			G((charging) -> (care_center))
+				  		[context]			G((a) -> (entrance))
+				  		[context]			G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor))))
+				  		[context]			G(((day & !(night)) | (night & !(day))))
+				  		[context]			G((waiting) -> (care_center))
+				  		[context]			G((isolation) -> (care_center))
+				  		[context]			G((corridor) -> (care_center))
+				  		[context]			G((medical_room) -> (care_center))
+				  		[context]			G((g) -> (medical_room))
+				  		[context]			G((d) -> (pharmacy))
+				  		[context]			G(((severe & !(mild)) | (mild & !(severe))))
+				  		[context]			G((pharmacy) -> (care_center))
+				  		[context]			G((entrance) -> (care_center))
+				  GUARANTEES:
+				  		[pattern]			G((human_entered) -> X(welcome_patient))
+
+				GOAL:	'low-battery'
+				ID:	'6e453'
+				  ASSUMPTIONS:
+				  		[context]			G((g) -> (medical_room))
+				  		[context]			G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+				  		[context]			G((charging) -> (care_center))
+				  GUARANTEES:
+				  		[constraints]		G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+				  		[gridworld]			G(g -> X (g | f))
+				  		[gridworld]			G(f -> X (f | e | g | charging))
+				  		[gridworld]			G(charging -> X (charging | f))
+				  		[scope]				(G((low_battery & F(full_battery)) -> (!(full_battery) U (charging))))
+

@@ -1,0 +1,33 @@
+ASSUMPTIONS
+
+	G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+	G((charging) -> (care_center))
+	G(((day & ! (night)) | (night & ! (day))))
+	G((corridor) -> (care_center))
+	G((g) -> (medical_room))
+	G((isolation) -> (care_center))
+	G((a) -> (entrance))
+	G((waiting) -> (care_center))
+	G(((entrance & ! (pharmacy) & ! (corridor) & ! (medical_room)) | (pharmacy & ! (entrance) & ! (corridor) & ! (medical_room)) | (corridor & ! (entrance) & ! (pharmacy) & ! (medical_room)) | (medical_room & ! (entrance) & ! (pharmacy) & ! (corridor))))
+	G((medical_room) -> (care_center))
+	G((d) -> (pharmacy))
+	G((pharmacy) -> (care_center))
+	G((entrance) -> (care_center))
+
+
+GUARANTEES
+
+	((((((((((((((G(((day & ! (night)) | (night & ! (day)))) & G((entrance) -> (care_center))) & G((pharmacy) -> (care_center))) & G((medical_room) -> (care_center))) & G((corridor) -> (care_center))) & G((waiting) -> (care_center))) & G((isolation) -> (care_center))) & G((charging) -> (care_center))) & G((a) -> (entrance))) & G((d) -> (pharmacy))) & G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))) & G((g) -> (medical_room))) & ((((((((((((G(((entrance & ! (pharmacy) & ! (corridor) & ! (medical_room)) | (pharmacy & ! (entrance) & ! (corridor) & ! (medical_room)) | (corridor & ! (entrance) & ! (pharmacy) & ! (medical_room)) | (medical_room & ! (entrance) & ! (pharmacy) & ! (corridor)))) & G(((day & ! (night)) | (night & ! (day))))) & G((entrance) -> (care_center))) & G((pharmacy) -> (care_center))) & G((medical_room) -> (care_center))) & G((corridor) -> (care_center))) & G((waiting) -> (care_center))) & G((isolation) -> (care_center))) & G((charging) -> (care_center))) & G((a) -> (entrance))) & G((d) -> (pharmacy))) & G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))) & G((g) -> (medical_room))))) -> (G(((night & ! (day) & ! (((entrance & day) & mild)) & ! ((day & pharmacy)) & ! (((entrance & day) & severe)))) -> (G(F(care_center))))))
+
+
+
+INPUTS
+
+	mild, pharmacy, entrance, care_center, severe, medical_room, corridor, night, day
+
+OUTPUTS
+
+	a, waiting, f, g, e, c, b, isolation, charging, d
+
+END
+

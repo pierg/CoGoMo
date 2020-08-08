@@ -1,0 +1,22 @@
+ASSUMPTIONS
+
+	G((deliver_medicine) -> (give_med))
+	G((get_med) -> ((look_up_meds & label_correct)))
+
+
+GUARANTEES
+
+	(((G((deliver_medicine) -> (give_med)) & G((get_med) -> ((look_up_meds & label_correct))))) -> (((G((pick_up_medicine) -> X(deliver_medicine)) & G(((search_shelf & check_label)) -> X(pick_up_medicine)) & G((look_up_meds) -> X((search_shelf & check_label)))) & G(((search_shelf & ! (check_label) & ! (deliver_medicine)) | (check_label & ! (search_shelf) & ! (deliver_medicine)) | (deliver_medicine & ! (search_shelf) & ! (check_label)))))))
+
+
+
+INPUTS
+
+	label_correct, get_med, look_up_meds
+
+OUTPUTS
+
+	search_shelf, deliver_medicine, check_label, give_med, pick_up_medicine
+
+END
+

@@ -1,0 +1,27 @@
+ASSUMPTIONS
+
+	G((waiting) -> (care_center))
+	G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+	G((charging) -> (care_center))
+	G((g) -> (medical_room))
+	G((d) -> (pharmacy))
+	G((isolation) -> (care_center))
+	G((a) -> (entrance))
+
+
+GUARANTEES
+
+	((((((((G((waiting) -> (care_center)) & G((isolation) -> (care_center))) & G((charging) -> (care_center))) & G((a) -> (entrance))) & G((d) -> (pharmacy))) & G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))) & G((g) -> (medical_room)))) -> ((((((((((((G(F(b & F(c & F(e & F(f))))) & G(a -> X (a | b | d))) & G(b -> X (b | a | c | waiting))) & G(c -> X (c | b | d | e | isolation))) & G(d -> X (d | a | c))) & G(e -> X (e | c | f))) & G(f -> X (f | e | g | charging))) & G(g -> X (g | f))) & G(waiting -> X (waiting | b))) & G(isolation -> X (isolation | c))) & G(charging -> X (charging | f))) & G(((a & ! (b) & ! (c) & ! (d) & ! (e) & ! (f) & ! (g) & ! (waiting) & ! (isolation) & ! (charging)) | (b & ! (a) & ! (c) & ! (d) & ! (e) & ! (f) & ! (g) & ! (waiting) & ! (isolation) & ! (charging)) | (c & ! (a) & ! (b) & ! (d) & ! (e) & ! (f) & ! (g) & ! (waiting) & ! (isolation) & ! (charging)) | (d & ! (a) & ! (b) & ! (c) & ! (e) & ! (f) & ! (g) & ! (waiting) & ! (isolation) & ! (charging)) | (e & ! (a) & ! (b) & ! (c) & ! (d) & ! (f) & ! (g) & ! (waiting) & ! (isolation) & ! (charging)) | (f & ! (a) & ! (b) & ! (c) & ! (d) & ! (e) & ! (g) & ! (waiting) & ! (isolation) & ! (charging)) | (g & ! (a) & ! (b) & ! (c) & ! (d) & ! (e) & ! (f) & ! (waiting) & ! (isolation) & ! (charging)) | (waiting & ! (a) & ! (b) & ! (c) & ! (d) & ! (e) & ! (f) & ! (g) & ! (isolation) & ! (charging)) | (isolation & ! (a) & ! (b) & ! (c) & ! (d) & ! (e) & ! (f) & ! (g) & ! (waiting) & ! (charging)) | (charging & ! (a) & ! (b) & ! (c) & ! (d) & ! (e) & ! (f) & ! (g) & ! (waiting) & ! (isolation)))))))
+
+
+
+INPUTS
+
+	pharmacy, entrance, care_center, medical_room, corridor
+
+OUTPUTS
+
+	a, waiting, g, e, c, b, isolation, charging, d, f
+
+END
+

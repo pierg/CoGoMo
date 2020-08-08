@@ -1,0 +1,34 @@
+ASSUMPTIONS
+
+	G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))
+	G((charging) -> (care_center))
+	G(((day & ! (night)) | (night & ! (day))))
+	G((corridor) -> (care_center))
+	G((g) -> (medical_room))
+	G((isolation) -> (care_center))
+	G((a) -> (entrance))
+	G((waiting) -> (care_center))
+	G(((entrance & ! (pharmacy) & ! (corridor) & ! (medical_room)) | (pharmacy & ! (entrance) & ! (corridor) & ! (medical_room)) | (corridor & ! (entrance) & ! (pharmacy) & ! (medical_room)) | (medical_room & ! (entrance) & ! (pharmacy) & ! (corridor))))
+	G((medical_room) -> (care_center))
+	G((d) -> (pharmacy))
+	G(((severe & ! (mild)) | (mild & ! (severe))))
+	G((pharmacy) -> (care_center))
+	G((entrance) -> (care_center))
+
+
+GUARANTEES
+
+	((((((((((((((((G(((day & ! (night)) | (night & ! (day)))) & G((entrance) -> (care_center))) & G((pharmacy) -> (care_center))) & G((medical_room) -> (care_center))) & G((corridor) -> (care_center))) & G((waiting) -> (care_center))) & G((isolation) -> (care_center))) & G((charging) -> (care_center))) & G((a) -> (entrance))) & G((d) -> (pharmacy))) & G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))) & G((g) -> (medical_room))) & ((((((((((((G(((entrance & ! (pharmacy) & ! (corridor) & ! (medical_room)) | (pharmacy & ! (entrance) & ! (corridor) & ! (medical_room)) | (corridor & ! (entrance) & ! (pharmacy) & ! (medical_room)) | (medical_room & ! (entrance) & ! (pharmacy) & ! (corridor)))) & G(((day & ! (night)) | (night & ! (day))))) & G((entrance) -> (care_center))) & G((pharmacy) -> (care_center))) & G((medical_room) -> (care_center))) & G((corridor) -> (care_center))) & G((waiting) -> (care_center))) & G((isolation) -> (care_center))) & G((charging) -> (care_center))) & G((a) -> (entrance))) & G((d) -> (pharmacy))) & G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))) & G((g) -> (medical_room)))) & (((((((((((((G(((entrance & ! (pharmacy) & ! (corridor) & ! (medical_room)) | (pharmacy & ! (entrance) & ! (corridor) & ! (medical_room)) | (corridor & ! (entrance) & ! (pharmacy) & ! (medical_room)) | (medical_room & ! (entrance) & ! (pharmacy) & ! (corridor)))) & G(((day & ! (night)) | (night & ! (day))))) & G(((severe & ! (mild)) | (mild & ! (severe))))) & G((entrance) -> (care_center))) & G((pharmacy) -> (care_center))) & G((medical_room) -> (care_center))) & G((corridor) -> (care_center))) & G((waiting) -> (care_center))) & G((isolation) -> (care_center))) & G((charging) -> (care_center))) & G((a) -> (entrance))) & G((d) -> (pharmacy))) & G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))) & G((g) -> (medical_room)))) & ((G((charging) -> (care_center)) & G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor))))) & G((g) -> (medical_room))))) -> (G(((! (night) & ! (((entrance & day) & mild)) & ((entrance & day) & severe) & day & ! ((day & pharmacy)))) -> (((G(F(care_center)) & G(((! (night) & ! (((entrance & day) & mild)) & ((entrance & day) & severe) & day & ! ((day & pharmacy)))) -> (G((human_entered) -> X(welcome_patient))))) & G(((! (night) & ! (((entrance & day) & mild)) & ((entrance & day) & severe) & day & ! ((day & pharmacy)))) -> ((((((G((low_battery & F(full_battery)) -> (! (full_battery) U (charging)))) & G(f -> X (f | e | g | charging))) & G(g -> X (g | f))) & G(charging -> X (charging | f))) & G(((a & ! (b) & ! (c) & ! (d) & ! (e) & ! (f) & ! (g) & ! (waiting) & ! (isolation) & ! (charging)) | (b & ! (a) & ! (c) & ! (d) & ! (e) & ! (f) & ! (g) & ! (waiting) & ! (isolation) & ! (charging)) | (c & ! (a) & ! (b) & ! (d) & ! (e) & ! (f) & ! (g) & ! (waiting) & ! (isolation) & ! (charging)) | (d & ! (a) & ! (b) & ! (c) & ! (e) & ! (f) & ! (g) & ! (waiting) & ! (isolation) & ! (charging)) | (e & ! (a) & ! (b) & ! (c) & ! (d) & ! (f) & ! (g) & ! (waiting) & ! (isolation) & ! (charging)) | (f & ! (a) & ! (b) & ! (c) & ! (d) & ! (e) & ! (g) & ! (waiting) & ! (isolation) & ! (charging)) | (g & ! (a) & ! (b) & ! (c) & ! (d) & ! (e) & ! (f) & ! (waiting) & ! (isolation) & ! (charging)) | (waiting & ! (a) & ! (b) & ! (c) & ! (d) & ! (e) & ! (f) & ! (g) & ! (isolation) & ! (charging)) | (isolation & ! (a) & ! (b) & ! (c) & ! (d) & ! (e) & ! (f) & ! (g) & ! (waiting) & ! (charging)) | (charging & ! (a) & ! (b) & ! (c) & ! (d) & ! (e) & ! (f) & ! (g) & ! (waiting) & ! (isolation))))))))))))
+
+
+
+INPUTS
+
+	pharmacy, low_battery, severe, medical_room, corridor, full_battery, human_entered, day, mild, entrance, care_center, night
+
+OUTPUTS
+
+	a, waiting, welcome_patient, g, e, c, b, isolation, charging, f, d
+
+END
+

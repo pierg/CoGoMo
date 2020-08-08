@@ -1,0 +1,167 @@
+GOAL:	'low-battery||patrolling & day^^low-battery||patrolling & day||serve-pharmacy^^low-battery||patrolling & day||welcome-patients & ((entrance & day) & mild)^^low-battery||patrolling & day||welcome-patients & ((entrance & day) & severe)^^low-battery||patrolling & night'
+ID:	'f3197'
+REALIZABLE:	NO
+OUT OF MEMORY
+
+	CONJUNCTION
+		GOAL:	'low-battery||patrolling & night'
+		ID:	'0169f'
+		REALIZABLE :	YES
+		SYNTH TIME:	24.59
+
+			COMPOSITION
+				GOAL:	'patrolling & night'
+				ID:	'0754a'
+				REALIZABLE :	YES
+				SYNTH TIME:	1.33
+
+					REFINEMENT
+						GOAL:	'night-patrol-corridor'
+						ID:	'b750a'
+						REALIZABLE :	YES
+						SYNTH TIME:	0.98
+
+							REFINEMENT
+								GOAL:	'seq-patrol-b-c-e-f'
+								ID:	'fde12'
+								REALIZABLE :	YES
+								SYNTH TIME:	1.0
+
+				GOAL:	'low-battery'
+				ID:	'6e453'
+				REALIZABLE :	YES
+				SYNTH TIME:	0.85
+
+		GOAL:	'low-battery||patrolling & day'
+		ID:	'ea5b0'
+		REALIZABLE :	YES
+		SYNTH TIME:	25.92
+
+			COMPOSITION
+				GOAL:	'patrolling & day'
+				ID:	'5e476'
+				REALIZABLE :	YES
+				SYNTH TIME:	1.33
+
+					REFINEMENT
+						GOAL:	'day-patrol-entrance-pharmacy'
+						ID:	'2057b'
+						REALIZABLE :	YES
+						SYNTH TIME:	0.99
+
+							REFINEMENT
+								GOAL:	'seq-patrol-a-d'
+								ID:	'a4c9b'
+								REALIZABLE :	YES
+								SYNTH TIME:	0.97
+
+				GOAL:	'low-battery'
+				ID:	'6e453'
+				REALIZABLE :	YES
+				SYNTH TIME:	0.85
+
+		GOAL:	'low-battery||patrolling & day||serve-pharmacy'
+		ID:	'c5e82'
+		REALIZABLE :	YES
+		SYNTH TIME:	179.09
+
+			COMPOSITION
+				GOAL:	'patrolling & day'
+				ID:	'5e476'
+				REALIZABLE :	YES
+				SYNTH TIME:	1.42
+
+					REFINEMENT
+						GOAL:	'day-patrol-entrance-pharmacy'
+						ID:	'2057b'
+						REALIZABLE :	YES
+						SYNTH TIME:	1.02
+
+							REFINEMENT
+								GOAL:	'seq-patrol-a-d'
+								ID:	'a4c9b'
+								REALIZABLE :	YES
+								SYNTH TIME:	0.96
+
+				GOAL:	'serve-pharmacy'
+				ID:	'd2aaa'
+				REALIZABLE :	YES
+				SYNTH TIME:	2.26
+
+					REFINEMENT
+						GOAL:	'search-check-pickup'
+						ID:	'd37f7'
+						REALIZABLE :	YES
+						SYNTH TIME:	0.72
+
+				GOAL:	'low-battery'
+				ID:	'6e453'
+				REALIZABLE :	YES
+				SYNTH TIME:	0.87
+
+		GOAL:	'low-battery||patrolling & day||welcome-patients & ((entrance & day) & mild)'
+		ID:	'2e634'
+		REALIZABLE :	YES
+		SYNTH TIME:	962.98
+
+			COMPOSITION
+				GOAL:	'patrolling & day'
+				ID:	'5e476'
+				REALIZABLE :	YES
+				SYNTH TIME:	1.49
+
+					REFINEMENT
+						GOAL:	'day-patrol-entrance-pharmacy'
+						ID:	'2057b'
+						REALIZABLE :	YES
+						SYNTH TIME:	1.0
+
+							REFINEMENT
+								GOAL:	'seq-patrol-a-d'
+								ID:	'a4c9b'
+								REALIZABLE :	YES
+								SYNTH TIME:	0.98
+
+				GOAL:	'welcome-patients & ((entrance & day) & mild)'
+				ID:	'a73fa'
+				REALIZABLE :	YES
+				SYNTH TIME:	1.03
+
+				GOAL:	'low-battery'
+				ID:	'6e453'
+				REALIZABLE :	YES
+				SYNTH TIME:	0.88
+
+		GOAL:	'low-battery||patrolling & day||welcome-patients & ((entrance & day) & severe)'
+		ID:	'fe1ef'
+		REALIZABLE :	YES
+		SYNTH TIME:	780.32
+
+			COMPOSITION
+				GOAL:	'patrolling & day'
+				ID:	'5e476'
+				REALIZABLE :	YES
+				SYNTH TIME:	1.37
+
+					REFINEMENT
+						GOAL:	'day-patrol-entrance-pharmacy'
+						ID:	'2057b'
+						REALIZABLE :	YES
+						SYNTH TIME:	1.01
+
+							REFINEMENT
+								GOAL:	'seq-patrol-a-d'
+								ID:	'a4c9b'
+								REALIZABLE :	YES
+								SYNTH TIME:	0.96
+
+				GOAL:	'welcome-patients & ((entrance & day) & severe)'
+				ID:	'e19db'
+				REALIZABLE :	YES
+				SYNTH TIME:	1.06
+
+				GOAL:	'low-battery'
+				ID:	'6e453'
+				REALIZABLE :	YES
+				SYNTH TIME:	0.9
+

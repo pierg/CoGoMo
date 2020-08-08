@@ -7,8 +7,6 @@ else
     while test $# -gt 0; do
       case "$1" in
         -h|--help)
-          echo "$package [options] application [arguments]"
-          echo " "
           echo "options:"
           echo "-h, --help                show brief help"
           echo "-c,                       launch clustering with default input"
@@ -23,22 +21,6 @@ else
           python3 ./run_crome.py
           echo "Process finished, results avilable"
           echo "Clustering finished, exiting..."
-          exit 0
-          ;;
-        -d)
-          echo "Launching clustering debugging..."
-          echo "Copying custom input file if exists..."
-          cp /home/mission_specification.py /home/cogomo/
-          echo "Launching clustering debugging..."
-          python3 ./run_clustering_combinations.py
-          echo "Process finished, results avilable"
-          echo "Clustering finished, exiting..."
-          exit 0
-          ;;
-        -m)
-          echo "Launching mapping..."
-          python3 ./run_mapping.py
-          echo "Mapping finished, exiting..."
           exit 0
           ;;
         -e)

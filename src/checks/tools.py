@@ -1,4 +1,11 @@
+import re
 from typing import List
+
+OPERATORS = r'\+|-|\*|==|<=|>=|<|>|!|\||->|&'
+TEMPORALOPS = r'^F|^G|^X|^U'
+
+operators = re.compile(OPERATORS)
+temporaloperators = re.compile(TEMPORALOPS)
 
 
 def And(propositions: List[str]) -> str:
@@ -29,7 +36,11 @@ def Implies(prop_1: str, prop_2: str) -> str:
 
 def Not(prop: str) -> str:
     """Returns an str formula representing the logical NOT of prop"""
-    return "!(" + prop + ")"
+    match_operators = bool(re.search(operators, prop))
+    match_temporal = bool(re.search(temporaloperators, prop))
+    if match_operators or match_temporal:
+        return "!(" + prop + ")"
+    return "!" + prop
 
 
 def Or(propositions: List[str]) -> str:

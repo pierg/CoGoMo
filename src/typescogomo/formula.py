@@ -2,7 +2,7 @@ from copy import deepcopy
 from typing import Set, Union, List
 from checks.nusmv import check_satisfiability, check_validity
 from checks.tools import And, Implies, Not, Or
-from typescogomo.variables import Variables, extract_variable
+from typescogomo.variables import Variables, extract_variable, Boolean, Type
 
 
 class LTL:
@@ -13,13 +13,32 @@ class LTL:
                  cnf: Set['LTL'] = None,
                  kind: str = None,
                  context: 'LTL' = None,
-                 skip_checks: bool = False):
+                 skip_checks: bool = False,
+                 ap: bool = False):
         """Basic LTL formula.
         It can be build by a single formula (str) or by a conjunction of other LTL formulae (CNF form)"""
 
         self.__saturation = None
 
-        if formula is not None and cnf is None:
+        if formula is not None and variables is None and cnf is None and ap is True:
+            """Atomic Proposition of type 'kind'"""
+
+            self.__formula: str = formula
+
+            variable = Boolean(formula)
+
+            """Setting up the kind of AP variable"""
+            variable.kind = kind
+
+            """Variables present in the formula"""
+            self.__variables: Variables = Variables({variable})
+
+            self.__cnf: Set['LTL'] = {self}
+
+            """Adding context"""
+            self.__context = None
+
+        elif formula is not None and cnf is None and variables is not None:
 
             if variables is None:
                 variables = extract_variable(str(formula))
@@ -253,7 +272,6 @@ class LTL:
 
         return LTL(formula=formula, variables=self.variables)
 
-
     def __rshift__(self, other: 'LTL') -> 'LTL':
         """>> self
         Returns a new LTL that is the result of self -> other (implies)"""
@@ -261,7 +279,6 @@ class LTL:
             formula=Implies(self.formula, other.formula),
             variables=Variables(self.variables | other.variables)
         )
-
 
     """Refinement operators"""
 

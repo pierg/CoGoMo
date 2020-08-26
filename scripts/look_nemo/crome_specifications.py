@@ -2,7 +2,7 @@ import os
 
 from components.components import ComponentsLibrary, SimpleComponent, Component
 from contracts.contract import PContract
-from helper.reactive_synthesis import *
+from helper.reactive_synthesis import process_ap
 from src.goals.cgtgoal import *
 from typescogomo.subtypes.patterns import *
 from typescogomo.subtypes.scopes import *
@@ -16,59 +16,107 @@ def get_inputs():
     print(os.path.dirname(os.path.abspath(__file__)))
 
     """ Atomic propositions divided in
-            sensor  - sensor propositions (uncontrollable) - binary sensor variables
-            location  - location propositions (controllable e.g. goto) - are true if the robot is located in the location
-            action  - action propositions (controllable) - set of actions that are active (true)"""
+            s  - sensor propositions (uncontrollable) - binary sensor variables
+            l  - location propositions (controllable e.g. goto) - are true if the robot is located in the location
+            a  - action propositions (controllable) - set of actions that are active (true)"""
     ap = {
-        "sensor": ["nemo"],
-        "location": ["r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12"],
-        "action": ["camera_on"]
+        "s": ["nemo"],
+        "l": ["r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12"],
+        "a": ["camera_on"]
     }
 
     ap = process_ap(ap)
 
-    environment_rules = {
-        "initial": [
-            ~ap["nemo"]
-        ],
-        "transitions": [
-            general_LTL(
-                formula="G((!r1 & !r3 & !r5 & !r8) -> ((X nemo) <-> nemo))",
-                variables_str=["r1", "r3", "r5", "r8", "nemo"],
-                ap=ap)
-        ]
-    }
+    """Setting up controllable and uncontrollable"""
+    for t, aps in ap.items():
+        if t == "cl":
+            for elem in aps.values():
+                for v in elem.variables:
+                    v.controllable = False
+        if t == "ct":
+            for elem in aps.values():
+                for v in elem.variables:
+                    v.controllable = False
+        if t == "ci":
+            for elem in aps.values():
+                for v in elem.variables:
+                    v.controllable = False
+        if t == "s":
+            for elem in aps.values():
+                for v in elem.variables:
+                    v.controllable = False
+        if t == "l":
+            for elem in aps.values():
+                for v in elem.variables:
+                    v.controllable = True
+        if t == "a":
+            for elem in aps.values():
+                for v in elem.variables:
+                    v.controllable = True
 
-    system_rules = {
-        "initial": [
-            ap["r1"] & ~ap["camera_on"],
-            ap["r2"] & ~ap["camera_on"],
-            ap["r3"] & ~ap["camera_on"],
-        ],
-        "transitions":
-            adjacencies_LTL(
-                map_dict={
-                    "r1": ["r1", "r9"],
-                    "r2": ["r2", "r12"],
-                    "r3": ["r3", "r11"],
-                    "r4": ["r4", "r11"],
-                    "r5": ["r5", "r10"],
-                    "r6": ["r6", "r10"],
-                    "r7": ["r7", "r10"],
-                    "r8": ["r8", "r9"],
-                    "r9": ["r9", "r1", "r8", "r10"],
-                    "r10": ["r10", "r9", "r7", "r6", "r5", "r11"],
-                    "r11": ["r11", "r10", "r4", "r3", "r12"],
-                    "r12": ["r12", "r11", "r2", "r9"],
-                },
-                ap=ap),
-        "constraints":
-            mutex_LTL(
-                mutex_list=["r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12"],
-                ap=ap)
-    }
+    rules = {
+        "context": {
+            "mutex": [
+                [ap["cl"]["entrance"], ap["cl"]["pharmacy"], ap["cl"]["corridor"], ap["cl"]["medical_room"]],
+                [ap["ct"]["day"], ap["ct"]["night"]],
+                [ap["ci"]["severe"], ap["ci"]["mild"]]
+            ],
+            "inclusion": {
+                ap["cl"]["entrance"]: ap["cl"]["care_center"],
+                ap["cl"]["pharmacy"]: ap["cl"]["care_center"],
+                ap["cl"]["medical_room"]: ap["cl"]["care_center"],
+                ap["cl"]["corridor"]: ap["cl"]["care_center"],
 
-    print("CIAO")
+                ap["l"]["waiting"]: ap["cl"]["care_center"],
+                ap["l"]["isolation"]: ap["cl"]["care_center"],
+                ap["l"]["charging"]: ap["cl"]["care_center"],
+
+                ap["l"]["a"]: ap["cl"]["entrance"],
+                ap["l"]["d"]: ap["cl"]["pharmacy"],
+                SequencedPatrolling([ap["l"]["b"], ap["l"]["c"], ap["l"]["e"], ap["l"]["f"]]):
+                    Patrolling([ap["cl"]["corridor"]]),
+                ap["l"]["g"]: ap["cl"]["medical_room"],
+
+                ap["a"]["deliver_medicine"]: ap["a"]["give_med"],
+                ap["s"]["get_med"]: ap["s"]["look_up_meds"] & ap["s"]["label_correct"],
+                ap["a"]["measure_temperature"]: ap["s"]["temperature_checked"],
+
+            }
+        },
+        "gridworld": {
+            ap["l"]["a"]: [ap["l"]["a"], ap["l"]["b"], ap["l"]["d"]],
+            ap["l"]["b"]: [ap["l"]["b"], ap["l"]["a"], ap["l"]["c"], ap["l"]["waiting"]],
+            ap["l"]["c"]: [ap["l"]["c"], ap["l"]["b"], ap["l"]["d"], ap["l"]["e"], ap["l"]["isolation"]],
+            ap["l"]["d"]: [ap["l"]["d"], ap["l"]["a"], ap["l"]["c"]],
+            ap["l"]["e"]: [ap["l"]["e"], ap["l"]["c"], ap["l"]["f"]],
+            ap["l"]["f"]: [ap["l"]["f"], ap["l"]["e"], ap["l"]["g"], ap["l"]["charging"]],
+            ap["l"]["g"]: [ap["l"]["g"], ap["l"]["f"]],
+            ap["l"]["waiting"]: [ap["l"]["waiting"], ap["l"]["b"]],
+            ap["l"]["isolation"]: [ap["l"]["isolation"], ap["l"]["c"]],
+            ap["l"]["charging"]: [ap["l"]["charging"], ap["l"]["f"]]
+        },
+        "constraints": {
+            "mutex": [[
+                ap["l"]["a"],
+                ap["l"]["b"],
+                ap["l"]["c"],
+                ap["l"]["d"],
+                ap["l"]["e"],
+                ap["l"]["f"],
+                ap["l"]["g"],
+                ap["l"]["waiting"],
+                ap["l"]["isolation"],
+                ap["l"]["charging"]
+            ], [
+                ap["a"]["search_shelf"],
+                ap["a"]["check_label"],
+                ap["a"]["deliver_medicine"]
+
+            ]],
+            "inclusion": {
+            }
+        }
+    }
 
     """List of specifications / goals"""
     list_of_goals = [

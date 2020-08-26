@@ -443,14 +443,14 @@ def syntax_fix(text: str):
     return res
 
 
-def generate_controller_input_text(assum, guaran, ins, outs):
+def generate_controller_input_text(assum: List[str], guaran: List[str], ins: List[str], outs: List[str]):
     ret = "ASSUMPTIONS\n\n"
     for p in assum:
         ret += "\t" + syntax_fix(p) + "\n"
 
     ret += "\n\nGUARANTEES\n\n"
     for p in guaran:
-        ret += "\t" + syntax_fix(p) + "\n\n"
+        ret += "\t" + syntax_fix(p) + "\n"
 
     ret += "\n\nINPUTS\n\n"
     ret += "\t" + ", ".join(ins)

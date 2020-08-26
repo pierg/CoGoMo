@@ -7,29 +7,58 @@ class Type(object):
     and variable_type: used for example when a component requires multiple variables of the same type
     but having different names. If the port_type is not specified then it's the same as the name of the variable"""
 
-    def __init__(self, name: str, basic_type: str, controllable=False, port_type: str = None):
+    def __init__(self, name: str, basic_type: str, kind: str = None, port_type: str = None):
         """Name of the variable"""
-        self.name = name
+        self.__name: str = name
 
-        """Controllable, for the synthesis"""
-        self.__controllable: bool = controllable
+        """Kind of variable, needed for the synthesis and to determine if controllable or not"""
+        self.__kind: str = kind
 
         """Basic type, for nuxmv """
-        self.basic_type = basic_type
+        self.__basic_type: str = basic_type
 
         """Type of the variable, if it is not specified then it's the same as the name"""
-        self.port_type = port_type if port_type is not None else name
+        self.__port_type: str = port_type if port_type is not None else name
 
     def __str__(self):
         return self.name
 
     @property
-    def controllable(self) -> 'bool':
-        return self.__controllable
+    def name(self) -> 'str':
+        return self.__name
 
-    @controllable.setter
-    def controllable(self, value: bool):
-        self.__controllable = value
+    @property
+    def kind(self) -> 'str':
+        return self.__kind
+
+    @kind.setter
+    def kind(self, value: str):
+        self.__kind = value
+
+    @property
+    def basic_type(self) -> 'str':
+        return self.__basic_type
+
+    @property
+    def port_type(self) -> 'str':
+        return self.__port_type
+
+    def controllable(self) -> 'bool':
+        if self.kind is not None:
+
+            if self.kind == "ctx_location" or \
+                    self.kind == "ctx_time" or \
+                    self.kind == "ctx_identity" or \
+                    self.kind == "sensor":
+                """Not controllable"""
+                return False
+
+            if self.kind == "location" or self.kind == "action":
+                """Controllable"""
+                return True
+
+        else:
+            raise Exception("Type does not have a kind")
 
 
     def nuxmv_variable(self):

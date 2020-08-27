@@ -24,7 +24,7 @@ if [ $# -eq 0 ]
 
     echo "  creating new docker container..."
     echo "  name $1"
-    docker create -i -t  --name $1 -v "$(pwd)/$1/results":/home/cogomo/output/results pmallozzi/cogomo:latest -c
+    docker create -i -t  --name $1 -v "$(pwd)/$1/results":/home/cogomo/output/results pmallozzi/cogomo:dev -c
 
     echo "copying input file $(pwd)/$1/crome_specifications.py"
     docker cp "$(pwd)/$1/crome_specifications.py" $1:/home/

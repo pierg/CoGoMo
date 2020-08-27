@@ -5,7 +5,6 @@ import platform
 import time
 from typing import Tuple
 
-
 from graphviz import Source
 
 from checks.nusmv import check_satisfiability
@@ -60,6 +59,9 @@ def get_controller(assumptions: str, guarantees: str, ins: str, outs: str) -> Tu
         print("Formatting TRUE as true for strix")
         assumptions = assumptions.replace("TRUE", "true")
         guarantees = guarantees.replace("TRUE", "true")
+        docker_command = 'docker run lazkany/strix'
+        docker_params = ' -f "' + Implies(assumptions,
+                                          guarantees) + '" --ins="' + ins + '" --outs="' + outs + '"' + " --k --dot"
         params = ' -k --dot -f "' + Implies(assumptions, guarantees) + '" --ins="' + ins + '" --outs="' + outs + '"'
         command = strix_path + params
         print("\n\nRUNNING COMMAND:\n\n" + command + "\n\n")
@@ -67,8 +69,13 @@ def get_controller(assumptions: str, guarantees: str, ins: str, outs: str) -> Tu
         result = []
         timeout = 3600
         try:
-            result = subprocess.check_output([strix_path + params], shell=True, timeout=timeout, encoding='UTF-8').split()
-            # result = subprocess.check_output([strix_path + params], shell=True, encoding='UTF-8').split()
+            if platform.system() != "Linux":
+                print("Launching docker...")
+                result = subprocess.check_output([docker_command + docker_params], shell=True, timeout=timeout,
+                                                 encoding='UTF-8').split()
+            else:
+                result = subprocess.check_output([strix_path + params], shell=True, timeout=timeout,
+                                                 encoding='UTF-8').split()
         except subprocess.TimeoutExpired as e:
             print("TIMEOUT for synthesis, more than 100 sec")
             raise SynthesisException("timeout", timeout=timeout)
@@ -77,7 +84,7 @@ def get_controller(assumptions: str, guarantees: str, ins: str, outs: str) -> Tu
             print("FINISH EXCEPTION\n\n")
             raise SynthesisException("out_of_memory")
         exec_time = time.time() - start_time
-        if result[0] == "REALIZABLE":
+        if "REALIZABLE" in result:
             dot_format = ""
             for i, line in enumerate(result):
                 if "digraph" not in line:
@@ -86,13 +93,13 @@ def get_controller(assumptions: str, guarantees: str, ins: str, outs: str) -> Tu
                     dot_format = "".join(result[i:])
                     break
             return dot_format, exec_time
-        if result[0] == "UNREALIZABLE":
+        elif "UNREALIZABLE" in result:
             return "UNREALIZABLE", exec_time
         else:
             print("\n\nSTRIX RESPONSE:\n\n")
             for l in result:
                 print(l)
-            raise Exception("Unknown strix response: " + result[0])
+            raise Exception("Unknown strix response: " + result)
     except Exception as e:
         raise e
 
@@ -102,8 +109,9 @@ def create_controller_if_exists(controller_input_file: str) -> Tuple[bool, str, 
     It also return the time needed"""
 
     if platform.system() != "Linux":
-        print(platform.system() + " is not supported for synthesis")
-        raise SynthesisException("os_not_supported")
+        # print(platform.system() + " is not supported for synthesis")
+        # raise SynthesisException("os_not_supported")
+        print(platform.system() + " is not supported for synthesis directly. Calling docker image instead...")
 
     print("controller_input_file: " + controller_input_file)
     a, g, i, o = parse_controller(controller_input_file)
@@ -128,7 +136,6 @@ def create_controller_if_exists(controller_input_file: str) -> Tuple[bool, str, 
 
     save_to_file(mealy_machine, dot_file_name + ".dot")
     print("DOT file generated")
-
 
     src = Source(mealy_machine, directory=dot_file_path, filename=dot_file_name, format="eps")
     src.render(cleanup=True)

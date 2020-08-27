@@ -8,7 +8,7 @@ operators = re.compile(OPERATORS)
 temporaloperators = re.compile(TEMPORALOPS)
 
 
-def And(propositions: List[str]) -> str:
+def And(propositions: List[str], brackets: bool = False) -> str:
     """Returns an str formula representing the logical AND of list_propoositions"""
     if len(propositions) > 1:
 
@@ -21,7 +21,10 @@ def And(propositions: List[str]) -> str:
             return "TRUE"
 
         conj = ' & '.join(propositions)
-        return "(" + conj + ")"
+        if brackets:
+            return "(" + conj + ")"
+        else:
+            return conj
 
     elif len(propositions) == 1:
         return propositions[0]

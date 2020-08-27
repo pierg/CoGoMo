@@ -7,7 +7,6 @@ from goals.helpers import generate_controller_input_text
 from helper.reactive_synthesis import *
 from helper.tools import save_to_file
 
-
 folder_path = os.path.dirname(os.path.abspath(__file__)) + "/output/nemo_test/"
 
 
@@ -38,15 +37,28 @@ def get_inputs():
             general_LTL(
                 formula="G((!r1 & !r3 & !r5 & !r8) -> ((X nemo) <-> nemo))",
                 variables_str=["r1", "r3", "r5", "r8", "nemo"],
+                ap=ap),
+            general_LTL(
+                formula="G (F (nemo))",
+                variables_str=["r1", "r3", "r5", "r8", "nemo"],
                 ap=ap)
+            # general_LTL(
+            #     formula="G (F (! nemo))",
+            #     variables_str=["r1", "r3", "r5", "r8", "nemo"],
+            #     ap=ap)
         ]
     }
 
     system_rules = {
         "initial": [
-            ap["r1"] & ~ap["camera_on"],
-            ap["r2"] & ~ap["camera_on"],
-            ap["r3"] & ~ap["camera_on"],
+            (ap["r1"] & ~ap["r2"] & ~ap["r3"] & ~ap["r4"] & ~ap["r5"] & ~ap["r6"] & ~ap["r7"] &
+             ~ap["r8"] & ~ap["r9"] & ~ap["r10"] & ~ap["r11"] & ~ap["r12"] & ~ap["camera_on"])
+
+            | (~ap["r1"] & ap["r2"] & ~ap["r3"] & ~ap["r4"] & ~ap["r5"] & ~ap["r6"] & ~ap["r7"] &
+               ~ap["r8"] & ~ap["r9"] & ~ap["r10"] & ~ap["r11"] & ~ap["r12"] & ~ap["camera_on"])
+
+            | (~ap["r1"] & ~ap["r2"] & ap["r3"] & ~ap["r4"] & ~ap["r5"] & ~ap["r6"] & ~ap["r7"] &
+               ~ap["r8"] & ~ap["r9"] & ~ap["r10"] & ~ap["r11"] & ~ap["r12"] & ~ap["camera_on"])
         ],
         "transitions":
             adjacencies_LTL(
@@ -73,20 +85,20 @@ def get_inputs():
 
     system_specifications = [
         general_LTL(
-            formula="G(X nemo -> (X r1 <-> r1) & (X r2 <-> r2) & (X r3 <-> r3) & (X r4 <-> r4) & (X r5 <-> r5) & "
+            formula="G(X nemo -> ((X r1 <-> r1) & (X r2 <-> r2) & (X r3 <-> r3) & (X r4 <-> r4) & (X r5 <-> r5) & "
                     "(X r6 <-> r6) & (X r7 <-> r7) & (X r8 <-> r8) & (X r9 <-> r9) & (X r10 <-> r10) & "
-                    "(X r11 <-> r11) & (X r12 <-> r12) & camera_on)",
+                    "(X r11 <-> r11) & (X r12 <-> r12)) & X camera_on)",
             variables_str=["r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12", "camera_on",
                            "nemo"],
             ap=ap
         ),
         general_LTL(
-            formula="G (! X nemo -> ! X camera_on )",
+            formula="G (! (X nemo) -> ! (X camera_on) )",
             variables_str=["camera_on", "nemo"],
             ap=ap
         ),
         general_LTL(
-            formula="G F (r1 | nemo) & G F (r3 | nemo) & G F (r5 | nemo) & G F (r8 | nemo)",
+            formula="G (F (r1 | nemo)) & G (F (r3 | nemo)) & G (F (r5 | nemo)) & G (F (r8 | nemo))",
             variables_str=["r1", "r3", "r5", "r8", "nemo"],
             ap=ap
         ),
@@ -126,11 +138,10 @@ a, g, i, o = parse_controller(folder_path + "specification.txt")
 
 assumptions = a.replace("TRUE", "true")
 guarantees = g.replace("TRUE", "true")
-params = ' -k --dot -f "' + Implies(assumptions, guarantees) + '" --ins="' + i + '" --outs="' + o + '"'
+params = 'docker run lazkany/strix -f "' + Implies(assumptions,
+                                                   guarantees) + '" --ins="' + i + '" --outs="' + o + '"' + " --k --dot"
 
-save_to_file(params, folder_path + "specification_params.txt")
-
-
+save_to_file(params, folder_path + "specification_command.txt")
 
 try:
     realizable, mealy_machine, exec_time = create_controller_if_exists(folder_path + "specification.txt")

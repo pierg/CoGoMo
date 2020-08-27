@@ -5,7 +5,7 @@ echo "updating repository..."
 git pull
 
 echo "pulling latest docker image..."
-docker pull pmallozzi/cogomo:latest
+docker pull pmallozzi/cogomo:dev
 
 if [ $# -eq 0 ]
   then

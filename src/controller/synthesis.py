@@ -76,7 +76,7 @@ def get_controller(assumptions: str, guarantees: str, ins: str, outs: str) -> Tu
             else:
                 result = subprocess.check_output([strix_path + params], shell=True, timeout=timeout,
                                                  encoding='UTF-8').split()
-        except subprocess.TimeoutExpired as e:
+        except subprocess.TimeoutExpired:
             print("TIMEOUT for synthesis, more than 100 sec")
             raise SynthesisException("timeout", timeout=timeout)
         except Exception as e:

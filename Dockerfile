@@ -26,6 +26,8 @@ RUN \
         gnupg2 \
         tzdata
 
+
+
 RUN apt update
 RUN \
     apt install -y \
@@ -57,6 +59,19 @@ RUN apt -y update && DEBIAN_FRONTEND=noninteractive && \
     libspot-dev \
     spot-doc
 
+# Installing Docker (to run strix)
+RUN \
+    apt install -y \
+        apt-transport-https \
+        ca-certificates \
+        curl \
+        software-properties-common
+RUN -fsSL https://download.docker.com/linux/ubuntu/gpg
+RUN apt-key add -
+RUN add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic test"
+RUN apt update
+RUN apt install docker-ce
+RUN docker pull lazkany/strix
 
 
 RUN \

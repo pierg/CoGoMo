@@ -5,7 +5,7 @@ echo "updating repository..."
 git pull
 
 echo "pulling latest docker image..."
-docker pull pmallozzi/cogomo:latest
+docker pull pmallozzi/cogomo:dev
 
 if [ $# -eq 0 ]
   then
@@ -18,7 +18,7 @@ if [ $# -eq 0 ]
 
     echo "  creating new docker container..."
     echo "  name case_study_care_center"
-    docker create -i -t  --name case_study_care_center -v "$(pwd)/case_study_care_center/results":/home/cogomo/output/results pmallozzi/cogomo:latest -c
+    docker create -i -t  --name case_study_care_center -v "$(pwd)/case_study_care_center/results":/home/cogomo/output/results pmallozzi/cogomo:dev -c
 
     echo "copying input file $(pwd)/case_study_care_center/crome_specifications.py"
     docker cp "$(pwd)/case_study_care_center/crome_specifications.py" case_study_care_center:/home/
@@ -43,7 +43,7 @@ if [ $# -eq 0 ]
 
     echo "  creating new docker container..."
     echo "  name $1"
-    docker create -i -t  --name $1 -v "$(pwd)/$1/results":/home/cogomo/output/results pmallozzi/cogomo:latest -c
+    docker create -i -t  --name $1 -v "$(pwd)/$1/results":/home/cogomo/output/results pmallozzi/cogomo:dev -c
 
     echo "copying input file $(pwd)/$1/crome_specifications.py"
     docker cp "$(pwd)/$1/crome_specifications.py" $1:/home/

@@ -3,7 +3,7 @@ FROM ubuntu:19.10
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Istall binary files of strix and nuXmv
-COPY bin/ubuntu_19_10/strix /usr/local/bin
+COPY bin/ubuntu_19_10/updated/strix /usr/local/bin
 COPY bin/ubuntu_19_10/owl.jar /usr/local/bin
 RUN chmod +x /usr/local/bin/strix
 
@@ -25,6 +25,8 @@ RUN \
         wget \
         gnupg2 \
         tzdata
+
+
 
 RUN apt update
 RUN \
@@ -57,6 +59,19 @@ RUN apt -y update && DEBIAN_FRONTEND=noninteractive && \
     libspot-dev \
     spot-doc
 
+# Installing Docker (to run strix)
+RUN \
+    apt install -y \
+        apt-transport-https \
+        ca-certificates \
+        curl \
+        software-properties-common
+RUN -fsSL https://download.docker.com/linux/ubuntu/gpg
+RUN apt-key add -
+RUN add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic test"
+RUN apt update
+RUN apt install docker-ce
+RUN docker pull lazkany/strix
 
 
 RUN \

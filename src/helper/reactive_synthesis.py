@@ -26,7 +26,8 @@ def general_LTL(formula: str, variables_str: List[str], ap: Dict) -> LTL:
 
     return LTL(
         formula=formula,
-        variables=variables
+        variables=variables,
+        skip_checks=True
     )
 
 
@@ -72,10 +73,10 @@ def mutex_LTL(mutex_list: List[str], ap: Dict) -> List[LTL]:
             for vs_b in mutex_list:
                 if vs_a is not vs_b:
                     clause.append(Not(deepcopy(vs_b)))
-            clauses.append(And(clause))
+            clauses.append(And(clause, brackets=True))
         ltl += Or(clauses)
         ltl += ")"
         list_LTL.append(
-            LTL(formula=ltl, variables=variables, kind="constraints"))
+            LTL(formula=ltl, variables=variables, kind="constraints", skip_checks=False))
 
     return list_LTL

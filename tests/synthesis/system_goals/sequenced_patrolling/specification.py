@@ -1,11 +1,16 @@
 import os
+import shutil
 
 from controller.synthesis import SynthesisException
 from goals.helpers import realize_specification
 from tests.synthesis.world_models.yehia import get_world_model, general_LTL
 from typescogomo.subtypes.patterns import *
 
-folder_path = os.path.dirname(os.path.abspath(__file__)) + "/"
+folder_path = os.path.dirname(os.path.abspath(__file__)) + "/output/"
+try:
+    shutil.rmtree(folder_path)
+except:
+    pass
 
 environment_rules, system_rules, ap = get_world_model()
 
@@ -27,18 +32,4 @@ try:
 
 
 except SynthesisException as e:
-    if e.os_not_supported:
-        print("Os not supported for synthesis. Only linux can run strix")
-    elif e.trivial:
-        print("The assumptions are not satisfiable. The controller is trivial.")
-        raise Exception("Assumptions unsatisfiable in a CGT is impossible.")
-    elif e.out_of_memory:
-        print("STRIX went out of memory")
-        realizable = False
-        controller = None
-        time_synthesis = -200
-    elif e.timeout:
-        print("timeout occurred")
-        realizable = False
-        controller = None
-        time_synthesis = e.timeout_value
+    print(e.message)

@@ -24,15 +24,21 @@ class SynthesisException(Exception):
         self.trivial = False
         self.timeout = False
         self.timeout_value = timeout_value
+        self.message = None
 
         if reason == "os_not_supported":
             self.os_not_supported = True
+            self.message = "Os not supported for synthesis. Only linux can run strix"
         elif reason == "trivial":
             self.trivial = True
+            self.message = "The assumptions are not satisfiable. The controller is trivial."
         elif reason == "out_of_memory":
             self.out_of_memory = True
+            self.message = "STRIX went out of memory"
+
         elif reason == "timeout":
             self.timeout = True
+            self.message = "STRIX timeout occurred = " + str(timeout_value) + " seconds"
         else:
             raise Exception("Unknown exeption: " + reason)
 

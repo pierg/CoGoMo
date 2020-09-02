@@ -16,12 +16,15 @@ ASSUMPTIONS
 GUARANTEES
 
 	r1
+
 	G( X s1 <-> X r1)
 	G( X s2 <-> X r2)
 	G( X s3 <-> X r3)
 	G( X s4 <-> X r4)
 	G( X s5 <-> X r5)
+
 	G(((r1 & ! r2 & ! r3 & ! r4 & ! r5) | (r2 & ! r1 & ! r3 & ! r4 & ! r5) | (r3 & ! r1 & ! r2 & ! r4 & ! r5) | (r4 & ! r1 & ! r2 & ! r3 & ! r5) | (r5 & ! r1 & ! r2 & ! r3 & ! r4)))
+
 	G(F(r1 & F(r4 & F(r2)))) & (! r4 U r1) & (! r2 U r4) & G(r4 ->  X((! r4) U r1)) & G(r2 ->  X((! r2) U r4)) & G(r1 ->  X((! r1) U r2))
 
 

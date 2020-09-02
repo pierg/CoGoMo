@@ -54,7 +54,7 @@ def is_realizable(assumptions: str, guarantees: str, ins: str, outs: str) -> boo
         raise e
 
 
-def get_controller(assumptions: str, guarantees: str, ins: str, outs: str) -> Tuple[str, float]:
+def get_controller(assumptions: str, guarantees: str, ins: str, outs: str) -> Tuple[bool, str, float]:
     try:
         print("Formatting TRUE as true for strix")
         assumptions = assumptions.replace("TRUE", "true")
@@ -92,9 +92,16 @@ def get_controller(assumptions: str, guarantees: str, ins: str, outs: str) -> Tu
                 else:
                     dot_format = "".join(result[i:])
                     break
-            return dot_format, exec_time
+            return True, dot_format, exec_time
         elif "UNREALIZABLE" in result:
-            return "UNREALIZABLE", exec_time
+            dot_format = ""
+            for i, line in enumerate(result):
+                if "digraph" not in line:
+                    continue
+                else:
+                    dot_format = "".join(result[i:])
+                    break
+            return False, dot_format, exec_time
         else:
             print("\n\nSTRIX RESPONSE:\n\n")
             for l in result:
@@ -122,25 +129,39 @@ def create_controller_if_exists(controller_input_file: str) -> Tuple[bool, str, 
     # if not assumptions_satisfiable:
     #     raise SynthesisException("trivial")
 
-    mealy_machine, exec_time = get_controller(a, g, i, o)
+    realizable, mealy_machine, exec_time = get_controller(a, g, i, o)
 
-    if mealy_machine.startswith("UNREALIZABLE"):
-        print("UNREALIZABLE")
-        return False, None, exec_time
+    if realizable:
+        print(controller_input_file + " IS REALIZABLE")
+        dot_file_path = os.path.dirname(controller_input_file)
+        dot_file_name = os.path.splitext(controller_input_file)[0]
 
-    print(controller_input_file + " IS REALIZABLE")
-    dot_file_path = os.path.dirname(controller_input_file)
-    dot_file_name = os.path.splitext(controller_input_file)[0]
+        dot_file_name = dot_file_name.replace("specification", "controller")
 
-    dot_file_name = dot_file_name.replace("specification", "controller")
+        save_to_file(mealy_machine, dot_file_name + ".dot")
+        print("DOT file generated")
 
-    save_to_file(mealy_machine, dot_file_name + ".dot")
-    print("DOT file generated")
+        src = Source(mealy_machine, directory=dot_file_path, filename=dot_file_name, format="eps")
+        src.render(cleanup=True)
+        print(dot_file_name + ".eps  ->   mealy machine generated")
 
-    src = Source(mealy_machine, directory=dot_file_path, filename=dot_file_name, format="eps")
-    src.render(cleanup=True)
-    print(dot_file_name + ".eps  ->   mealy machine generated")
-    return True, mealy_machine, exec_time
+        return True, mealy_machine, exec_time
+
+    else:
+        print(controller_input_file + " IS UNREALIZABLE")
+        dot_file_path = os.path.dirname(controller_input_file)
+        dot_file_name = os.path.splitext(controller_input_file)[0]
+
+        dot_file_name = dot_file_name.replace("specification", "inverted_controller")
+
+        save_to_file(mealy_machine, dot_file_name + ".dot")
+        print("DOT file generated")
+
+        src = Source(mealy_machine, directory=dot_file_path, filename=dot_file_name, format="eps")
+        src.render(cleanup=True)
+        print(dot_file_name + ".eps  ->   inverted mealy machine generated")
+
+        return False, mealy_machine, exec_time
 
 
 if __name__ == '__main__':

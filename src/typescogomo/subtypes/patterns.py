@@ -96,8 +96,8 @@ class SequencedPatrolling(CoreMovement):
         super().__init__(pattern_formula, locations, variables)
 
 
-class OrderPatrolling(CoreMovement):
-    """Keep visiting a set of locations, but not in a particular order"""
+class OrderedPatrolling(CoreMovement):
+    """Keep visiting a set of locations, in a particular order"""
 
     def __init__(self, locations: List[LTL] = None):
         variables = Variables()

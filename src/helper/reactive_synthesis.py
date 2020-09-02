@@ -49,7 +49,22 @@ def adjacencies_LTL(map_dict: Dict, ap: Dict) -> List[LTL]:
         variables |= elem.variables
         for a in adjacent:
             variables |= a.variables
-        list_LTL.append(LTL(formula=ltl, variables=variables, kind="gridworld"))
+        list_LTL.append(LTL(formula=ltl, variables=variables, kind="adjacencies"))
+
+    return list_LTL
+
+
+def infinetely_often_LTL(ap_list: List[str], ap: Dict) -> List[LTL]:
+    list_LTL = []
+
+    for elem_str in ap_list:
+
+        elem = ap[elem_str]
+        ltl = "G( F("
+        ltl += elem.formula + "))"
+        variables = Variables()
+        variables |= elem.variables
+        list_LTL.append(LTL(formula=ltl, variables=variables, kind="infinetely_often"))
 
     return list_LTL
 

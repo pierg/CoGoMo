@@ -2,7 +2,10 @@ import itertools
 import re
 from copy import deepcopy
 from typing import Union, Dict, List, Tuple
-from checks.tools import Not, Or, And
+from checks.tools import Not, Or, And, Implies
+from controller.parser import parse_controller
+from controller.synthesis import create_controller_if_exists
+from helper.tools import save_to_file
 from typescogomo.formula import LTL, InconsistentException
 from typescogomo.variables import Variables
 from goals.cgtgoal import CGTGoal
@@ -383,8 +386,6 @@ def prioritize_goal(first_priority_goal, second_priority_goal):
         contract.add_assumptions(Not(Or(stronger_assumptions_list)))
 
 
-
-
 def generate_general_controller_inputs_from_goal(ap: dict,
                                                  rules: dict,
                                                  goal: CGTGoal,
@@ -441,6 +442,51 @@ def syntax_fix(text: str):
     except Exception as e:
         raise e
     return res
+
+
+def realize_specification(environment_rules: Dict, system_rules: Dict, system_goals: List[LTL], ap: Dict,
+                          folder_path: str):
+    assumptions, guarantees, uncontrollable, controllable = generate_controller_specs(environment_rules, system_rules,
+                                                                                      system_goals, ap)
+
+    save_to_file(generate_controller_input_text(assumptions, guarantees, uncontrollable, controllable),
+                 folder_path + "specification.txt")
+
+    a, g, i, o = parse_controller(folder_path + "specification.txt")
+
+    assumptions = a.replace("TRUE", "true")
+    guarantees = g.replace("TRUE", "true")
+    params = ' -k --dot -f "' + Implies(assumptions, guarantees) + '" --ins="' + i + '" --outs="' + o + '"'
+
+    save_to_file(params, folder_path + "specification_params.txt")
+    return create_controller_if_exists(folder_path + "specification.txt")
+
+
+def generate_controller_specs(environment_rules: Dict, system_rules: Dict, system_goals: List[LTL], ap: Dict):
+    assumptions = []
+    for type, formulas in environment_rules.items():
+        for formula in formulas:
+            assumptions.append(formula.formula)
+
+    guarantees = []
+    for type, formulas in system_rules.items():
+        for formula in formulas:
+            guarantees.append(formula.formula)
+
+    for formula in system_goals:
+        guarantees.append(formula.formula)
+
+    uncontrollable = []
+    controllable = []
+
+    for elem in ap.values():
+        variable = list(elem.variables)[0]
+        if variable.controllable():
+            controllable.append(variable.name)
+        else:
+            uncontrollable.append(variable.name)
+
+    return assumptions, guarantees, uncontrollable, controllable
 
 
 def generate_controller_input_text(assum: List[str], guaran: List[str], ins: List[str], outs: List[str]):

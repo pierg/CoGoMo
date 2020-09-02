@@ -22,7 +22,7 @@ def get_world_model():
             ap["s1"]
         ],
         "transitions": [
-            adjacencies_LTL(
+            adjacencies_str_to_LTL(
                 map_dict={
                     "s1": ["s1", "s5"],
                     "s2": ["s2", "s5"],
@@ -31,10 +31,10 @@ def get_world_model():
                 },
                 ap=ap),
 
-            infinetely_often_LTL(["s1", "s2", "s3", "s4", "s5"], ap),
+            infinetely_often_str_to_LTL(["s1", "s2", "s3", "s4", "s5"], ap),
         ],
         "constraints": [
-            mutex_LTL(["s1", "s2", "s3", "s4", "s5"], ap)
+            mutex_str_to_LTL(["s1", "s2", "s3", "s4", "s5"], ap)
         ]
     }
 
@@ -43,14 +43,14 @@ def get_world_model():
             ap["r1"]
         ],
         "transitions": [
-            general_LTL("G( X s1 <-> X r1)", variables_str=["s1", "r1"], ap=ap),
-            general_LTL("G( X s2 <-> X r2)", variables_str=["s2", "r2"], ap=ap),
-            general_LTL("G( X s3 <-> X r3)", variables_str=["s3", "r3"], ap=ap),
-            general_LTL("G( X s4 <-> X r4)", variables_str=["s4", "r4"], ap=ap),
-            general_LTL("G( X s5 <-> X r5)", variables_str=["s5", "r5"], ap=ap),
+            general_str_to_LTL("G( X s1 <-> X r1)", variables_str=["s1", "r1"], ap=ap),
+            general_str_to_LTL("G( X s2 <-> X r2)", variables_str=["s2", "r2"], ap=ap),
+            general_str_to_LTL("G( X s3 <-> X r3)", variables_str=["s3", "r3"], ap=ap),
+            general_str_to_LTL("G( X s4 <-> X r4)", variables_str=["s4", "r4"], ap=ap),
+            general_str_to_LTL("G( X s5 <-> X r5)", variables_str=["s5", "r5"], ap=ap),
         ],
         "constraints": [
-            mutex_LTL(["r1", "r2", "r3", "r4", "r5"], ap)
+            mutex_str_to_LTL(["r1", "r2", "r3", "r4", "r5"], ap)
         ]
     }
 

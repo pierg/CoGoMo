@@ -3,7 +3,7 @@ import os
 from components.components import ComponentsLibrary, SimpleComponent, Component
 from contracts.contract import PContract
 from src.goals.cgtgoal import *
-from typescogomo.subtypes.patterns import *
+from typescogomo.subtypes.robotic_patterns import *
 from typescogomo.subtypes.scopes import *
 
 

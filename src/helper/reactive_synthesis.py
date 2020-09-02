@@ -18,7 +18,7 @@ def process_ap(ap_dict: Dict) -> Dict:
     return new_ap_dict
 
 
-def general_LTL(formula: str, variables_str: List[str], ap: Dict) -> LTL:
+def general_str_to_LTL(formula: str, variables_str: List[str], ap: Dict) -> LTL:
     variables = Variables()
 
     for var_str in variables_str:
@@ -31,7 +31,7 @@ def general_LTL(formula: str, variables_str: List[str], ap: Dict) -> LTL:
     )
 
 
-def adjacencies_LTL(map_dict: Dict, ap: Dict) -> List[LTL]:
+def adjacencies_str_to_LTL(map_dict: Dict, ap: Dict) -> List[LTL]:
     list_LTL = []
 
     for elem_str, adjacents_str in map_dict.items():
@@ -54,7 +54,7 @@ def adjacencies_LTL(map_dict: Dict, ap: Dict) -> List[LTL]:
     return list_LTL
 
 
-def infinetely_often_LTL(ap_list: List[str], ap: Dict) -> List[LTL]:
+def infinetely_often_str_to_LTL(ap_list: List[str], ap: Dict) -> List[LTL]:
     list_LTL = []
 
     for elem_str in ap_list:
@@ -69,7 +69,7 @@ def infinetely_often_LTL(ap_list: List[str], ap: Dict) -> List[LTL]:
     return list_LTL
 
 
-def mutex_LTL(mutex_list: List[str], ap: Dict) -> List[LTL]:
+def mutex_str_to_LTL(mutex_list: List[str], ap: Dict) -> List[LTL]:
     list_LTL = []
 
     mtx_elements = []

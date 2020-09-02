@@ -4,7 +4,7 @@ from components.components import ComponentsLibrary, SimpleComponent, Component
 from contracts.contract import PContract
 from helper.reactive_synthesis import process_ap
 from src.goals.cgtgoal import *
-from typescogomo.subtypes.patterns import *
+from typescogomo.subtypes.robotic_patterns import *
 from typescogomo.subtypes.scopes import *
 
 

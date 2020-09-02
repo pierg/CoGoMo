@@ -38,7 +38,7 @@ def get_inputs():
             ~ap["nemo"]
         ],
         "transitions": [
-            general_LTL(
+            general_str_to_LTL(
                 formula="G((!r1 & !r3 & !r5 & !r8) -> ((X nemo) <-> nemo))",
                 variables_str=["r1", "r3", "r5", "r8", "nemo"],
                 ap=ap)
@@ -57,7 +57,7 @@ def get_inputs():
                ~ap["r8"] & ~ap["r9"] & ~ap["r10"] & ~ap["r11"] & ~ap["r12"] & ~ap["camera_on"])
         ],
         "transitions":
-            adjacencies_LTL(
+            adjacencies_str_to_LTL(
                 map_dict={
                     "r1": ["r1", "r9"],
                     "r2": ["r2", "r12"],
@@ -74,13 +74,13 @@ def get_inputs():
                 },
                 ap=ap),
         "constraints":
-            mutex_LTL(
+            mutex_str_to_LTL(
                 mutex_list=["r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12"],
                 ap=ap)
     }
 
     system_specifications = [
-        general_LTL(
+        general_str_to_LTL(
             formula="G(X nemo -> ((X r1 <-> r1) & (X r2 <-> r2) & (X r3 <-> r3) & (X r4 <-> r4) & (X r5 <-> r5) & "
                     "(X r6 <-> r6) & (X r7 <-> r7) & (X r8 <-> r8) & (X r9 <-> r9) & (X r10 <-> r10) & "
                     "(X r11 <-> r11) & (X r12 <-> r12)) & X camera_on)",
@@ -88,12 +88,12 @@ def get_inputs():
                            "nemo"],
             ap=ap
         ),
-        general_LTL(
+        general_str_to_LTL(
             formula="G (! (X nemo) -> ! (X camera_on) )",
             variables_str=["camera_on", "nemo"],
             ap=ap
         ),
-        general_LTL(
+        general_str_to_LTL(
             formula="G (F (r1 | nemo)) & G (F (r3 | nemo)) & G (F (r5 | nemo)) & G (F (r8 | nemo))",
             variables_str=["r1", "r3", "r5", "r8", "nemo"],
             ap=ap

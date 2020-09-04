@@ -1,4 +1,5 @@
 from src.components.operations import *
+from typescogomo.variables import BoundedInt
 
 
 def test_port():

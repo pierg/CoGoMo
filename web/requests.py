@@ -2,7 +2,7 @@ from flask import request
 
 from src.z3.example import platooning_example
 from src.z3.src_z3.operations import *
-from tests.component_selection_platooning import libraries
+from tests_old.component_selection_platooning import libraries
 from web import socketio
 from flask_socketio import emit
 import json

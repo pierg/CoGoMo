@@ -14,7 +14,6 @@ class CGTGoal:
     """Contract-based Goal Tree"""
 
     def __init__(self,
-                 id: str = None,
                  name: str = None,
                  description: str = None,
                  contracts: List[Contract] = None,
@@ -23,9 +22,6 @@ class CGTGoal:
                  context: Union[LTL, List[LTL]] = None):
 
         self.__connected_to = None
-
-        for c in contracts:
-            print(c.context)
 
         if name is None:
             self.__name: str = ""
@@ -60,6 +56,7 @@ class CGTGoal:
         else:
             raise AttributeError
 
+        # TODO: why context is list?
         if context is not None:
             if isinstance(context, list):
                 list_of_goals = []
@@ -140,7 +137,6 @@ class CGTGoal:
 
     @context.setter
     def context(self, value: LTL):
-        self.__context = value
         self.set_context(value)
 
     @property
@@ -194,7 +190,6 @@ class CGTGoal:
 
     def get_all_goals_with_name(self, name, copies=False):
         """Depth-first search. Returns all goals are name"""
-
         result = []
         if self.refined_by is not None:
             for child in self.refined_by:
@@ -210,7 +205,6 @@ class CGTGoal:
 
     def get_all_leaf_nodes(self) -> List['CGTGoal']:
         """Depth-first search"""
-
         result = []
         if self.refined_by is not None:
             for child in self.refined_by:
@@ -220,8 +214,8 @@ class CGTGoal:
         return result
 
     def get_all_nodes(self) -> List['CGTGoal']:
-        """Depth-first search"""
 
+        """Depth-first search"""
         result = []
         result.append(self)
         if self.refined_by is not None:
@@ -678,7 +672,8 @@ class GoalsLibrary:
             self.add_goal(goal)
 
     def extract_selection(self,
-                          goal_to_refine: 'CGTGoal') -> 'CGTGoal':
+                          goal_to_refine: 'CGTGoal',
+                          propagate_assumptions: bool = True) -> 'CGTGoal':
         """"Returns the first goal that can refine"""
 
         to_be_refined = goal_to_refine.contracts[0].guarantees

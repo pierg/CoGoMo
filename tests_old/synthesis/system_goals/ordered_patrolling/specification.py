@@ -3,7 +3,8 @@ import shutil
 
 from controller.synthesis import SynthesisException
 from goals.helpers import realize_specification
-from tests.synthesis.world_models.yehia import get_world_model, general_str_to_LTL
+from tests_old.synthesis.world_models.yehia_2 import get_world_model
+from typescogomo.subtypes.robotic_patterns import *
 
 folder_path = os.path.dirname(os.path.abspath(__file__)) + "/output/"
 try:
@@ -14,7 +15,7 @@ except:
 environment_rules, system_rules, ap = get_world_model()
 
 system_goals = [
-    general_str_to_LTL("F(r4)", variables_str=["r4"], ap=ap)
+    OrderedPatrolling(locations=[ap["r1"], ap["r5"]])
 ]
 
 try:

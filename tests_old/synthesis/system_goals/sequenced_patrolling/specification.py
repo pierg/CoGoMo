@@ -3,8 +3,8 @@ import shutil
 
 from controller.synthesis import SynthesisException
 from goals.helpers import realize_specification
-from helper.reactive_synthesis import general_str_to_LTL
-from tests.synthesis.world_models.nemo_v2 import get_world_model
+from tests_old.synthesis.world_models.yehia import get_world_model, general_str_to_LTL
+from typescogomo.subtypes.robotic_patterns import *
 
 folder_path = os.path.dirname(os.path.abspath(__file__)) + "/output/"
 try:
@@ -15,16 +15,7 @@ except:
 environment_rules, system_rules, ap = get_world_model()
 
 system_goals = [
-    general_str_to_LTL(
-        formula="G (! (X nemo) -> ! (X camera_on) )",
-        variables_str=["camera_on", "nemo"],
-        ap=ap
-    ),
-    general_str_to_LTL(
-        formula="G (F (r1 | nemo)) & G (F (r3 | nemo)) & G (F (r5 | nemo)) & G (F (r8 | nemo))",
-        variables_str=["r1", "r3", "r5", "r8", "nemo"],
-        ap=ap
-    )
+    SequencedPatrolling(locations=[ap["r1"], ap["r4"], ap["r2"]])
 ]
 
 try:

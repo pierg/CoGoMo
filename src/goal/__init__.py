@@ -1,12 +1,14 @@
+from __future__ import annotations
 from enum import Enum
-import hashlib
-import string
 from copy import deepcopy
-from random import random
-from typing import List, Union, Dict
-from specification import Specification
-from typescogomo.formula import LTL
+from typing import Union, Dict
 
+from contract import Contract
+from formula import LTL
+from tools.strings_generation import get_name_and_id
+from contract.specification import Specification
+from typing import TypeVar, List
+LTL_types = TypeVar('LTL_types', bound=LTL)
 
 class Link(Enum):
     REFINEMENT = 0
@@ -19,7 +21,7 @@ class Goal(object):
     def __init__(self,
                  name: str = None,
                  description: str = None,
-                 specification: Specification = None,
+                 specification: Union[Contract, LTL_types] = None,
                  context: Union[LTL, List[LTL]] = None):
         """Parent goal"""
         self.__connected_to = None
@@ -27,7 +29,7 @@ class Goal(object):
         """Properties defined on first instantiation"""
         self.name: str = name
         self.description: str = description
-        self.specification: Specification = specification
+        self.specification: Specification = Specification(specification)
         self.context: LTL = context
 
         """Other properties"""
@@ -42,6 +44,8 @@ class Goal(object):
     """Imported methods"""
     from ._graph import get_parent_link, get_children_link, get_all_leaf_nodes, get_goals_by_name, get_all_nodes, \
         get_goal_by_id
+    from ._printing import __str__, pretty_print_cgt_summary, print_cgt_CROME, print_cgt_detailed, print_cgt_summary
+    from ._copying import __copy__, __deepcopy__
 
     @property
     def id(self):
@@ -53,17 +57,7 @@ class Goal(object):
 
     @name.setter
     def name(self, value: str):
-        if value is None:
-            self.__name: str = ""
-
-            """5 character ID generated from a random string"""
-            random_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
-            self.__id = hashlib.sha1(random_string.encode("UTF-8")).hexdigest()[:5]
-        else:
-            self.__name: str = value
-
-            """5 character ID generated from the name"""
-            self.__id: str = hashlib.sha1(value.encode("UTF-8")).hexdigest()[:5]
+        self.__name, self.__id = get_name_and_id(value)
 
     @property
     def description(self) -> str:
@@ -94,34 +88,34 @@ class Goal(object):
             if isinstance(value, list):
                 """If we have a list of context we connect the current goal to a conjunction of goals, each goal is 
                 instantiated in a context in the list """
-                list_of_goals = []
+                goals = []
                 for ctx in value:
-                    list_of_goals.append(Goal(
+                    goals.append(Goal(
                         name=self.name + " & " + ctx.formula,
                         description=self.description + " in " + ctx.formula,
                         specification=deepcopy(self.specification),
                         context=ctx
                     ))
-                from goals.operations import conjunction
-                conjunction(list_of_goals, connect_to=self)
+                from goal.operations import conjunction
+                conjunction(goals)
             else:
                 """Add context to guarantees as G(context -> guarantee)"""
                 self.specification.context = value
 
     @property
-    def parents(self) -> Dict['Goal', Link]:
+    def parents(self) -> Dict[Goal, Link]:
         return self.__parents
 
     @parents.setter
-    def parents(self, value: Dict['Goal', Link]):
+    def parents(self, value: Dict[Goal, Link]):
         self.__parents = value
 
     @property
-    def children(self) -> Dict['Goal', Link]:
+    def children(self) -> Dict[Goal, Link]:
         return self.__children
 
     @children.setter
-    def children(self, goals: Dict['Goal', Link]):
+    def children(self, goals: Dict[Goal, Link]):
         self.__children = goals
         if goals is not None:
             for goal in goals:
@@ -138,17 +132,3 @@ class Goal(object):
     @property
     def time_synthesis(self) -> int:
         return round(self.__time_synthesis, 2)
-
-    def __copy__(self):
-        cls = self.__class__
-        result = cls.__new__(cls)
-        result.__dict__.update(self.__dict__)
-        return result
-
-    def __deepcopy__(self, memo):
-        cls = self.__class__
-        result = cls.__new__(cls)
-        memo[id(self)] = result
-        for k, v in self.__dict__.items():
-            setattr(result, k, deepcopy(v, memo))
-        return result

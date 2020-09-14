@@ -1,9 +1,8 @@
 import subprocess
-from typing import Tuple, List, Union
-from checks.tools import And, Not
+from typing import List, Union
+from tools.logic import And, Not
 
 smvfile = "nusmvfile.smv"
-
 
 def check_satisfiability(variables: List[str],
                          propositions: Union[List[str], str]) -> bool:

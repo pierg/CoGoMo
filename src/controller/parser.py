@@ -1,6 +1,6 @@
 from typing import Tuple
 
-from checks.tools import And
+from tools.logic import And
 
 ASSUMPTIONS_HEADER = 'ASSUMPTIONS'
 GUARANTEES_HEADER = 'GUARANTEES'

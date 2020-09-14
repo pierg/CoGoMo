@@ -112,7 +112,7 @@ class ComponentsLibrary:
 
                         satis, model = sat_check(assumptions)
 
-                        """If the contract has compatible assumptions, add it to the list of contracts 
+                        """If the contract has compatible assumptions, add it to the list of contract 
                         that can refine to_be_refined"""
                         if satis:
                             if proposition in candidates_for_each_proposition:
@@ -153,7 +153,7 @@ class ComponentsLibrary:
 
 
 def incomposable_check(list_contracts):
-    """Return True if the list of contracts is not satisfiable, not compatible or not feasible"""
+    """Return True if the list of contract is not satisfiable, not compatible or not feasible"""
     if not isinstance(list_contracts, list):
         raise Exception("Wrong Parameter")
 

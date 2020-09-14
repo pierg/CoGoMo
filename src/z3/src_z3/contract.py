@@ -180,7 +180,7 @@ class Contract(object):
     def is_full(self):
         """
         Check if contract parameters are filled
-        :return: A boolean indicating if the contracts parameters are not empty
+        :return: A boolean indicating if the contract parameters are not empty
         """
         return self.variables and self.assumptions and self.guarantees
 

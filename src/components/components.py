@@ -1,6 +1,6 @@
 from typing import Dict
-from src.contracts.helpers import incomposable_check
-from src.contracts.contract import *
+from src.contract.helpers import incomposable_check
+from src.contract.contract import *
 
 import itertools as it
 
@@ -144,10 +144,10 @@ class ComponentsLibrary:
 
                 if component.guarantees.can_provide_for(elem):
 
-                    """Check if contracts have compatible assumptions with the one provided"""
+                    """Check if contract have compatible assumptions with the one provided"""
                     compatible = assumptions.are_satisfiable_with(component.assumptions)
 
-                    """If the contract has compatible assumptions, add it to the list of contracts 
+                    """If the contract has compatible assumptions, add it to the list of contract 
                     that can refine to_be_refined"""
                     if compatible:
                         if elem in candidates_for_each_proposition:

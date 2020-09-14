@@ -1,4 +1,4 @@
-# from src.contracts.operations import *
+# from src.contract.operations import *
 #
 #
 # one_integer_contracts_with_guarantees_simplifiable = [

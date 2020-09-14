@@ -1,5 +1,5 @@
 from src.goals.operations import conjunction, conjunction
-from src.contracts.contract import *
+from src.contract.contract import *
 from src.goals.cgtgoal import *
 
 

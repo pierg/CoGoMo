@@ -19,7 +19,7 @@ def compose_goals(list_of_goal, name=None, description=""):
     """
 
     :param name: Name of the goal
-    :param contracts: List of contracts to compose
+    :param contract: List of contract to compose
     :return: True, composed_goals if successful
     """
 
@@ -32,7 +32,7 @@ def compose_goals(list_of_goal, name=None, description=""):
         name = '_'.join("{!s}".format(key) for (key, val) in list(contracts.items()))
 
     """List of Lists of Contract, 
-    each element of the list is a list with the contracts in conjunctions, 
+    each element of the list is a list with the contract in conjunctions, 
     and each element is in composition with the other elements"""
 
     contracts_dictionary = {}
@@ -92,14 +92,14 @@ def conjoin_goals(goals, name="", description=""):
                     """Checking Consistency only when the assumptions are satisfied together"""
                     sat_2, model = sat_check(guarantees)
                     if not sat_2:
-                        print("The assumptions in the conjunction of contracts are not mutually exclusive")
+                        print("The assumptions in the conjunction of contract are not mutually exclusive")
                         print("Conflict with the following guarantees:\n" + str(model))
-                        raise Exception("The assumptions in the conjunction of contracts are not mutually exclusive\n" +
+                        raise Exception("The assumptions in the conjunction of contract are not mutually exclusive\n" +
                                         "Conflict with the following guarantees:\n" + str(model))
 
     print("The conjunction satisfiable.")
 
-    # Creating new list of contracts
+    # Creating new list of contract
     list_of_new_contracts = []
 
     for goal in goals:
@@ -262,7 +262,7 @@ def propagate_assumptions(abstract_goal, refined_goal):
     contracts_abstracted = abstract_goal.get_contracts()
 
     if len(contracts_refined) != len(contracts_abstracted):
-        raise Exception("Propagating assumptions among goals with different number of conjoined contracts")
+        raise Exception("Propagating assumptions among goals with different number of conjoined contract")
 
     for i, contract in enumerate(contracts_refined):
         """And(.....) of all the assumptions of the abstracted contract"""
@@ -367,7 +367,7 @@ def get_z3_contract(goal):
 def compose_contracts(contracts):
     """
     :param contracts: dictionary of goals name and contract
-    :return: True, contract which is the composition of the contracts in the goals or the contracts in the list
+    :return: True, contract which is the composition of the contract in the goals or the contract in the list
              False, unsat core of smt, list of proposition to fix that cause a conflict when composing
     """
 

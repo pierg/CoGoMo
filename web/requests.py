@@ -310,7 +310,7 @@ def render_goals(session_id):
         goal = {
             "name": name,
             "description": desc,
-            "contracts": contracts,
+            "contract": contracts,
         }
         goal_list.append(goal)
 

@@ -7,10 +7,9 @@ from typing import Tuple
 
 from graphviz import Source
 
-from checks.nusmv import check_satisfiability
-from checks.tools import Implies
+from tools.logic import Implies
 from controller.parser import parse_controller
-from helper.tools import save_to_file
+from tools.strings_manipulation import save_to_file
 
 strix_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'bin', 'ubuntu_19_10', 'strix'))
 

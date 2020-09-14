@@ -1,6 +1,5 @@
-from checks.tools import And
-from src.contracts.contract import BooleanContract
-from src.contracts.operations import *
+from src.contract.contract import BooleanContract
+from src.contract.operations import *
 
 """Parse Goals from Structured Text File"""
 

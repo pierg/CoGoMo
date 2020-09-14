@@ -1,14 +1,18 @@
-from typing import List, Set
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
-from goal import Link, Goal
-from goal._exceptions import GoalException, FailOperations, FailMotivations
+if TYPE_CHECKING:
+    from goal import Goal, Link
+    from typing import Set
+
+from goal.exceptions import GoalException, FailOperations, FailMotivations
 
 
-def get_parent_link(self: Goal, parent: 'Goal') -> Link:
+def get_parent_link(self: Goal, parent: Goal) -> Link:
     return self.parents[parent]
 
 
-def get_children_link(self: Goal, child: 'Goal') -> Link:
+def get_children_link(self: Goal, child: Goal) -> Link:
     return self.children[child]
 
 

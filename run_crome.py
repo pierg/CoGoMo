@@ -1,15 +1,14 @@
 import os
 import shutil
 import sys
-from copy import deepcopy
 from typing import List
 
 from controller.synthesis import create_controller_if_exists, SynthesisException
 from goals.cgtgoal import CGTGoal
-from goals.helpers import generate_general_controller_inputs_from_goal, generate_controller_input_text, extract_rules
+from goals.helpers import generate_controller_input_text, extract_rules
 from goals.operations import create_contextual_clusters, create_cgt, CGTFailException, pretty_cgt_exception, \
     extend_cgt
-from helper.tools import save_to_file
+from tools.strings_manipulation import save_to_file
 
 from crome_specifications import get_inputs
 
@@ -104,7 +103,6 @@ def generate_controllers_from_cgt_clustered(cgt: CGTGoal, folder_path, complete=
     """Synthetize the controller for each node of the CGT"""
     print("\n\nSynthetize the controller for each cluster")
     for i, goal in enumerate(cgt.refined_by):
-        from helper.buchi import generate_buchi
         sub_folder_path = folder_path + "cluster_" + str(i) + "/"
         # generate_buchi(goal.context, sub_folder_path + "context")
         realizable, exec_time = generate_controller_from_cgt(goal, sub_folder_path, complete)

@@ -1,5 +1,5 @@
 from typescogomo.contexts import *
-from src.contracts.contract import *
+from src.contract.contract import *
 from src.goals.operations import *
 
 def test_context_booleans_1():

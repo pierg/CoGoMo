@@ -1,7 +1,7 @@
 from src.components.operations import *
 from src.goals.operations import *
 from src.helper.parser import parse
-from src.contracts.contract import BooleanContract
+from src.contract.contract import BooleanContract
 
 def test_composition_pointers():
     goal_1 = CGTGoal(
@@ -97,7 +97,7 @@ def test_consolidate():
     #
     # specification = CGTGoal(
     #     name="specification",
-    #     contracts=[Contract(variables={"y": "0..100"}, guarantees=["y > 10"])])
+    #     contract=[Contract(variables={"y": "0..100"}, guarantees=["y > 10"])])
     #
     # mapping(component_library, specification)
     #

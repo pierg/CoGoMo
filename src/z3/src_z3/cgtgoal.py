@@ -7,7 +7,7 @@ class CGTGoal:
 
     Attributes:
         contracts: a list of contract objects
-        alphabet: a list of tuples containing the shared alphabet among all contracts
+        alphabet: a list of tuples containing the shared alphabet among all contract
     """
 
     def __init__(self,
@@ -18,7 +18,7 @@ class CGTGoal:
                  sub_operation=None,
                  parent_goal=None,
                  parent_operation=None):
-        """Initialize a contracts object"""
+        """Initialize a contract object"""
 
         self.name = name
         self.description = description

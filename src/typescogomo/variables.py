@@ -1,5 +1,5 @@
 from typing import Set
-from helper.tools import extract_terms
+from tools.strings_manipulation import extract_terms
 
 
 class Type(object):

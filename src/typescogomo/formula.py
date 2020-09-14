@@ -1,8 +1,8 @@
 from copy import deepcopy
 from typing import Set, Union, List
 from checks.nusmv import check_satisfiability, check_validity
-from checks.tools import And, Implies, Not, Or
-from typescogomo.variables import Variables, extract_variable, Boolean, Type
+from tools.logic import And, Implies, Not, Or
+from typescogomo.variables import Variables, extract_variable, Boolean
 
 
 class LTL:

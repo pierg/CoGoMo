@@ -1,11 +1,11 @@
 import os
 
-from checks.tools import Implies
+from tools.logic import Implies
 from controller.parser import parse_controller
 from controller.synthesis import create_controller_if_exists, SynthesisException
 from goals.helpers import generate_controller_input_text
-from helper.reactive_synthesis import *
-from helper.tools import save_to_file
+from tools.reactive_synthesis import *
+from tools.strings_manipulation import save_to_file
 
 file_name = os.path.splitext(os.path.basename(__file__))[0]
 folder_path = os.path.dirname(os.path.abspath(__file__ + "/../../")) + "/output/" + file_name + "/"

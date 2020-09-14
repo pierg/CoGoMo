@@ -1,6 +1,6 @@
-from src.contracts.operations import compose_contracts
+from src.contract.operations import compose_contracts
 from src.components.operations import *
-from src.contracts.contract import *
+from src.contract.contract import *
 
 
 def test_component_selection():

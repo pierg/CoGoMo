@@ -2,10 +2,10 @@ import itertools
 import re
 from copy import deepcopy
 from typing import Union, Dict, List, Tuple
-from checks.tools import Not, Or, And, Implies
+from tools.logic import Not, Or, And, Implies
 from controller.parser import parse_controller
 from controller.synthesis import create_controller_if_exists
-from helper.tools import save_to_file
+from tools.strings_manipulation import save_to_file
 from typescogomo.formula import LTL, InconsistentException
 from typescogomo.variables import Variables
 from goals.cgtgoal import CGTGoal

@@ -1,11 +1,9 @@
 import os
-import random
-import string
 
 from src.goals.cgtgoal import *
 from src.components.components import *
 
-from contracts.patterns import *
+from contract.patterns import *
 from typescogomo.formulae import Context
 from typescogomo.variables import *
 
@@ -63,13 +61,13 @@ def parse_from_string(string_to_parse):
 
 
 def parse(specfile):
-    """Parses the system specification file and returns the contracts and checks
+    """Parses the system specification file and returns the contract and checks
 
     Args:
         specfile: a string input file name for the system specification file
 
     Returns:
-        A tuple containing a contracts object and a checks object
+        A tuple containing a contract object and a checks object
     """
 
     cgt_goal = CGTGoal()

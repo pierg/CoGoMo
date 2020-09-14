@@ -4,9 +4,9 @@ import string
 from copy import deepcopy
 from typing import List, Dict, Tuple, Union
 
-from contracts.contract import Contract
+from contract.contract import Contract
 from typescogomo.formula import LTL
-from src.checks.tools import Or, And
+from tools.logic import Or
 from typescogomo.variables import Variables
 
 
@@ -71,7 +71,8 @@ class CGTGoal:
                         contracts=deepcopy(contracts)
                     ))
                 from goals.operations import conjunction
-                conjunction(list_of_goals, connect_to=self)
+                new_goal = conjunction(list_of_goals)
+                self.
             else:
                 self.set_context(context)
 
@@ -317,7 +318,7 @@ class CGTGoal:
     def extend_from_library(self, library: 'GoalsLibrary', rules_dict: Dict):
 
         if len(self.contracts) > 1:
-            raise Exception("Goals that have multiple conjoined contracts are not supported for extension")
+            raise Exception("Goals that have multiple conjoined contract are not supported for extension")
 
         print("Extending\t" + self.name + "\t...")
         try:

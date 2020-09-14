@@ -2,8 +2,8 @@ from copy import deepcopy
 from itertools import product, combinations
 from typing import List, Dict
 from components.components import ComponentsLibrary
-from src.contracts.contract import Contract, InconsistentContracts, IncompatibleContracts, UnfeasibleContracts
-from src.contracts.operations import compose_contracts
+from src.contract.contract import Contract, InconsistentContracts, IncompatibleContracts, UnfeasibleContracts
+from src.contract.operations import compose_contracts
 from src.goals.cgtgoal import CGTGoal, GoalsLibrary
 from typescogomo.formula import LTL
 from src.goals.helpers import extract_ltl_rules, extract_unique_contexts_from_goals, \
@@ -118,10 +118,10 @@ def composition(goals: List[CGTGoal],
     for goal in goals:
         contracts[goal.name] = goal.contracts
 
-    """Dot products among the contracts to perform the compositions of the conjunctions"""
+    """Dot products among the contract to perform the compositions of the conjunctions"""
     composition_contracts = (dict(list(zip(contracts, x))) for x in product(*iter(contracts.values())))
 
-    """List of composed contracts. Each element of the list is in conjunction"""
+    """List of composed contract. Each element of the list is in conjunction"""
     composed_contracts: List[Contract] = []
 
     for c in composition_contracts:
@@ -201,7 +201,7 @@ def mapping(component_library: ComponentsLibrary,
     if len(specification_goal.contracts) == 1:
         specification = specification_goal.contracts[0]
     else:
-        raise Exception("The goal has multiple contracts in conjunction and cannot be mapped")
+        raise Exception("The goal has multiple contract in conjunction and cannot be mapped")
 
     """Get a list of components from the specification, greedy algorithm"""
     from components.operations import components_selection

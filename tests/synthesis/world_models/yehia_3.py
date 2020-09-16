@@ -2,8 +2,8 @@ from tools.reactive_synthesis import *
 
 
 def get_world_model():
-    """The designer specifies a mission using the predefined catalogue of patterns
-       In addition to the patterns to use the designer specifies also in which context each goal can be active"""
+    """The designer specifies a mission using the predefined catalogue of dywer
+       In addition to the dywer to use the designer specifies also in which context each goal can be active"""
 
     """ Atomic propositions divided in
             sensor  - sensor propositions (uncontrollable) - binary sensor variables

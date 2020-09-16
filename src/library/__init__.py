@@ -1,7 +1,9 @@
 from __future__ import annotations
+
+from typing import Dict, List
+
 from tools.strings_generation import get_name_and_id
 from goal import Goal
-from contract.specification import Specification
 
 
 class Library(set):
@@ -9,11 +11,18 @@ class Library(set):
 
     def __init__(self,
                  name: str = None,
-                 description: str = None):
+                 description: str = None,
+                 environment_rules: Dict = None,
+                 system_rules: Dict = None,
+                 goals: List[Goal] = None):
         super().__init__()
 
         self.name = name
         self.description = description
+        self.environment_rules = environment_rules
+        self.system_rules = system_rules
+        for goal in goals:
+            self.add(goal)
 
     @property
     def id(self):
@@ -38,24 +47,25 @@ class Library(set):
         else:
             self.__description: str = value
 
+    @property
+    def environment_rules(self) -> Dict:
+        return self.__environment_rules
+
+    @environment_rules.setter
+    def environment_rules(self, value: Dict):
+        self.__environment_rules: Dict = value
+
+    @property
+    def system_rules(self) -> Dict:
+        return self.__system_rules
+
+    @system_rules.setter
+    def system_rules(self, value: Dict):
+        self.__system_rules: Dict = value
+
     def add(self, other: Goal):
         if not isinstance(other, Goal):
             raise AttributeError
         else:
             super().add(other)
 
-
-if __name__ == '__main__':
-    goal = Goal(
-        name="goal_1",
-        specification=Specification()
-    )
-    l1 = Library(name="l1", description="ibrary")
-
-
-    print(l1)
-    print(l1 | l2)
-
-    l3 = Library()
-    l3 |= l1
-    print(l3)

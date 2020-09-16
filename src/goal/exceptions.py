@@ -40,3 +40,7 @@ class GoalException(Exception):
         self.failed_operation = failed_operation
         self.faild_motivation = faild_motivation
         self.goal_involved = goal_involved
+
+
+class NoGoalFoundException(Exception):
+    pass

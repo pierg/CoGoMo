@@ -4,7 +4,6 @@ import subprocess
 from graphviz import Source
 
 from tools.strings_manipulation import save_to_file
-from typescogomo.subtypes.scopes import *
 
 results_folder = results_path = os.path.dirname(os.path.abspath(__file__)) + "/output/"
 

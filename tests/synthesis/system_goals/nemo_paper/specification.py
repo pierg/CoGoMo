@@ -2,7 +2,7 @@ import os
 import shutil
 
 from controller.synthesis import SynthesisException
-from goals.helpers import realize_specification
+from old_src.goals import realize_specification
 from tools.reactive_synthesis import general_str_to_LTL
 from tests.synthesis.world_models.nemo_v2 import get_world_model
 

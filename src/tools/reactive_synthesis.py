@@ -3,7 +3,7 @@ from typing import Dict, List
 
 from tools.logic import Not, And, Or
 from typescogomo.formula import LTL
-from typescogomo.variables import Variables
+from old_src.typescogomo.variables import Variables
 
 
 def process_ap(ap_dict: Dict) -> Dict:

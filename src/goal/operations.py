@@ -1,12 +1,14 @@
 from contract import Contract
 from contract.exceptions import InconsistentContracts, IncompatibleContracts, UnfeasibleContracts
 from contract.operations import conjoin_contracts, compose_contracts
+from formula import LTL
 from . import Goal, Link
 from ._copying import deepcopy
 from itertools import product, combinations
 from typing import List, Dict
 
 from .exceptions import GoalFailException, FailOperations, FailMotivations
+from .helpers.clustering import create_contextual_clusters
 
 
 def conjunction(goals: List[Goal],
@@ -161,3 +163,42 @@ def composition(goals: List[Goal],
     new_goal.children = {goals: Link.COMPOSITION}
 
     return new_goal
+
+
+def create_cgt(goals: List[Goal], rules: Dict) -> Goal:
+    """Compose all the set of goals in identified context and conjoin the results"""
+
+    """Dictionary context -> List[Goal]"""
+    context_goals: Dict[LTL, List[Goal]] = create_contextual_clusters(goals, "MUTEX", rules)
+
+    composed_goals = []
+    for i, (ctx, goals) in enumerate(context_goals.items()):
+        new_goals = deepcopy(goals)
+
+        """Extracting the new context for the guarantees"""
+        guarantees_ctx = []
+        for elem in ctx.cnf:
+            if elem.kind == "context":
+                pass
+            else:
+                guarantees_ctx.append(elem)
+        guarantees_ctx = LTL(cnf=set(guarantees_ctx), skip_checks=True)
+
+        """Setting the new context to each goal"""
+        for g in new_goals:
+            """Adding rules to each node"""
+            g.apply_rules(rules)
+            g.set_context(guarantees_ctx)
+        try:
+            ctx_goals = composition(new_goals)
+            composed_goals.append(ctx_goals)
+        except GoalFailException as e:
+            print("FAILED OPE:\t" + e.failed_operation.name)
+            print("FAILED MOT:\t" + e.failed_operation.name)
+            print("GOALS_1:\t" + str([g.name for g in e.goals_involved_a]))
+            print("GOALS_2:\t" + str([g.name for g in e.goals_involved_a]))
+
+    """Conjoin the goals across all the mutually exclusive contexts"""
+    cgt = conjunction(composed_goals, check_consistency=False)
+
+    return cgt

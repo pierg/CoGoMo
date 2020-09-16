@@ -1,14 +1,12 @@
 from flask import request
 
-from src.z3.example import platooning_example
-from src.z3.src_z3.operations import *
+from z3.src_z3.operations import *
 from tests_old.component_selection_platooning import libraries
 from web import socketio
 from flask_socketio import emit
 import json
 
 from multiprocessing import Lock
-from multiprocessing.managers import BaseManager
 
 from src_z3.parser import *
 

@@ -2,9 +2,8 @@ import os
 import shutil
 
 from controller.synthesis import SynthesisException
-from goals.helpers import realize_specification
+from old_src.goals import realize_specification
 from tests.synthesis.world_models.yehia import get_world_model
-from typescogomo.subtypes.robotic_patterns import *
 
 folder_path = os.path.dirname(os.path.abspath(__file__)) + "/output/"
 try:

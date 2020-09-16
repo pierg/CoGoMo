@@ -342,7 +342,7 @@ class DelayedReaction(Triggers):
 
         formula = "G(({t}) -> F({r}))".format(t=trigger.formula, r=reaction.formula)
 
-        super().__init__(formula, Typeset(trigger.variables | reaction.variables))
+        super().__init__(formula, trigger.variables | reaction.variables)
 
 
 class InstantReaction(Triggers):
@@ -358,7 +358,7 @@ class InstantReaction(Triggers):
 
         formula = "G(({t}) -> ({r}))".format(t=trigger.formula, r=reaction.formula)
 
-        super().__init__(formula, Typeset(trigger.variables | reaction.variables))
+        super().__init__(formula, trigger.variables | reaction.variables)
 
 
 class PromptReaction(Triggers):
@@ -374,7 +374,7 @@ class PromptReaction(Triggers):
 
         formula = "G(({t}) -> X({r}))".format(t=trigger.formula, r=reaction.formula)
 
-        super().__init__(formula, Typeset(trigger.variables | reaction.variables))
+        super().__init__(formula, trigger.variables | reaction.variables)
 
 
 class BoundReaction(Triggers):
@@ -390,7 +390,7 @@ class BoundReaction(Triggers):
 
         formula = "G( (({t}) -> ({r})) & (({r}) -> ({t})))".format(t=trigger.formula, r=reaction.formula)
 
-        super().__init__(formula, Typeset(trigger.variables | reaction.variables))
+        super().__init__(formula, trigger.variables | reaction.variables)
 
 
 class BoundDelay(Triggers):
@@ -407,7 +407,7 @@ class BoundDelay(Triggers):
 
         formula = "G( (({t}) -> X({r})) & (X({r}) -> ({t})))".format(t=trigger.formula, r=reaction.formula)
 
-        super().__init__(formula, Typeset(trigger.variables | reaction.variables))
+        super().__init__(formula, trigger.variables | reaction.variables)
 
 
 class Wait(Triggers):

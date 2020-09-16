@@ -28,6 +28,12 @@ class ReachLocation(Boolean):
         self.kind = "location"
 
 
+class ObjectRecognitionSensor(Boolean):
+
+    def __init__(self, name: str):
+        super().__init__(name)
+        self.kind = "sensor"
+
 class Greeting(Boolean):
 
     def __init__(self, name: str):

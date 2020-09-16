@@ -1,6 +1,5 @@
-from itertools import combinations, permutations
+from itertools import permutations
 
-from formula.patterns.basic import G
 from formula.patterns.robotic_patterns import *
 from typeset.types.robots.sensors import *
 from world import World
@@ -25,24 +24,22 @@ from world import World
 # }
 
 tset = {
-    ReachLocation("a"),
-    ReachLocation("b"),
-    ReachLocation("c"),
-    ReachLocation("d"),
-    ReachLocation("corridor"),
+    LiftingPower("lifting_power"),
+    Pickup("pick_package"),
+    ReachLocation("go_corridor"),
+    ReachLocation("go_a"),
+    ReachLocation("go_b"),
 }
 
 t = Typeset(tset)
 
-print(t["a"])
-print(t["b"])
-
-
 rules = {
     "refinement": [
-        Patrolling([t["corridor"]]) << Patrolling([t["a"], t["b"], t["c"], t["d"]])
+        Patrolling([t["corridor"]]) << Patrolling([t["a"], t["b"]])
     ]
 }
+
+
 
 comparisons = permutations(rules["refinement"], 2)
 

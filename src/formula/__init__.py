@@ -218,7 +218,7 @@ class LTL:
             return self
 
         self.__formula = Or([self.formula, other.formula])
-        self.__variables = Typeset(self.variables | other.variables)
+        self.__variables = self.variables | other.variables
 
         return self
 
@@ -237,7 +237,7 @@ class LTL:
             other = other.is_true()
 
         formula = Or([self.formula, other.formula])
-        variables = Typeset(self.variables | other.variables)
+        variables = self.variables | other.variables
 
         return LTL(formula=formula, variables=variables)
 
@@ -255,7 +255,7 @@ class LTL:
             other = other.is_true()
         return LTL(
             formula=Implies(self.formula, other.formula),
-            variables=Typeset(self.variables | other.variables)
+            variables=self.variables | other.variables
         )
 
     def __lshift__(self, other: Union[LTL, Boolean]) -> LTL:
@@ -265,7 +265,7 @@ class LTL:
             other = other.is_true()
         return LTL(
             formula=Implies(other.formula, self.formula),
-            variables=Typeset(self.variables | other.variables)
+            variables=self.variables | other.variables
         )
 
     """Refinement operators"""

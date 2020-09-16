@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, List, Union
 
 from tools.logic import And
 
@@ -13,7 +13,8 @@ DATA_INDENT = 1
 TAB_WIDTH = 2
 
 
-def parse_controller(file_path: str) -> Tuple[str, str, str, str]:
+def parse_controller(file_path: str, all_strings=True) -> Union[
+    Tuple[str, str, List[str], List[str]], Tuple[str, str, str, str]]:
     """Returns: assumptions, guarantees, inputs, outputs"""
 
     assumptions = []
@@ -62,7 +63,10 @@ def parse_controller(file_path: str) -> Tuple[str, str, str, str]:
                     if file_header == OUTS_HEADER:
                         if len(assumptions) == 0:
                             assumptions.append("true")
-                        return And(assumptions), And(guarantees), ",".join(inputs), ",".join(outputs)
+                        if all_strings:
+                            return And(assumptions), And(guarantees), ",".join(inputs), ",".join(outputs)
+                        return And(assumptions), And(guarantees), inputs, outputs
+
                     else:
                         Exception("File format not supported")
                 else:
@@ -80,11 +84,11 @@ def parse_controller(file_path: str) -> Tuple[str, str, str, str]:
 
                 if INS_HEADER == file_header:
                     if ntabs == DATA_INDENT:
-                        inputs.append(line.strip())
+                        inputs.extend(line.strip().split(","))
 
                 if OUTS_HEADER == file_header:
                     if ntabs == DATA_INDENT:
-                        outputs.append(line.strip())
+                        outputs.extend(line.strip().split(","))
 
 
 def _count_line(line):

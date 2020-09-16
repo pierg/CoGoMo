@@ -3,7 +3,7 @@ import subprocess
 import sys
 import platform
 import time
-from typing import Tuple
+from typing import Tuple, List
 
 from graphviz import Source
 
@@ -57,6 +57,35 @@ def is_realizable(assumptions: str, guarantees: str, ins: str, outs: str) -> boo
             raise Exception("Unknown strix response: " + stdoutdata[0])
     except Exception as e:
         raise e
+
+
+def synthesis_from_txt_spec(specification_path: str):
+    a, g, i, o = parse_controller(specification_path + "specification.txt", all_strings=False)
+
+    a_vars: List[str] = [var + ": boolean" for var in i + o if a.find(var) != -1]
+    g_vars: List[str] = [var + ": boolean" for var in i + o if g.find(var) != -1]
+
+    try:
+        if check_satisfiability(a_vars, a):
+            print("Assumptions are SATISFIABLE")
+        else:
+            print("!!! Assumptions are NOT SATISFIABLE")
+
+        if check_satisfiability(g_vars, g):
+            print("Guarantees are SATISFIABLE")
+        else:
+            print("!!! Guarantees are NOT SATISFIABLE")
+    except Exception as e:
+        print(e)
+
+
+    assumptions = a.replace("TRUE", "true")
+    guarantees = g.replace("TRUE", "true")
+    print(guarantees)
+    params = ' -k --dot -f "' + Implies(assumptions, guarantees) + '" --ins="' + ",".join(i) + '" --outs="' + ",".join(o) + '"'
+
+    save_to_file(params, specification_path + "specification_params.txt")
+    return create_controller_if_exists(specification_path + "specification.txt")
 
 
 def get_controller(assumptions: str, guarantees: str, ins: str, outs: str) -> Tuple[bool, str, float]:

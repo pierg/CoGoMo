@@ -87,7 +87,9 @@ class Typeset(dict):
 
     def __ior__(self, element: Typeset):
         """ Updates self with self |= element """
-        pass
+        self.update(element)
+        return self
+
 
     def __iand__(self, element: Typeset):
         """ Updates self with self &= element """
@@ -100,14 +102,14 @@ class Typeset(dict):
     def get_nusmv_names(self):
         """Get List[str] for nuxmv"""
         tuple_vars = []
-        for v in self:
+        for k, v in self.items():
             tuple_vars.append(v.name + ": " + v.nusmv_type)
         return tuple_vars
 
     def get_nusmv_types(self):
         """Get List[str] for nuxmv"""
         tuple_vars = []
-        for v in self:
+        for k, v in self.items():
             tuple_vars.append(v.port_type + ": " + v.nusmv_type)
         return tuple_vars
 

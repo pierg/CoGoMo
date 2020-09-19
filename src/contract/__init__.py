@@ -3,6 +3,8 @@ from formula import LTL
 from contract.exceptions import UnfeasibleContracts
 from typing import TypeVar, List
 
+from typeset import Typeset
+
 LTL_types = TypeVar('LTL_types', bound=LTL)
 
 
@@ -85,7 +87,7 @@ class Contract:
         self.__conjoined_by = value
 
     @property
-    def variables(self) -> LTL_types:
+    def variables(self) -> Typeset:
         return self.guarantees.variables | self.assumptions.variables
 
     @property

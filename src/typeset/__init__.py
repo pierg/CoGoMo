@@ -14,7 +14,7 @@ class Type(object):
         self.__kind: str = kind
 
     def __str__(self):
-        return self.name
+        return type(self).__name__ + "(" + self.name + ")"
 
     @property
     def name(self) -> 'str':
@@ -74,6 +74,11 @@ class Typeset(dict):
 
         super(Typeset, self).__init__()
 
+    def __str__(self):
+        ret = ""
+        for (key, elem) in self.items():
+            ret += key + ":\t" + str(elem) + "\n"
+        return ret[:-1]
 
     def __or__(self, element: Typeset) -> Typeset:
         """ Returns self |= element """
@@ -90,12 +95,11 @@ class Typeset(dict):
         self.update(element)
         return self
 
-
     def __iand__(self, element: Typeset):
         """ Updates self with self &= element """
         pass
 
-    def __isub__(self,element):
+    def __isub__(self, element):
         """ Updates self with self -= element """
         pass
 
@@ -112,4 +116,3 @@ class Typeset(dict):
         for k, v in self.items():
             tuple_vars.append(v.port_type + ": " + v.nusmv_type)
         return tuple_vars
-

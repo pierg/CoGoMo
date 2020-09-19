@@ -16,3 +16,5 @@ class Specification(Contract):
                              guarantees=specification.guarantees)
         elif isinstance(specification, LTL):
             super().__init__(guarantees=specification)
+
+

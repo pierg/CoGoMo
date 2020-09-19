@@ -8,7 +8,9 @@ from formula import LTL
 from tools.strings_generation import get_name_and_id
 from contract.specification import Specification
 from typing import TypeVar, List
+
 LTL_types = TypeVar('LTL_types', bound=LTL)
+
 
 class Link(Enum):
     REFINEMENT = 0
@@ -111,8 +113,17 @@ class Goal(object):
         self.__parents = value
 
     @property
-    def children(self) -> Dict[Goal, Link]:
-        return self.__children
+    def children(self) -> Union[Dict[Link, List[Goal]], None]:
+
+        if self.__children is None:
+            return None
+
+        link_goals: Dict[Link, List[Goal]] = {}
+
+        for (goal, link) in self.__children.items():
+            link_goals[link].append(goal)
+
+        return link_goals
 
     @children.setter
     def children(self, goals: Dict[Goal, Link]):

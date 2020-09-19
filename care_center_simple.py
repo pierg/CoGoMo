@@ -23,14 +23,6 @@ rules = {
     ]
 }
 
-one = t["time"] > 17
-two = t["time"] < 9
-
-c1 = (t["time"] > 17) | (t["time"] < 9)
-c2 = ~((t["time"] > 17) | (t["time"] < 9))
-
-print(c1)
-print(c2)
 
 goals = [
     Goal(
@@ -47,16 +39,23 @@ goals = [
     ),
 ]
 
-comparisons = permutations(rules["refinement"], 2)
+print("\n")
+for goal in goals:
+    print(goal)
 
-relationships = []
 
-for p1, p2 in comparisons:
 
-    if p1 <= p2:
-        if p1 == p2:
-            relationships.tpend(type(p1).__name__ + " = " + type(p2).__name__)
-        else:
-            relationships.tpend(type(p1).__name__ + " < " + type(p2).__name__)
 
-print(*relationships, sep='\n')
+# comparisons = permutations(rules["refinement"], 2)
+#
+# relationships = []
+#
+# for p1, p2 in comparisons:
+#
+#     if p1 <= p2:
+#         if p1 == p2:
+#             relationships.tpend(type(p1).__name__ + " = " + type(p2).__name__)
+#         else:
+#             relationships.tpend(type(p1).__name__ + " < " + type(p2).__name__)
+#
+# print(*relationships, sep='\n')

@@ -1,7 +1,7 @@
 from flask import Flask, request
 from flask_socketio import SocketIO, emit
 
-# Set this typeset to "threading", "eventlet" or "gevent" to test the
+# Set this types to "threading", "eventlet" or "gevent" to test the
 # different async modes, or leave it set to None for the application to choose
 # the best option based on installed packages.
 async_mode = None

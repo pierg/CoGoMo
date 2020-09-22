@@ -75,7 +75,7 @@ def z3_validity_check(z3_formula):
 
 
 def check_ports_are_compatible(prop_1, prop_2):
-    """Returns True if the two propositions or list of propositions share at least one port (typeset)"""
+    """Returns True if the two propositions or list of propositions share at least one port (types)"""
 
     prop_1_names = []
     prop_2_names = []

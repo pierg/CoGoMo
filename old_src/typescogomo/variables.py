@@ -3,21 +3,21 @@ from tools.strings_manipulation import extract_terms
 
 
 class Type(object):
-    """Base Type Class, a Type is a typeset with a name, basic_type for nuxmv (e.g. boolean),
+    """Base Type Class, a Type is a types with a name, basic_type for nuxmv (e.g. boolean),
     and variable_type: used for example when a component requires multiple variables of the same type
-    but having different names. If the port_type is not specified then it's the same as the name of the typeset"""
+    but having different names. If the port_type is not specified then it's the same as the name of the types"""
 
     def __init__(self, name: str, basic_type: str, kind: str = None, port_type: str = None):
-        """Name of the typeset"""
+        """Name of the types"""
         self.__name: str = name
 
-        """Kind of typeset, needed for the synthesis and to determine if controllable or not"""
+        """Kind of types, needed for the synthesis and to determine if controllable or not"""
         self.__kind: str = kind
 
         """Basic type, for nuxmv """
         self.__basic_type: str = basic_type
 
-        """Type of the typeset, if it is not specified then it's the same as the name"""
+        """Type of the types, if it is not specified then it's the same as the name"""
         self.__port_type: str = port_type if port_type is not None else name
 
     def __str__(self):

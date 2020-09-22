@@ -1,5 +1,4 @@
 import itertools
-from copy import deepcopy
 from typing import Union, Dict, List, Tuple
 from goal import Goal
 from typescogomo.formula import LTL, InconsistentException

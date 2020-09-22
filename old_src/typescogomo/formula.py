@@ -27,7 +27,7 @@ class LTL:
 
             variable = Boolean(formula)
 
-            """Setting up the kind of AP typeset"""
+            """Setting up the kind of AP types"""
             variable.kind = kind
 
             """Variables present in the formula"""

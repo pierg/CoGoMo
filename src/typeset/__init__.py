@@ -1,32 +1,44 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from itertools import combinations
+
 from typing import Set
 
 
 class Type(object):
 
     def __init__(self, name: str, kind: str = None):
-        """Name of the typeset"""
+        """Name of the types"""
         self.__name: str = name
 
-        """Kind of typeset, needed for the synthesis and to determine if controllable or not"""
+        """Kind of types, needed for the synthesis and to determine if controllable or not"""
         self.__kind: str = kind
+
+        """List of types that can be refined by self (filled when type is part of typeset)"""
+        self.__is_refinement_of: Set[Type] = set()
 
     def __str__(self):
         return type(self).__name__ + "(" + self.name + ")"
 
     @property
-    def name(self) -> 'str':
+    def name(self) -> str:
         return self.__name
 
     @property
-    def kind(self) -> 'str':
+    def kind(self) -> str:
         return self.__kind
 
     @kind.setter
     def kind(self, value: str):
         self.__kind = value
+
+    @property
+    def is_refinement_of(self) -> Set[Type]:
+        return self.__is_refinement_of
+
+    def add_supertype(self, value: Type):
+        self.__is_refinement_of.add(value)
 
     @property
     def controllable(self) -> 'bool':
@@ -42,7 +54,7 @@ class Type(object):
             raise Exception("Type does not have a kind")
 
     @property
-    def nusmv_type(self) -> 'str':
+    def nusmv_type(self) -> str:
         from .types.basic import Boolean
         if isinstance(self, Boolean):
             return "boolean"
@@ -72,12 +84,21 @@ class Typeset(dict):
             for elem in types:
                 super(Typeset, self).__setitem__(elem.name, elem)
 
+        for (a, b) in combinations(types, 2):
+            if isinstance(a, type(b)):
+                a.add_supertype(b)
+            # if isinstance(b, type(a)):
+            #     b.add_supertype(a)
+
         super(Typeset, self).__init__()
 
     def __str__(self):
         ret = ""
         for (key, elem) in self.items():
-            ret += key + ":\t" + str(elem) + "\n"
+            ret += key + ":\t" + str(elem)
+            getset = elem.is_refinement_of()
+            if elem.is_refinement_of() != set():
+                ret += " -> " + str(*elem.is_refinement_of) + "\n"
         return ret[:-1]
 
     def __or__(self, element: Typeset) -> Typeset:
@@ -102,6 +123,15 @@ class Typeset(dict):
     def __isub__(self, element):
         """ Updates self with self -= element """
         pass
+
+    def __setitem__(self, name, elem):
+        super().__setitem__(name, elem)
+
+        for (a, b) in combinations(self.values(), 2):
+            if issubclass(a, b):
+                a.add_supertype(b)
+            if issubclass(b, a):
+                b.add_supertype(a)
 
     def get_nusmv_names(self):
         """Get List[str] for nuxmv"""

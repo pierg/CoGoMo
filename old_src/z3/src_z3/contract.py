@@ -23,7 +23,7 @@ class Contract(object):
 
     Attributes:
         name: a string name for the contract
-        variables: a dictionary containing the string of the typeset as key, and the Z3 typeset as value
+        variables: a dictionary containing the string of the types as key, and the Z3 types as value
         assumptions: a list of Z3 relations assumed by contract
         guarantees: a list of Z3 relations relations guaranteed by contract
     """
@@ -56,9 +56,9 @@ class Contract(object):
             raise Exception("Attribute Error")
 
     def add_variable(self, variable):
-        """Adds a typeset to the contract variables
+        """Adds a types to the contract variables
 
-        Args:param typeset: a tuple of strings containing name of the typeset and a its type
+        Args:param types: a tuple of strings containing name of the types and a its type
         """
         name, var_type = variable
         if var_type == 'REAL':
@@ -71,7 +71,7 @@ class Contract(object):
     def add_variables(self, variables):
         """Adds a list of variables to the contract variables
 
-        :param variables: list of tuple of strings each containing name of the typeset and a its type
+        :param variables: list of tuple of strings each containing name of the types and a its type
         """
         for variable in variables:
             self.add_variable(variable)

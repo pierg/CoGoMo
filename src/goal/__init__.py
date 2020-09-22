@@ -80,8 +80,7 @@ class Goal(object):
     @specification.setter
     def specification(self, value: Union[Contract, LTL_types]):
         if isinstance(value, Contract):
-            self.__specification: Contract = Contract(assumptions=value.assumptions,
-                                                    guarantees=value.guarantees)
+            self.__specification: Contract = value
         elif isinstance(value, LTL):
             self.__specification: Contract = Contract(guarantees=value)
 

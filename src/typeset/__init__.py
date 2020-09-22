@@ -102,9 +102,11 @@ class Typeset(dict):
         """ Returns self &= element """
         pass
 
-    def __ior__(self, typeset: Typeset):
+    def __ior__(self, element: Union[Typeset, Type]):
         """ Updates self with self |= element """
-        for key, value in typeset.items():
+        if isinstance(element, Type):
+            element = Typeset({element})
+        for key, value in element.items():
             if key in self:
                 if value is not self[key]:
                     raise Exception("Type Mismatch")

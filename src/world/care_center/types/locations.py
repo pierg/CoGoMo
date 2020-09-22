@@ -1,7 +1,7 @@
-from typeset.types.robots.locations import ReachLocation
+from typeset.types.subtypes.locations import MutexReachLocation
 
 
-class GoCorridor(ReachLocation):
+class GoCorridor(MutexReachLocation):
 
     def __init__(self, name: str = "go_corridor"):
         super().__init__(name)
@@ -28,4 +28,17 @@ class GoD(GoCorridor):
 class GoE(GoCorridor):
 
     def __init__(self, name: str = "go_e"):
+        super().__init__(name)
+
+
+
+class GoPharmacy(MutexReachLocation):
+
+    def __init__(self, name: str = "go_corridor"):
+        super().__init__(name)
+
+
+class GoF(ReachLocation):
+
+    def __init__(self, name: str = "go_f"):
         super().__init__(name)

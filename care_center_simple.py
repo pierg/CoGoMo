@@ -1,12 +1,14 @@
+from contract import Contract
 from formula.patterns.robotic_patterns import *
 from goal import Goal
-from typeset.types.context import ContextTime
+from goal.operations import create_cgt
 from world.care_center.types.sensors import *
 from world.care_center.types.actions import *
 from world.care_center.types.locations import *
+from world.care_center.types.context import *
+
 
 variables = {
-    ContextTime(),
     LiftingPower(),
     ObjectRecognition("see_package"),
     Pickup("pick_package"),
@@ -14,35 +16,42 @@ variables = {
     GoB(),
     GoC(),
     GoD(),
-    GoE()
+    GoE(),
+    GoF(),
+    Mild(), Severe(), Time()
 }
 
 t = Typeset(variables)
 
-print(t)
-
-# rules = {
-#     "refinement": [
-#         Patrolling([t["go_corridor"]]) << Patrolling([t["go_b"], t["go_c"], t["go_d"], t["go_e"]])
-#     ]
-# }
+day: LTL = (t["time"] > 17) | (t["time"] < 9)
+night: LTL = ~day
+mild: LTL = t["mild_symptoms"]
+severe: LTL = t["severe_symptoms"]
 
 goals = [
     Goal(
         name="patrol",
-        context=(t["time"] > 17) | (t["time"] < 9),
-        specification=PromptReaction(
-            trigger=t["see_package"],
-            reaction=t["pick_package"])
+        context=day,
+        specification=Contract(
+            assumptions=LiftingPower() > 25,
+            guarantees=PromptReaction(
+                trigger=t["see_package"],
+                reaction=t["pick_package"])
+        )
     ),
     Goal(
         name="pick_up_package",
-        context=~((t["time"] > 17) | (t["time"] < 9)),
+        context=night,
+        specification=Patrolling([t["go_corridor"]])
+    ),
+    Goal(
+        name="pick_up_package",
+        context=night,
         specification=Patrolling([t["go_corridor"]])
     )
 ]
 
-
+cgt = create_cgt(goals)
 
 library = [
     Goal(
@@ -54,9 +63,3 @@ library = [
         specification=Patrolling([t["go_b"], t["go_c"], t["go_d"], t["go_e"]])
     ),
 ]
-
-print(Patrolling([t["go_corridor"]]) << Patrolling([t["go_b"], t["go_c"], t["go_d"], t["go_e"]]))
-
-print("\n")
-for goal in goals:
-    print(goal)

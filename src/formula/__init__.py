@@ -23,6 +23,15 @@ class LTL:
 
         self.__saturation = None
 
+        if kind is not None:
+            self.__kind: str = kind
+        else:
+            self.__kind: str = ""
+
+        self.__refinement_rules: Set[LTL] = set()
+
+        self.__context = context
+
         if formula is not None and cnf is None and variables is not None:
 
             """String representing the LTL"""
@@ -34,8 +43,9 @@ class LTL:
             """Set of LTL that conjoined result in the formula"""
             self.__cnf: Set[LTL] = {self}
 
-            """Adding context"""
-            self.__context = context
+            """Refinement rules derived from typeset and subtypes relations"""
+            if self.__kind != "refinement_rule":
+                self.__refinement_rules: Set[LTL] = self.extract_refinement_rules()
 
             if not skip_checks:
                 if not self.is_satisfiable():
@@ -45,7 +55,7 @@ class LTL:
 
             cnf_str = [x.formula for x in cnf]
 
-            self.__formula: str = And(cnf_str)
+            self.__formula: str = And(cnf_str, brackets=True)
 
             self.__variables: Typeset = Typeset()
 
@@ -54,8 +64,9 @@ class LTL:
 
             self.__cnf: Set[Union[LTL]] = cnf
 
-            """Adding context"""
-            self.__context = context
+            """Refinement rules derived from typeset and subtypes relations"""
+            if self.__kind != "refinement_rule":
+                self.__refinement_rules: Set[LTL] = self.extract_refinement_rules()
 
             if not skip_checks and len(cnf) > 1:
                 if not self.is_satisfiable():
@@ -65,18 +76,9 @@ class LTL:
             self.__formula: str = "TRUE"
             self.__cnf: Set[LTL] = {self}
             self.__variables: Typeset = Typeset()
-            self.__context = None
 
         else:
             raise Exception("Wrong parameters LTL construction")
-
-        if kind is not None:
-            self.__kind: str = kind
-        else:
-            self.__kind: str = ""
-
-        """Refinement rules derived from typeset and subtypes relations"""
-        self.__refinement_rules: Set[LTL] = self.extract_refinement_rules()
 
     @property
     def formula(self) -> str:
@@ -92,6 +94,14 @@ class LTL:
         """Adding saturation"""
         if self.__saturation is not None and self.__saturation.formula != "TRUE":
             formula = "((" + self.__saturation.formula + ") -> (" + formula + "))"
+
+        """Adding refinement rules"""
+        if len(self.__refinement_rules) > 0:
+            rules = []
+            for rule in self.__refinement_rules:
+                rules.append(rule.formula)
+            rules = And(rules, brackets=True)
+            formula = rules + " -> " + formula
 
         return formula
 
@@ -167,14 +177,11 @@ class LTL:
         rules: Set[LTL] = set()
 
         for variable, supertypes in self.variables.supertypes.items():
-            print(str(variable) + " -> " + str(supertypes))
-        #
-        # for variable in self.variables.values():
-        #     for supertype in variable.supertypes:
-        #         print(variable.name + ">>" + supertype.name)
-        #         # formula = "G(" + variable.name + " -> " + supertype.name + ")"
-        #         # rule = LTL(formula=formula, variables=Typeset({variable, supertype}))
-        #         # rules.add(rule)
+            for supertype in supertypes:
+                formula = "G(" + variable.name + " -> " + supertype.name + ")"
+                rule = LTL(formula=formula, variables=Typeset({variable, supertype}), kind="refinement_rule")
+                rules.add(rule)
+                self.__variables |= supertype
 
         return rules
 
@@ -304,13 +311,9 @@ class LTL:
     def __le__(self, other: LTL):
         if other.is_true():
             return True
-        """Check if the set of behaviours is smaller or equal in the other set of behaviours"""
-        variables_a = set(self.variables.get_nusmv_names())
-        variables_b = set(other.variables.get_nusmv_names())
-        if len(variables_b & variables_a) > 0:
-            variables = variables_a | variables_b
-            return check_validity(list(variables), "((" + self.formula + ") -> (" + other.formula + "))")
-        return False
+        """Create a new LTL self -> other and check its validity"""
+        implication_formula = self >> other
+        return check_validity(implication_formula.variables.get_nusmv_names(), implication_formula.formula)
 
     def __eq__(self, other: LTL):
         """Check if the set of behaviours is equal to the other set of behaviours"""
@@ -333,11 +336,9 @@ class LTL:
     def __ge__(self, other: LTL):
         if self.is_true():
             return True
-        """Check if the set of behaviours is bigger of equal than the other set of behaviours"""
-        variables_a = set(self.variables.get_nusmv_names())
-        variables_b = set(other.variables.get_nusmv_names())
-        variables = variables_a | variables_b
-        return check_validity(list(variables), "((" + other.formula + ") -> (" + self.formula + "))")
+        """Create a new LTL self -> other anche check its validity"""
+        implication_formula = other >> self
+        return check_validity(implication_formula.variables.get_nusmv_names(), implication_formula.formula)
 
     def __hash__(self):
         try:

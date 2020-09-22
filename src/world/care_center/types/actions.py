@@ -1,4 +1,4 @@
-from typeset.types.robots.actions import BooleanAction
+from typeset.types.subtypes.actions import BooleanAction
 
 
 class Greeting(BooleanAction):

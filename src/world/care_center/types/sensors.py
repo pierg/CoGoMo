@@ -1,4 +1,4 @@
-from typeset.types.robots.sensors import IntegerSensor, BooleanSensor
+from typeset.types.subtypes.sensors import IntegerSensor, BooleanSensor
 
 
 class HumanDetection(BooleanSensor):

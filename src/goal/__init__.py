@@ -1,7 +1,7 @@
 from __future__ import annotations
 from enum import Enum
 from copy import deepcopy
-from typing import Union, Dict
+from typing import Union, Dict, Set
 
 from contract import Contract
 from formula import LTL
@@ -25,13 +25,14 @@ class Goal(object):
                  description: str = None,
                  specification: Union[Contract, LTL_types] = None,
                  context: Union[LTL, List[LTL]] = None):
+
         """Parent goal"""
         self.__connected_to = None
 
         """Properties defined on first instantiation"""
         self.name: str = name
         self.description: str = description
-        self.specification: Specification = Specification(specification)
+        self.specification: Contract = specification
         self.context: LTL = context
 
         """Other properties"""
@@ -73,12 +74,16 @@ class Goal(object):
             self.__description: str = value
 
     @property
-    def specification(self) -> Specification:
+    def specification(self) -> Contract:
         return self.__specification
 
     @specification.setter
-    def specification(self, value: Specification):
-        self.__specification: Specification = value
+    def specification(self, value: Union[Contract, LTL_types]):
+        if isinstance(value, Contract):
+            self.__specification: Contract = Contract(assumptions=value.assumptions,
+                                                    guarantees=value.guarantees)
+        elif isinstance(value, LTL):
+            self.__specification: Contract = Contract(guarantees=value)
 
     @property
     def context(self) -> LTL:

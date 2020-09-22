@@ -1,10 +1,11 @@
 from formula.patterns.dywer import Pattern
 from formula import LTL
-from variable import Variables
+from typeset import Typeset
+
 
 class Scope(Pattern):
 
-    def __init__(self, formula: str, variables: Variables):
+    def __init__(self, formula: str, variables: Typeset):
         super().__init__(formula=formula, variables=variables)
 
 

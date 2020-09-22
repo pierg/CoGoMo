@@ -16,7 +16,7 @@ class Type(object):
         self.__kind: str = kind
 
         """List of types that can be refined by self (filled when type is part of typeset)"""
-        self.__is_refinement_of: Set[Type] = set()
+        self.__supertypes: Set[Type] = set()
 
     def __str__(self):
         return type(self).__name__ + "(" + self.name + ")"
@@ -34,11 +34,11 @@ class Type(object):
         self.__kind = value
 
     @property
-    def is_refinement_of(self) -> Set[Type]:
-        return self.__is_refinement_of
+    def supertypes(self) -> Set[Type]:
+        return self.__supertypes
 
     def add_supertype(self, value: Type):
-        self.__is_refinement_of.add(value)
+        self.__supertypes.add(value)
 
     @property
     def controllable(self) -> 'bool':
@@ -84,21 +84,22 @@ class Typeset(dict):
             for elem in types:
                 super(Typeset, self).__setitem__(elem.name, elem)
 
-        for (a, b) in combinations(types, 2):
-            if isinstance(a, type(b)):
-                a.add_supertype(b)
-            # if isinstance(b, type(a)):
-            #     b.add_supertype(a)
-
-        super(Typeset, self).__init__()
+            if len(types) > 1:
+                for (a, b) in combinations(types, 2):
+                    if isinstance(a, type(b)):
+                        a.add_supertype(b)
+                    if isinstance(b, type(a)):
+                        b.add_supertype(a)
+        else:
+            super(Typeset, self).__init__()
 
     def __str__(self):
         ret = ""
         for (key, elem) in self.items():
             ret += key + ":\t" + str(elem)
-            getset = elem.is_refinement_of()
-            if elem.is_refinement_of() != set():
-                ret += " -> " + str(*elem.is_refinement_of) + "\n"
+            if elem.supertypes != set():
+                ret += " -> " + str(*elem.supertypes)
+            ret += "\n"
         return ret[:-1]
 
     def __or__(self, element: Typeset) -> Typeset:
@@ -128,9 +129,9 @@ class Typeset(dict):
         super().__setitem__(name, elem)
 
         for (a, b) in combinations(self.values(), 2):
-            if issubclass(a, b):
+            if isinstance(a, type(b)):
                 a.add_supertype(b)
-            if issubclass(b, a):
+            if isinstance(b, type(a)):
                 b.add_supertype(a)
 
     def get_nusmv_names(self):

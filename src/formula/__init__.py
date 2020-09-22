@@ -1,6 +1,8 @@
 from __future__ import annotations
 from copy import deepcopy
 from typing import Set, Union, List
+
+from formula.helpers import extract_refinement_rules
 from tools.nusmv import check_satisfiability, check_validity
 from tools.logic import And, Implies, Not, Or
 from typeset import Typeset
@@ -72,6 +74,11 @@ class LTL:
             self.__kind: str = kind
         else:
             self.__kind: str = ""
+
+        """Refinement rules derived from typeset and subtypes relations"""
+        """We add the rules r for both a and g, since the overall contract is the same: 
+        (a & r) -> (G(c -> (a->g))) === (r -> a) -> (r -> G(c -> (a->g)))"""
+        self.__refinement_rules: Set[LTL] = extract_refinement_rules(self.variables)
 
     @property
     def formula(self) -> str:
@@ -154,6 +161,18 @@ class LTL:
             if elem.kind == kind:
                 ret.append(elem)
         return ret
+
+
+    def extract_refinement_rules(self) -> Set[LTL]:
+        rules: Set[LTL] = set()
+
+        for variable in variables.values():
+            for supertype in variable.supertypes:
+                formula = "G(" + variable.name + " -> " + supertype.name + ")"
+                rule = LTL(formula=formula, variables=variable | supertype)
+                rules.add(rule)
+
+        return rules
 
     def __deepcopy__(self, memo):
         cls = self.__class__

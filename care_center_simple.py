@@ -44,8 +44,6 @@ goals = [
 
 
 
-
-
 library = [
     Goal(
         name="patrol_b",

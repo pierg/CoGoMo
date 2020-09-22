@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from copy import deepcopy
+from copy import deepcopy, copy
 from itertools import combinations
 
-from typing import Set
+from typing import Set, Union, Dict
 
 
 class Type(object):
@@ -14,9 +14,6 @@ class Type(object):
 
         """Kind of types, needed for the synthesis and to determine if controllable or not"""
         self.__kind: str = kind
-
-        """List of types that can be refined by self (filled when type is part of typeset)"""
-        self.__supertypes: Set[Type] = set()
 
     def __str__(self):
         return type(self).__name__ + "(" + self.name + ")"
@@ -32,13 +29,6 @@ class Type(object):
     @kind.setter
     def kind(self, value: str):
         self.__kind = value
-
-    @property
-    def supertypes(self) -> Set[Type]:
-        return self.__supertypes
-
-    def add_supertype(self, value: Type):
-        self.__supertypes.add(value)
 
     @property
     def controllable(self) -> 'bool':
@@ -80,16 +70,11 @@ class Typeset(dict):
 
     def __init__(self, types: Set[Type] = None):
 
-        if types is not None:
-            for elem in types:
-                super(Typeset, self).__setitem__(elem.name, elem)
+        """Indicates the supertypes relationships for each type in the typeset"""
+        self.__supertypes: Dict[Type, Set[Type]] = {}
 
-            if len(types) > 1:
-                for (a, b) in combinations(types, 2):
-                    if isinstance(a, type(b)):
-                        a.add_supertype(b)
-                    if isinstance(b, type(a)):
-                        b.add_supertype(a)
+        if types is not None:
+            self.add_elements(types)
         else:
             super(Typeset, self).__init__()
 
@@ -97,24 +82,34 @@ class Typeset(dict):
         ret = ""
         for (key, elem) in self.items():
             ret += key + ":\t" + str(elem)
-            if elem.supertypes != set():
-                ret += " -> " + str(*elem.supertypes)
+            if elem in self.supertypes:
+                ret += " -> "
+                for supertypes in self.supertypes[elem]:
+                    ret += supertypes.name
             ret += "\n"
         return ret[:-1]
 
-    def __or__(self, element: Typeset) -> Typeset:
+    def __or__(self, element: Union[Typeset, Type]) -> Typeset:
         """ Returns self |= element """
-        new_dict = deepcopy(self)
-        new_dict.update(element)
+        if isinstance(element, Type):
+            element = Typeset({element})
+        """Shallow copy"""
+        new_dict = copy(self)
+        new_dict |= element
         return new_dict
 
     def __and__(self, element: Typeset) -> Typeset:
         """ Returns self &= element """
         pass
 
-    def __ior__(self, element: Typeset):
+    def __ior__(self, typeset: Typeset):
         """ Updates self with self |= element """
-        self.update(element)
+        for key, value in typeset.items():
+            if key in self:
+                if value is not self[key]:
+                    raise Exception("Type Mismatch")
+            if key not in self:
+                self.add_elements({value})
         return self
 
     def __iand__(self, element: Typeset):
@@ -125,14 +120,34 @@ class Typeset(dict):
         """ Updates self with self -= element """
         pass
 
-    def __setitem__(self, name, elem):
-        super().__setitem__(name, elem)
 
-        for (a, b) in combinations(self.values(), 2):
-            if isinstance(a, type(b)):
-                a.add_supertype(b)
-            if isinstance(b, type(a)):
-                b.add_supertype(a)
+    def add_elements(self, types: Set[Type]):
+        if types is not None:
+            for elem in types:
+                super(Typeset, self).__setitem__(elem.name, elem)
+
+        self.update_subtypes()
+
+    def update_subtypes(self):
+        if len(self.values()) > 1:
+            for (a, b) in combinations(self.values(), 2):
+                if isinstance(a, type(b)):
+                    if a in self.__supertypes:
+                        self.__supertypes[a].add(b)
+                    else:
+                        self.__supertypes[a] = {b}
+                if isinstance(b, type(a)):
+                    if b in self.__supertypes:
+                        self.__supertypes[b].add(a)
+                    else:
+                        self.__supertypes[b] = {a}
+
+    def __setitem__(self, name, elem):
+        self.add_elements({elem})
+
+    @property
+    def supertypes(self) -> Dict[Type, Set[Type]]:
+        return self.__supertypes
 
     def get_nusmv_names(self):
         """Get List[str] for nuxmv"""

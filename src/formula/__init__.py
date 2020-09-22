@@ -76,13 +76,14 @@ class LTL:
             self.__kind: str = ""
 
         """Refinement rules derived from typeset and subtypes relations"""
-        """We add the rules r for both a and g, since the overall contract is the same: 
-        (a & r) -> (G(c -> (a->g))) === (r -> a) -> (r -> G(c -> (a->g)))"""
-        self.__refinement_rules: Set[LTL] = extract_refinement_rules(self.variables)
+        self.__refinement_rules: Set[LTL] = self.extract_refinement_rules()
 
     @property
     def formula(self) -> str:
         formula = self.__formula
+
+        """We add the rules r for both a and g, since the overall contract is the same: 
+                (a & r) -> (G(c -> (a->g))) === (r -> a) -> (r -> G(c -> (a->g)))"""
 
         """Adding context"""
         if self.__context is not None:
@@ -162,15 +163,18 @@ class LTL:
                 ret.append(elem)
         return ret
 
-
     def extract_refinement_rules(self) -> Set[LTL]:
         rules: Set[LTL] = set()
 
-        for variable in variables.values():
-            for supertype in variable.supertypes:
-                formula = "G(" + variable.name + " -> " + supertype.name + ")"
-                rule = LTL(formula=formula, variables=variable | supertype)
-                rules.add(rule)
+        for variable, supertypes in self.variables.supertypes.items():
+            print(str(variable) + " -> " + str(supertypes))
+        #
+        # for variable in self.variables.values():
+        #     for supertype in variable.supertypes:
+        #         print(variable.name + ">>" + supertype.name)
+        #         # formula = "G(" + variable.name + " -> " + supertype.name + ")"
+        #         # rule = LTL(formula=formula, variables=Typeset({variable, supertype}))
+        #         # rules.add(rule)
 
         return rules
 

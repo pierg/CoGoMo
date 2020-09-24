@@ -72,7 +72,7 @@ class CGTGoal:
                     ))
                 from old_src.goals import conjunction
                 new_goal = conjunction(list_of_goals)
-                self.
+                self.update_with()
             else:
                 self.set_context(context)
 

@@ -91,3 +91,5 @@ def get_all_nodes(self: Goal, visited_nodes: Set[Goal] = None) -> Set[Goal]:
         else:
             result |= node.get_all_leaf_nodes(visited_nodes)
     return result
+
+

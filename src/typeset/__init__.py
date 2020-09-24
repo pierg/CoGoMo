@@ -3,7 +3,7 @@ from __future__ import annotations
 from copy import deepcopy, copy
 from itertools import combinations
 
-from typing import Set, Union, Dict
+from typing import Set, Union, Dict, List
 
 
 class Type(object):
@@ -73,6 +73,9 @@ class Typeset(dict):
         """Indicates the supertypes relationships for each type in the typeset"""
         self.__supertypes: Dict[Type, Set[Type]] = {}
 
+        """Indicates the mutex relationships for the types in the typeset"""
+        self.__mutextypes: Set[Set[Type]] = set()
+
         if types is not None:
             self.add_elements(types)
         else:
@@ -122,13 +125,13 @@ class Typeset(dict):
         """ Updates self with self -= element """
         pass
 
-
     def add_elements(self, types: Set[Type]):
         if types is not None:
             for elem in types:
                 super(Typeset, self).__setitem__(elem.name, elem)
 
         self.update_subtypes()
+        self.update_mutextypes()
 
     def update_subtypes(self):
         if len(self.values()) > 1:
@@ -144,12 +147,39 @@ class Typeset(dict):
                     else:
                         self.__supertypes[b] = {a}
 
+    def update_mutextypes(self):
+        if len(self.values()) > 1:
+            mutex_classes_checked = set()
+            self.__mutextypes = set()
+            for variable in self.values():
+                base_classes = variable.__class__.__bases__
+                mutex = False
+                mutex_class = None
+                for base in base_classes:
+                    if hasattr(base, "mutex") and base.mutex:
+                        mutex = True
+                        mutex_class = base
+                if mutex and mutex_class not in mutex_classes_checked:
+                    # print("Checking class:\t" + mutex_class.__name__)
+                    mutex_types = set()
+                    for variable in self.values():
+                        if mutex_class in variable.__class__.__bases__:
+                            # print("\t" + variable.name)
+                            mutex_types.add(variable)
+                    self.__mutextypes.add(frozenset(mutex_types))
+                    mutex_classes_checked.add(mutex_class)
+
+
     def __setitem__(self, name, elem):
         self.add_elements({elem})
 
     @property
     def supertypes(self) -> Dict[Type, Set[Type]]:
         return self.__supertypes
+
+    @property
+    def mutextypes(self) -> Set[Set[Type]]:
+        return self.__mutextypes
 
     def get_nusmv_names(self):
         """Get List[str] for nuxmv"""

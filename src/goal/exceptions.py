@@ -18,6 +18,7 @@ class FailMotivations(Enum):
     inconsistent = 1
     incompatible = 2
     unfeasible = 3
+    wrong_refinement = 4
 
 
 class GoalFailException(Exception):

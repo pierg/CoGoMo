@@ -1,7 +1,7 @@
 from __future__ import annotations
 from formula import LTL
 from contract.exceptions import UnfeasibleContracts
-from typing import TypeVar, List
+from typing import TypeVar, List, Set
 
 from typeset import Typeset
 
@@ -20,13 +20,14 @@ class Contract:
         self.guarantees = guarantees
         self.assumptions = assumptions
 
-        self.composed_by = [self]
-        self.conjoined_by = [self]
+        self.composed_by = {self}
+        self.conjoined_by = {self}
 
     """Imported methods"""
     from ._printing import __str__
     from ._copying import __deepcopy__
     from ._operators import __iand__, __ior__
+    # from ._functions import propagate_assumptions_from
 
     @property
     def assumptions(self) -> LTL_types:
@@ -71,11 +72,11 @@ class Contract:
         self.guarantees.context = value
 
     @property
-    def composed_by(self) -> List[Contract]:
+    def composed_by(self) -> Set[Contract]:
         return self.__composed_by
 
     @composed_by.setter
-    def composed_by(self, value: List[Contract]):
+    def composed_by(self, value: Set[Contract]):
         self.__composed_by = value
 
     @property
@@ -102,3 +103,6 @@ class Contract:
         High: guarantees while assuming a lot (assumption set is smaller)"""
 
         return la / lg
+
+    def propagate_assumptions_from(self: Contract, other: Contract):
+        self.assumptions &= other.assumptions

@@ -1,54 +1,27 @@
 import itertools
-from typing import Union, Dict, List, Tuple
+from typing import Dict, List, Tuple, Set
+
+from formula import LTL, InconsistentException
 from goal import Goal
-from typescogomo.formula import LTL, InconsistentException
-from old_src.typescogomo.variables import Variables
+from goal.helpers.goals import flat_goals
 
 
-def create_contextual_clusters(goals: List[Goal],
-                               aggregation_type: str,
-                               context_rules: List[LTL] = None) -> Dict[LTL, List[Goal]]:
+def create_contextual_clusters(goals: Set[Goal],
+                               aggregation_type: str) -> Dict[LTL, Set[Goal]]:
     """Returns clusters in the form: Context -> List of goals"""
 
-    if aggregation_type == "MINIMAL":
-        """LTL Creation"""
-        "Among a pair of context combinations (two rows), save only the smaller context"
-        KEEP_SMALLER_COMBINATION: bool = True
-        """Goal Mapping"""
-        """When mapping a goal context to a combination of context C, map if the goal context is satisfiable with C"""
-        GOAL_CTX_SAT: bool = False
-        """When mapping a goal context to a combination of context C, map if the goal context is smaller than C"""
-        GOAL_CTX_SMALLER: bool = False
-        """When more context points to the same set of goal take the smaller context"""
-        SAVE_SMALLER_CONTEXT: bool = False
+    """REFINEMENT SETTINGS"""
+    """When mapping a goal context to a combination of context C, map if the goal context is satisfiable with C"""
+    GOAL_CTX_SAT: bool = False
+    """When mapping a goal context to a combination of context C, map if the goal context is smaller than C"""
+    GOAL_CTX_SMALLER: bool = False
+    """When more context points to the same set of goal take the smaller context"""
+    SAVE_SMALLER_CONTEXT: bool = False
 
-    elif aggregation_type == "MUTEX":
-        """LTL Creation"""
-        """Among a pair of context combinations (two rows), save only the smaller context"""
-        KEEP_SMALLER_COMBINATION = False
-        """Goal Mapping"""
-        """When mapping a goal context to a combination of context C, map if the goal context is satisfiable with C"""
-        GOAL_CTX_SAT: bool = False
-        """When mapping a goal context to a combination of context C, map if the goal context is smaller than C"""
-        GOAL_CTX_SMALLER: bool = False
-        """When more context points to the same set of goal take the smaller context"""
-        SAVE_SMALLER_CONTEXT: bool = False
-    else:
-        raise Exception("The type is not supported, either MINIMAL or MUTEX")
-
-    goals_flat = []
-    """Extract goals that are already conjoined by the designer"""
-    for goal in goals:
-        if goal.children is not None and all(link == "CONJUNCTION" for link in goal.children.values()):
-            goals_flat.extend(goal.children.keys())
-        else:
-            goals_flat.append(goal)
-
-    goals = goals_flat
+    goals = flat_goals(goals)
 
     """Extract all unique contexts"""
-    contexts: List[LTL] = extract_unique_contexts_from_goals(goals)
-    context_rules = extract_rules_predicating_on(contexts)
+    contexts: Set[LTL] = extract_unique_contexts_from_goals(goals)
 
     if len(contexts) == 0:
         return {LTL(): goals}
@@ -60,35 +33,7 @@ def create_contextual_clusters(goals: List[Goal],
     """Extract the combinations of all contextes and the combination with the negations of all the other contexts"""
     combs_all_contexts, combs_all_contexts_neg = extract_all_combinations_and_negations_from_contexts(contexts)
 
-    context_goals = {}
-
-    if aggregation_type == "MINIMAL":
-        context_goals = context_based_specification_clustering(combs_all_contexts, context_rules, goals,
-                                                               KEEP_SMALLER_COMBINATION,
-                                                               GOAL_CTX_SAT,
-                                                               GOAL_CTX_SMALLER,
-                                                               SAVE_SMALLER_CONTEXT)
-
-    if aggregation_type == "MUTEX":
-        context_goals = context_based_specification_clustering(combs_all_contexts_neg, context_rules, goals,
-                                                               KEEP_SMALLER_COMBINATION,
-                                                               GOAL_CTX_SAT,
-                                                               GOAL_CTX_SMALLER,
-                                                               SAVE_SMALLER_CONTEXT)
-
-    return context_goals
-
-
-def context_based_specification_clustering(combinations: List[List[LTL]],
-                                           rules: List[LTL],
-                                           goals,
-                                           KEEP_SMALLER_COMBINATION,
-                                           GOAL_CTX_SAT,
-                                           GOAL_CTX_SMALLER,
-                                           SAVE_SMALLER_CONTEXT):
-    """Add constaints to the context combinations"""
-    if rules is not None:
-        add_constraints_to_all_contexts(combinations, rules, add_to_all=False)
+    combinations = combs_all_contexts_neg if aggregation_type == "MUTEX" else combs_all_contexts
 
     print("\n\n__ALL_COMBINATIONS_(" + str(
         len(combinations)) + ")___________________________________________________________")
@@ -108,36 +53,16 @@ def context_based_specification_clustering(combinations: List[List[LTL]],
     return context_goals
 
 
-def find_goal_with_name(name: str, goals: Union[Dict[Goal, List[Goal]], List[Goal]]):
-    """Search for an existing goal"""
-    if isinstance(goals, dict):
-        for goal_1, goal_2 in goals.items():
-            if goal_1.name == name:
-                return goal_1
-            for g in goal_2:
-                if g.name == name:
-                    return g
 
-    elif isinstance(goals, list):
-        for goal in goals:
-            if goal.name == name:
-                return goal
-
-
-def extract_unique_contexts_from_goals(goals: List[Goal]) -> List[LTL]:
-    contexts: List[LTL] = []
+def extract_unique_contexts_from_goals(goals: Set[Goal]) -> Set[LTL]:
+    contexts: Set[LTL] = set()
     for goal in goals:
         if goal.context is not None:
-            already_there = False
-            for c in contexts:
-                if c == goal.context:
-                    already_there = True
-            if not already_there:
-                contexts.append(goal.context)
+            contexts.add(goal.context)
     return contexts
 
 
-def extract_all_combinations_and_negations_from_contexts(contexts: List[LTL]) \
+def extract_all_combinations_and_negations_from_contexts(contexts: Set[LTL]) \
         -> Tuple[List[List[LTL]], List[List[LTL]]]:
     """Extract the combinations of all contexts"""
     combs_all_contexts: List[List[LTL]] = []
@@ -155,7 +80,7 @@ def extract_all_combinations_and_negations_from_contexts(contexts: List[LTL]) \
 
             for ctx in contexts:
                 if ctx.formula not in [n.formula for n in comb_contexts_neg]:
-                    ctx_copy = deepcopy(ctx)
+                    ctx_copy = LTL(formula=ctx.formula, variables=ctx.variables)
                     ctx_copy.negate()
                     comb_contexts_neg.append(ctx_copy)
 
@@ -165,26 +90,9 @@ def extract_all_combinations_and_negations_from_contexts(contexts: List[LTL]) \
     return combs_all_contexts, combs_all_contexts_neg
 
 
-def add_constraints_to_all_contexts(comb_contexts: List[List[LTL]], rules: List[LTL], add_to_all=False):
-    if add_to_all:
-        """Add all rules to all the combinations"""
-        for comb in comb_contexts:
-            for rule in rules:
-                comb.append(rule)
-    else:
-        """Add rules only to the combinations that predicate on the rule"""
-        for comb in comb_contexts:
-            comb_variables = Variables()
-            for c in comb:
-                comb_variables |= c.variables
-            for rule in rules:
-                if len(comb_variables & rule.variables) > 0:
-                    comb.append(rule)
-
-
-def merge_contexes(contexts: List[List[LTL]]) -> List[LTL]:
+def merge_contexes(contexts: List[List[LTL]]) -> Set[LTL]:
     """Merge the consistent contexts with conjunction"""
-    contexts_merged: List[LTL] = []
+    contexts_merged: Set[LTL] = set()
 
     print("\n\nMERGING " + str(len(contexts)) + " CONTEXTS...")
 
@@ -195,71 +103,53 @@ def merge_contexes(contexts: List[List[LTL]]) -> List[LTL]:
                 conj = LTL(cnf=set(group))
             except InconsistentException:
                 continue
-
-            contexts_merged.append(conj)
-
+            contexts_merged.add(conj)
     return contexts_merged
 
 
-def map_goals_to_contexts(contexts: List[LTL], goals: List[Goal],
+def map_goals_to_contexts(contexts: Set[LTL], goals: Set[Goal],
                           GOAL_CTX_SAT,
                           GOAL_CTX_SMALLER,
-                          SAVE_SMALLER_CONTEXT) -> Dict[LTL, List[Goal]]:
+                          SAVE_SMALLER_CONTEXT) -> Dict[LTL, Set[Goal]]:
     """Map each goal to each context """
 
-    goals_non_mapped = list(goals)
+    goals_non_mapped = set(goals)
     print("\n\nMAPPING " + str(len(goals)) + " GOALS TO " + str(len(contexts)) + " CONTEXTS")
-    context_goals: Dict[LTL, List[Goal]] = {}
+    context_goals: Dict[LTL, Set[Goal]] = {}
     for ctx in contexts:
+        """Initializing the set"""
+        context_goals[ctx] = set()
         for goal in goals:
             """If the goal has no context"""
             if goal.context is None:
                 """Add goal to the context"""
-                if ctx in context_goals:
-                    if goal not in context_goals[ctx]:
-                        context_goals[ctx].append(goal)
-                else:
-                    context_goals[ctx] = [goal]
+                context_goals[ctx].add(goal)
                 if goal in goals_non_mapped:
                     goals_non_mapped.remove(goal)
             else:
-                # goal_ctxs = goal.context
-                goal_ctx = goal.context
                 if GOAL_CTX_SAT:
                     """Verify that the goal-context is satisfiable with the context"""
-                    if goal_ctx.is_satisfiable_with(ctx):
-                        print("Goal_ctx (" + goal.name + "): " + str(goal_ctx) + " \t-->\t Ctx: " + str(ctx))
+                    if goal.context.is_satisfiable_with(ctx):
+                        print("Goal_ctx (" + goal.name + "): " + str(goal.context) + " \t-->\t Ctx: " + str(ctx))
                         """Add goal to the context"""
-                        if ctx in context_goals:
-                            if goal not in context_goals[ctx]:
-                                context_goals[ctx].append(goal)
-                        else:
-                            context_goals[ctx] = [goal]
+                        context_goals[ctx].add(goal)
                         if goal in goals_non_mapped:
                             goals_non_mapped.remove(goal)
                 else:
                     if GOAL_CTX_SMALLER:
                         """Verify that the goal is included the context"""
-                        if goal_ctx <= ctx:
-                            print("Goal_ctx: " + str(goal_ctx) + " \t-->\t Ctx: " + str(ctx))
+                        if goal.context <= ctx:
+                            print("Goal_ctx: " + str(goal.context) + " \t-->\t Ctx: " + str(ctx))
                             """Add goal to the context"""
-                            if ctx in context_goals:
-                                if goal not in context_goals[ctx]:
-                                    context_goals[ctx].append(goal)
-                            else:
-                                context_goals[ctx] = [goal]
+                            context_goals[ctx].add(goal)
                             if goal in goals_non_mapped:
                                 goals_non_mapped.remove(goal)
                     else:
                         """Verify that the context is included in goal context"""
-                        if ctx <= goal_ctx:
-                            print("Ctx: " + str(ctx) + " \t-->\t Goal_ctx: " + str(goal_ctx))
+                        if ctx <= goal.context:
+                            print("Ctx: " + str(ctx) + " \t-->\t Goal_ctx: " + str(goal.context))
                             """Add goal to the context"""
-                            if ctx in context_goals:
-                                if goal not in context_goals[ctx]:
-                                    context_goals[ctx].append(goal)
-                            else:
-                                context_goals[ctx] = [goal]
+                            context_goals[ctx].add(goal)
                             if goal in goals_non_mapped:
                                 goals_non_mapped.remove(goal)
 

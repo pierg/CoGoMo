@@ -98,9 +98,9 @@ class BoundedInteger(Type):
         if isinstance(other, int):
             if other > self.max or other < self.min:
                 raise AttributeError
-            return LTL(formula=self.name + " = " + str(other), variables=Typeset({self}))
+            return LTL(formula="(" + self.name + " = " + str(other) + ")", variables=Typeset({self}))
         elif isinstance(other, BoundedInteger):
-            return LTL(formula=self.name + " = " + other.name, variables=Typeset({self, other}))
+            return LTL(formula="(" + self.name + " = " + other.name + ")", variables=Typeset({self, other}))
         else:
             raise AttributeError
 
@@ -147,3 +147,14 @@ class BoundedInteger(Type):
             return LTL(formula=self.name + " >= " + other.name, variables=Typeset({self, other}))
         else:
             raise AttributeError
+
+
+class MutexType:
+    """Class indicating mutex types"""
+
+    def __init__(self):
+        self.__mutex = True
+
+    @property
+    def mutex(self) -> bool:
+        return self.__mutex

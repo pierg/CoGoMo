@@ -5,25 +5,29 @@ from formula import LTL
 from . import Goal, Link
 from ._copying import deepcopy
 from itertools import product, combinations
-from typing import List, Dict
+from typing import List, Dict, Set
 
 from .exceptions import GoalFailException, FailOperations, FailMotivations
 from .helpers.clustering import create_contextual_clusters
 
 
-def conjunction(goals: List[Goal],
+def conjunction(goals: Set[Goal],
                 name: str = None,
                 description: str = None,
                 check_consistency=True) -> Goal:
     """Conjunction Operations among the goals in 'goals'.
        It returns a new goal"""
 
+    if len(goals) == 1:
+        return next(iter(goals))
+
     """If any goal is already part of a CGG, then it creates a copy"""
     for n, goal in enumerate(goals):
-        if goal.parents is not None:
+        if len(goal.parents) > 0:
             print(goal.name + " is already part of another CGT. Making a copy of it...")
-            goals[n] = deepcopy(goal)
-            goals[n].name = goals[n].name
+            new_goal = deepcopy(goal)
+            goals -= goal
+            goals |= new_goal
 
     if name is None:
         names = []
@@ -60,25 +64,26 @@ def conjunction(goals: List[Goal],
                     description=description,
                     specification=new_contract)
 
-    new_goal.children = {goals: Link.CONJUNCTION}
+    new_goal.add_children(link=Link.CONJUNCTION, goals=goals)
 
     return new_goal
 
 
-def composition(goals: List[Goal],
+def composition(goals: Set[Goal],
                 name: str = None,
                 description: str = None) -> Goal:
     """Returns a new goal that is the result of the composition of 'goals'
     The new goal returned points to a copy of 'goals'"""
 
     if len(goals) == 1:
-        return goals[0]
+        return next(iter(goals))
 
     for n, goal in enumerate(goals):
         if goal.parents is not None:
             print(goal.name + " is already part of another CGT. Making a copy of it...")
-            goals[n] = deepcopy(goal)
-            goals[n].name = goals[n].name
+            new_goal = deepcopy(goal)
+            goals -= goal
+            goals |= new_goal
 
     contracts: Dict[Goal, List[Contract]] = {}
 
@@ -160,19 +165,23 @@ def composition(goals: List[Goal],
                     description=description,
                     specification=new_contract)
 
-    new_goal.children = {goals: Link.COMPOSITION}
+    new_goal.add_children(link=Link.COMPOSITION, goals=set(goals))
 
     return new_goal
 
 
-def create_cgt(goals: List[Goal], rules: Dict) -> Goal:
+def create_cgt(goals: Set[Goal]) -> Goal:
     """Compose all the set of goals in identified context and conjoin the results"""
 
     """Dictionary context -> List[Goal]"""
-    context_goals: Dict[LTL, List[Goal]] = create_contextual_clusters(goals, "MUTEX", rules)
+    context_goals: Dict[LTL, Set[Goal]] = create_contextual_clusters(goals, "MUTEX")
 
-    composed_goals = []
+    composed_goals = set()
     for i, (ctx, goals) in enumerate(context_goals.items()):
+        print(ctx)
+        print(goals)
+        print("\n\n")
+
         new_goals = deepcopy(goals)
 
         """Extracting the new context for the guarantees"""
@@ -186,12 +195,10 @@ def create_cgt(goals: List[Goal], rules: Dict) -> Goal:
 
         """Setting the new context to each goal"""
         for g in new_goals:
-            """Adding rules to each node"""
-            g.apply_rules(rules)
-            g.set_context(guarantees_ctx)
+            g.context = guarantees_ctx
         try:
             ctx_goals = composition(new_goals)
-            composed_goals.append(ctx_goals)
+            composed_goals.add(ctx_goals)
         except GoalFailException as e:
             print("FAILED OPE:\t" + e.failed_operation.name)
             print("FAILED MOT:\t" + e.failed_operation.name)

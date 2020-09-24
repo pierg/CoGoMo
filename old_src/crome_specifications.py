@@ -4,6 +4,27 @@ from contract.contract import PContract
 from old_src.goals.cgtgoal import *
 
 
+def update_with(self, goal: 'CGTGoal', consolidate=True):
+    """Update the current node of the CGT with 'goal' keeping the connection to the current parent goal
+    and consolidating the tree up to the root node"""
+
+    if self.connected_to is not None:
+        parent = self.connected_to
+        for n, child in enumerate(parent.refined_by):
+            if child == self:
+                parent.refined_by[n] = goal
+
+        if consolidate:
+            self.consolidate_bottom_up()
+    else:
+        """Update Parameters"""
+        self.name = goal.name
+        self.description = goal.description
+        self.contracts = goal.contracts
+        self.refined_by = goal.refined_by
+        self.refined_with = goal.refined_with
+
+
 def get_inputs():
     """The designer specifies a mission using the predefined catalogue of dywer
        In addition to the dywer to use the designer specifies also in which context each goal can be active"""

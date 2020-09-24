@@ -1,4 +1,5 @@
 from contract import Contract
+from formula.patterns.dywer.scopes import FP_between_Q_and_R
 from formula.patterns.robotic_patterns import *
 from goal import Goal
 from goal.operations import create_cgt
@@ -7,18 +8,12 @@ from world.care_center.types.actions import *
 from world.care_center.types.locations import *
 from world.care_center.types.context import *
 
-
 variables = {
-    LiftingPower(),
-    ObjectRecognition("see_package"),
-    Pickup("pick_package"),
-    GoCorridor(),
-    GoB(),
-    GoC(),
-    GoD(),
-    GoE(),
-    GoF(),
-    Mild(), Severe(), Time()
+    LiftingPower(), ObjectRecognition("see_package"), BatteryIndicator(),
+    Pickup("pick_package"), Greeting(), Charge(),
+    GoCareCenter(), GoCorridor(), GoPharmacy(), GoEntrance(), GoMedicalRoom(), GoWaitingRoom(),
+    GoB(), GoC(), GoE(), GoF(), GoCommon(), GoIsolation(), GoA(), GoD(), GoG(), GoCharging(),
+    Mild(), Severe(), Time(), Positive(), Negative(), Pharmacy(), Corridoor()
 }
 
 t = Typeset(variables)
@@ -27,31 +22,70 @@ day: LTL = (t["time"] > 17) | (t["time"] < 9)
 night: LTL = ~day
 mild: LTL = t["mild_symptoms"]
 severe: LTL = t["severe_symptoms"]
+pharmacy: LTL = t["pharmacy"]
+entrance: LTL = t["entrance"]
+low_battery: LTL = t["battery"] < 10
+full_battery: LTL = t["battery"] == 100
 
-goals = [
+goals = {
     Goal(
         name="patrol",
-        context=day,
+        description="patrol the care-center",
+        context=[day, night],
+        specification=Patrolling([t["go_care_center"]])
+    ),
+    Goal(
+        name="pickup-package",
+        description="pickup package when at the pharmacy",
+        context=day & pharmacy,
         specification=Contract(
-            assumptions=LiftingPower() > 25,
             guarantees=PromptReaction(
                 trigger=t["see_package"],
                 reaction=t["pick_package"])
         )
     ),
     Goal(
-        name="pick_up_package",
-        context=night,
+        name="welcome-patients",
+        description="welcome patients at their arrival and check their temperature",
+        context=[day & entrance & mild, day & entrance & severe],
         specification=Patrolling([t["go_corridor"]])
     ),
     Goal(
-        name="pick_up_package",
-        context=night,
+        name="low-battery",
+        description="always go the charging point when the battery is low",
+        specification=FP_between_Q_and_R(
+            q=low_battery,
+            p=t["do_charge"].is_true(),
+            r=full_battery
+        )
+    )
+}
+
+goals_simple = {
+    Goal(
+        name="patrol",
+        description="patrol the care-center",
+        specification=Patrolling([t["go_care_center"]])
+    ),
+    Goal(
+        name="pickup-package",
+        description="pickup package when at the pharmacy",
+        context=pharmacy,
+        specification=Contract(
+            guarantees=PromptReaction(
+                trigger=t["see_package"],
+                reaction=t["pick_package"])
+        )
+    ),
+    Goal(
+        name="welcome-patients",
+        description="welcome patients at their arrival and check their temperature",
+        context=entrance,
         specification=Patrolling([t["go_corridor"]])
     )
-]
+}
 
-cgt = create_cgt(goals)
+cgt = create_cgt(goals_simple)
 
 library = [
     Goal(

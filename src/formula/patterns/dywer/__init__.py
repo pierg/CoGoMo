@@ -1,5 +1,5 @@
 from formula import LTL
-from variable import Variables
+from typeset import Typeset
 
 
 class Pattern(LTL):
@@ -7,7 +7,7 @@ class Pattern(LTL):
     General Pattern Class
     """
 
-    def __init__(self, formula: str, variables: Variables):
+    def __init__(self, formula: str, variables: Typeset):
         super().__init__(formula=formula, variables=variables, kind="general_pattern")
         self.domain_properties = []
 
@@ -16,7 +16,7 @@ class Globally(Pattern):
     """Globally P"""
 
     def __init__(self, ltl: LTL):
-        variables = Variables()
+        variables = Typeset()
         variables |= ltl.variables
 
         pattern_formula = "G(" + ltl.formula + ")"
@@ -28,7 +28,7 @@ class Eventually(Pattern):
     """Eventually P"""
 
     def __init__(self, ltl: LTL):
-        variables = Variables()
+        variables = Typeset()
         variables |= ltl.variables
 
         pattern_formula = "G(" + ltl.formula + ")"
@@ -40,7 +40,7 @@ class InfinitelyOften(Pattern):
     """Globally Eventually P"""
 
     def __init__(self, ltl: LTL):
-        variables = Variables()
+        variables = Typeset()
         variables |= ltl.variables
 
         pattern_formula = "G( F(" + ltl.formula + "))"

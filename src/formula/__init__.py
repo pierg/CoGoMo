@@ -29,6 +29,7 @@ class LTL:
             self.__kind: str = ""
 
         self.__refinement_rules: Set[LTL] = set()
+        self.__mutex_rules: Set[LTL] = set()
 
         self.__context = context
 
@@ -43,9 +44,11 @@ class LTL:
             """Set of LTL that conjoined result in the formula"""
             self.__cnf: Set[LTL] = {self}
 
-            """Refinement rules derived from typeset and subtypes relations"""
+            """Rules derived from typeset and refinement/mutex relations"""
             if self.__kind != "refinement_rule":
                 self.__refinement_rules: Set[LTL] = self.extract_refinement_rules()
+            if self.__kind != "mutex_rule":
+                self.__mutex_rules: Set[LTL] = self.extract_mutex_rules()
 
             if not skip_checks:
                 if not self.is_satisfiable():
@@ -64,9 +67,11 @@ class LTL:
 
             self.__cnf: Set[Union[LTL]] = cnf
 
-            """Refinement rules derived from typeset and subtypes relations"""
+            """Rules derived from typeset and refinement/mutex relations"""
             if self.__kind != "refinement_rule":
                 self.__refinement_rules: Set[LTL] = self.extract_refinement_rules()
+            if self.__kind != "mutex_rule":
+                self.__mutex_rules: Set[LTL] = self.extract_mutex_rules()
 
             if not skip_checks and len(cnf) > 1:
                 if not self.is_satisfiable():
@@ -79,6 +84,8 @@ class LTL:
 
         else:
             raise Exception("Wrong parameters LTL construction")
+
+    from ._copying import __deepcopy__
 
     @property
     def formula(self) -> str:
@@ -103,6 +110,14 @@ class LTL:
             rules = And(rules, brackets=True)
             formula = rules + " -> " + formula
 
+        """Adding mutex rules"""
+        if len(self.__mutex_rules) > 0:
+            rules = []
+            for rule in self.__mutex_rules:
+                rules.append(rule.formula)
+            rules = And(rules, brackets=True)
+            formula = rules + " -> " + formula
+
         return formula
 
     @property
@@ -112,6 +127,22 @@ class LTL:
         """Adding context"""
         if self.__context is not None:
             formula = "G((" + self.__context.formula + ") -> (" + self.__formula + "))"
+
+        """Adding refinement rules"""
+        if len(self.__refinement_rules) > 0:
+            rules = []
+            for rule in self.__refinement_rules:
+                rules.append(rule.formula)
+            rules = And(rules, brackets=True)
+            formula = rules + " -> " + formula
+
+        """Adding mutex rules"""
+        if len(self.__mutex_rules) > 0:
+            rules = []
+            for rule in self.__mutex_rules:
+                rules.append(rule.formula)
+            rules = And(rules, brackets=True)
+            formula = rules + " -> " + formula
 
         return formula
 
@@ -185,13 +216,27 @@ class LTL:
 
         return rules
 
-    def __deepcopy__(self, memo):
-        cls = self.__class__
-        result = cls.__new__(cls)
-        memo[id(self)] = result
-        for k, v in self.__dict__.items():
-            setattr(result, k, deepcopy(v))
-        return result
+    def extract_mutex_rules(self) -> Set[LTL]:
+        rules: Set[LTL] = set()
+
+        for mutextypes in self.variables.mutextypes:
+            if len(mutextypes) > 0:
+                variables: Typeset = Typeset()
+                ltl = "G("
+                for vs in mutextypes:
+                    variables |= vs
+                mutextypes_str = [n.name for n in mutextypes]
+                clauses = []
+                for vs_a in mutextypes_str:
+                    clause = [deepcopy(vs_a)]
+                    for vs_b in mutextypes_str:
+                        if vs_a is not vs_b:
+                            clause.append(Not(deepcopy(vs_b)))
+                    clauses.append(And(clause))
+                ltl += Or(clauses)
+                ltl += ")"
+                rules.add(LTL(formula=ltl, variables=variables, kind="mutex_rule"))
+        return rules
 
     """Logic Operators"""
 
@@ -387,7 +432,7 @@ class LTL:
         if self.formula == "TRUE":
             return True
         try:
-            self.__and__(other)
+            self & other
         except InconsistentException:
             return False
         return True

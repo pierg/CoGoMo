@@ -21,3 +21,7 @@ def __deepcopy__(self: Goal, memo):
     for k, v in self.__dict__.items():
         setattr(result, k, deepcopy(v))
     return result
+
+
+def __hash__(self):
+    return hash(self.id) + hash(self.specification)

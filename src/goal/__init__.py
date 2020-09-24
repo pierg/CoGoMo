@@ -6,7 +6,6 @@ from typing import Union, Dict, Set
 from contract import Contract
 from formula import LTL
 from tools.strings_generation import get_name_and_id
-from contract.specification import Specification
 from typing import TypeVar, List
 
 LTL_types = TypeVar('LTL_types', bound=LTL)
@@ -26,8 +25,14 @@ class Goal(object):
                  specification: Union[Contract, LTL_types] = None,
                  context: Union[LTL, List[LTL]] = None):
 
-        """Parent goal"""
-        self.__connected_to = None
+        """Graph properties"""
+        self.__parents = {}
+        self.__children = {}
+
+        """Read only properties"""
+        self.__realizable = None
+        self.__controller = None
+        self.__time_synthesis = None
 
         """Properties defined on first instantiation"""
         self.name: str = name
@@ -35,20 +40,12 @@ class Goal(object):
         self.specification: Contract = specification
         self.context: LTL = context
 
-        """Other properties"""
-        self.parents = None
-        self.children = None
-
-        """Read only properties"""
-        self.__realizable = None
-        self.__controller = None
-        self.__time_synthesis = None
-
     """Imported methods"""
     from ._graph import get_parent_link, get_children_link, get_all_leaf_nodes, get_goals_by_name, get_all_nodes, \
         get_goal_by_id
     from ._printing import __str__, pretty_print_cgt_summary, print_cgt_CROME, print_cgt_detailed, print_cgt_summary
-    from ._copying import __copy__, __deepcopy__
+    from ._copying import __copy__, __deepcopy__, __hash__
+    from ._operators import __le__, refine_by
 
     @property
     def id(self):
@@ -94,47 +91,47 @@ class Goal(object):
             if isinstance(value, list):
                 """If we have a list of context we connect the current goal to a conjunction of goals, each goal is 
                 instantiated in a context in the list """
-                goals = []
+                goals = set()
                 for ctx in value:
-                    goals.append(Goal(
+                    goals.add(Goal(
                         name=self.name + " & " + ctx.formula,
                         description=self.description + " in " + ctx.formula,
                         specification=deepcopy(self.specification),
                         context=ctx
                     ))
                 from goal.operations import conjunction
-                conjunction(goals)
+                new_goal = conjunction(goals)
+                self.update_with(new_goal)
             else:
                 """Add context to guarantees as G(context -> guarantee)"""
                 self.specification.context = value
 
     @property
-    def parents(self) -> Dict[Goal, Link]:
+    def parents(self) -> Dict[Link, Set[Goal]]:
         return self.__parents
 
-    @parents.setter
-    def parents(self, value: Dict[Goal, Link]):
-        self.__parents = value
-
     @property
-    def children(self) -> Union[Dict[Link, List[Goal]], None]:
+    def children(self) -> Dict[Link, Set[Goal]]:
+        return self.__children
 
-        if self.__children is None:
-            return None
+    def add_parents(self, link: Link, goals: Set[Goal]):
+        if link in self.__parents.keys():
+            self.__parents[link] |= goals
+        else:
+            self.__parents[link] = goals
 
-        link_goals: Dict[Link, List[Goal]] = {}
-
-        for (goal, link) in self.__children.items():
-            link_goals[link].append(goal)
-
-        return link_goals
-
-    @children.setter
-    def children(self, goals: Dict[Goal, Link]):
-        self.__children = goals
-        if goals is not None:
-            for goal in goals:
-                goal.parent = self
+    def add_children(self, link: Link, goals: Set[Goal]):
+        if link == Link.COMPOSITION or link == Link.CONJUNCTION:
+            if link in self.__children.keys():
+                raise Exception("A composition/conjunction children link already exists!")
+            self.__children[link] = goals
+        else:
+            if link in self.__children.keys():
+                self.__children[link] |= goals
+            else:
+                self.__children[link] = goals
+        for goal in self.__children[link]:
+            goal.add_parents(link=link, goals={self})
 
     @property
     def realizable(self) -> bool:
@@ -147,3 +144,41 @@ class Goal(object):
     @property
     def time_synthesis(self) -> int:
         return round(self.__time_synthesis, 2)
+
+    def consolidate_bottom_up(self: Goal):
+        """It recursivly re-perfom composition and conjunction and refinement operations up to the rood node"""
+
+        from .operations import conjunction, composition
+        if len(self.parents) > 0:
+            for link_1, parents in self.parents.items():
+                for parent in parents:
+                    for link_2, children in parent.children:
+                        if link_2 == Link.CONJUNCTION:
+                            new_goal = conjunction(children)
+                            parent.update_with(new_goal, consolidate=False)
+
+                        if link_2 == Link.COMPOSITION:
+                            new_goal = composition(children)
+                            parent.update_with(new_goal, consolidate=False)
+
+                        if link_2 == Link.REFINEMENT:
+                            parent.refine_by(children, consolidate=False)
+                    parent.consolidate_bottom_up()
+        else:
+            return
+
+    def update_with(self: Goal, other: Goal, consolidate=True):
+        """Update the current node of the CGT with a new goal that has not parent"""
+
+        if len(other.parents) > 0:
+            raise Exception("Cannot update with goal belonging to other CGT")
+
+        """Updating fields"""
+        self.name = other.name
+        self.description = other.description
+        self.specification = other.specification
+        for link, children in other.children.items():
+            self.add_children(link, children)
+
+        if consolidate:
+            self.consolidate_bottom_up()

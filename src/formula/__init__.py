@@ -116,7 +116,7 @@ class LTL:
             for rule in self.__mutex_rules:
                 rules.append(rule.formula)
             rules = And(rules, brackets=True)
-            formula = rules + " -> " + formula
+            formula = rules + " & " + formula
 
         return formula
 
@@ -220,7 +220,7 @@ class LTL:
         rules: Set[LTL] = set()
 
         for mutextypes in self.variables.mutextypes:
-            if len(mutextypes) > 0:
+            if len(mutextypes) > 1:
                 variables: Typeset = Typeset()
                 ltl = "G("
                 for vs in mutextypes:

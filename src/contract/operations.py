@@ -1,5 +1,4 @@
 from copy import deepcopy
-from itertools import combinations
 from typing import List
 from contract import Contract
 from .exceptions import InconsistentContracts, IncompatibleContracts, UnfeasibleContracts
@@ -19,6 +18,7 @@ def compose_contracts(contracts: List[Contract]) -> Contract:
     for contract in contracts[1:]:
         try:
             new_contract &= contract
+            print(new_contract)
         except InconsistentContracts as e:
             print("Contracts inconsistent")
             raise e

@@ -20,6 +20,8 @@ def __iand__(self, other: Contract):
     except InconsistentException as e:
         raise InconsistentContracts(e.conj_a, e.conj_b)
 
+    return self
+
 
 def __ior__(self, other: Contract):
     """self |= other. Or of assumptions and  And of (saturated) guarantees"""
@@ -31,3 +33,6 @@ def __ior__(self, other: Contract):
         self.guarantees &= other.guarantees
     except InconsistentException as e:
         raise InconsistentContracts(e.conj_a, e.conj_b)
+
+    return self
+

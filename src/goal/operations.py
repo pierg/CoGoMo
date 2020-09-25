@@ -21,13 +21,13 @@ def conjunction(goals: Set[Goal],
     if len(goals) == 1:
         return next(iter(goals))
 
-    """If any goal is already part of a CGG, then it creates a copy"""
-    for n, goal in enumerate(goals):
-        if len(goal.parents) > 0:
-            print(goal.name + " is already part of another CGT. Making a copy of it...")
-            new_goal = deepcopy(goal)
-            goals -= goal
-            goals |= new_goal
+    # """If any goal is already part of a CGG, then it creates a copy"""
+    # for n, goal in enumerate(goals):
+    #     if len(goal.parents) > 0:
+    #         print(goal.name + " is already part of another CGT. Making a copy of it...")
+    #         new_goal = deepcopy(goal)
+    #         goals -= goal
+    #         goals |= new_goal
 
     if name is None:
         names = []
@@ -78,12 +78,12 @@ def composition(goals: Set[Goal],
     if len(goals) == 1:
         return next(iter(goals))
 
-    for n, goal in enumerate(goals):
-        if goal.parents is not None:
-            print(goal.name + " is already part of another CGT. Making a copy of it...")
-            new_goal = deepcopy(goal)
-            goals -= goal
-            goals |= new_goal
+    # for n, goal in enumerate(goals):
+    #     if len(goal.parents) > 0:
+    #         print(goal.name + " is already part of another CGT. Making a copy of it...")
+    #         new_goal = deepcopy(goal)
+    #         goals.remove(goal)
+    #         goals.add(new_goal)
 
     contracts: Dict[Goal, List[Contract]] = {}
 
@@ -173,32 +173,19 @@ def composition(goals: Set[Goal],
 def create_cgt(goals: Set[Goal]) -> Goal:
     """Compose all the set of goals in identified context and conjoin the results"""
 
-    """Dictionary context -> List[Goal]"""
+    """Dictionary context -> Set[Goal]"""
     context_goals: Dict[LTL, Set[Goal]] = create_contextual_clusters(goals, "MUTEX")
 
     composed_goals = set()
-    for i, (ctx, goals) in enumerate(context_goals.items()):
+    for i, (ctx, ctx_goals) in enumerate(context_goals.items()):
         print(ctx)
-        print(goals)
-        print("\n\n")
+        print(ctx_goals)
 
-        new_goals = deepcopy(goals)
-
-        """Extracting the new context for the guarantees"""
-        guarantees_ctx = []
-        for elem in ctx.cnf:
-            if elem.kind == "context":
-                pass
-            else:
-                guarantees_ctx.append(elem)
-        guarantees_ctx = LTL(cnf=set(guarantees_ctx), skip_checks=True)
-
-        """Setting the new context to each goal"""
-        for g in new_goals:
-            g.context = guarantees_ctx
+        for goal in ctx_goals:
+            goal.context = ctx
         try:
-            ctx_goals = composition(new_goals)
-            composed_goals.add(ctx_goals)
+            new_goal = composition(goals)
+            composed_goals.add(new_goal)
         except GoalFailException as e:
             print("FAILED OPE:\t" + e.failed_operation.name)
             print("FAILED MOT:\t" + e.failed_operation.name)

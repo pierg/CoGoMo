@@ -13,7 +13,7 @@ def __deepcopy__(self: LTL, memo):
     memo[id(self)] = result
     for k, v in self.__dict__.items():
         if k == "_LTL__cnf":
-            if len(v) == 1 and self in v:
+            if len(v) == 1 and self == next(iter(v)):
                 setattr(result, k, {result})
             else:
                 setattr(result, k, deepcopy(v))

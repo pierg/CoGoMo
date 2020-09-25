@@ -33,7 +33,7 @@ class Component(Contract):
         if context is not None:
             self.guarantees.context = context
         else:
-            self.__context = LTL()
+            self.__context = LTL("TRUE")
 
     @property
     def id(self):

@@ -1,14 +1,15 @@
 from copy import deepcopy
-from typing import List
+from typing import List, Tuple
 from contract import Contract
 from .exceptions import InconsistentContracts, IncompatibleContracts, UnfeasibleContracts
 
 
-def compose_contracts(contracts: List[Contract]) -> Contract:
-    """Composition operation among list of contract"""
+def compose_contracts(contracts: List[Contract]) -> Tuple[Contract, Contract]:
+    """Composition operation among list of contract.
+        It returns two contracts: one is the composition, the other one is the composition + refinement"""
 
     if len(contracts) == 1:
-        return contracts[0]
+        return contracts[0], contracts[0]
     if len(contracts) == 0:
         raise Exception("No contract specified in the composition")
 

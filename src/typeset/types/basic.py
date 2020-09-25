@@ -14,11 +14,11 @@ class Boolean(Type):
 
     """Generating Atomic Propositions"""
 
-    def is_true(self):
+    def assign_true(self):
         from formula import LTL
         return LTL(formula=self.name, variables=Typeset({self}), skip_checks=True)
 
-    def is_false(self):
+    def assign_false(self):
         from formula import LTL
         return ~ LTL(formula=self.name, variables=Typeset({self}), skip_checks=True)
 
@@ -29,38 +29,38 @@ class Boolean(Type):
         """self & other
         Returns a new LTL with the conjunction with other"""
         if isinstance(other, Boolean):
-            other = other.is_true()
+            other = other.assign_true()
 
-        return self.is_true() & other
+        return self.assign_true() & other
 
     def __or__(self, other: Union[Boolean, LTL]) -> LTL:
         """self | other
         Returns a new LTL with the disjunction with other"""
         if isinstance(other, Boolean):
-            other = other.is_true()
+            other = other.assign_true()
 
-        return self.is_true() | other
+        return self.assign_true() | other
 
     def __invert__(self) -> LTL:
         """Returns a new LTL with the negation of self"""
 
-        return ~ self.is_true()
+        return ~ self.assign_true()
 
     def __rshift__(self, other: Union[Boolean, LTL]) -> LTL:
         """>>
         Returns a new LTL that is the result of self -> other (implies)"""
         if isinstance(other, Boolean):
-            other = other.is_true()
+            other = other.assign_true()
 
-        return self.is_true() >> other
+        return self.assign_true() >> other
 
     def __lshift__(self, other: Union[Boolean, LTL]) -> LTL:
         """<<
         Returns a new LTL that is the result of other -> self (implies)"""
         if isinstance(other, Boolean):
-            other = other.is_true()
+            other = other.assign_true()
 
-        return other >> self.is_true()
+        return other >> self.assign_true()
 
 
 class BoundedInteger(Type):

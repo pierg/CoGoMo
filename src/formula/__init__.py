@@ -2,10 +2,12 @@ from __future__ import annotations
 from copy import deepcopy
 from typing import Set, Union, List
 
+from formula.exceptions import InconsistentException, DifferentContextException
 from formula.helpers import extract_refinement_rules
 from tools.nusmv import check_satisfiability, check_validity
-from tools.logic import And, Implies, Not, Or
 from typeset import Typeset
+
+from tools.logic import And, Implies, Not, Or
 from typeset.types.basic import Boolean
 
 
@@ -15,13 +17,14 @@ class LTL:
                  formula: str = None,
                  variables: Typeset = None,
                  cnf: Set[LTL] = None,
+                 dnf: Set[LTL] = None,
                  kind: str = None,
                  context: LTL = None,
                  skip_checks: bool = False):
         """Basic LTL formula.
         It can be build by a single formula (str) or by a conjunction of other LTL formulae (CNF form)"""
 
-        self.__saturation = None
+        self.__saturation = LTL("TRUE")
 
         if kind is not None:
             self.__kind: str = kind
@@ -31,90 +34,193 @@ class LTL:
         self.__refinement_rules: Set[LTL] = set()
         self.__mutex_rules: Set[LTL] = set()
 
-        self.__context = context
+        if context is None:
+            self.__context = LTL("TRUE")
 
-        if formula is not None and cnf is None and variables is not None:
+        if formula is not None:
+            if formula == "TRUE" or formula == "true":
+                self.__base_formula: str = "TRUE"
+                self.__cnf: Set[LTL] = {self}
+                self.__dnf: Set[LTL] = {self}
+                self.__variables: Typeset = Typeset()
 
-            """String representing the LTL"""
-            self.__formula: str = formula
+            elif formula == "FALSE" or formula == "false":
+                self.__base_formula: str = "FALSE"
+                self.__cnf: Set[LTL] = {self}
+                self.__dnf: Set[LTL] = {self}
+                self.__variables: Typeset = Typeset()
 
-            """Typeset present in the formula"""
-            self.__variables: Typeset = variables
+            else:
 
-            """Set of LTL that conjoined result in the formula"""
-            self.__cnf: Set[LTL] = {self}
+                """String representing the LTL"""
+                self.__base_formula: str = formula
 
-            """Rules derived from typeset and refinement/mutex relations"""
-            if self.__kind != "refinement_rule":
-                self.__refinement_rules: Set[LTL] = self.extract_refinement_rules()
-            if self.__kind != "mutex_rule":
-                self.__mutex_rules: Set[LTL] = self.extract_mutex_rules()
+                """Typeset present in the formula"""
+                self.__variables: Typeset = variables
 
-            if not skip_checks:
-                if not self.is_satisfiable():
-                    raise InconsistentException(self, self)
+                """Set of LTL that conjoined result in the formula"""
+                self.__cnf: Set[LTL] = {self}
 
-        elif cnf is not None and formula is None:
+        elif cnf is not None:
 
             cnf_str = [x.formula for x in cnf]
 
-            self.__formula: str = And(cnf_str, brackets=True)
-
+            self.__base_formula: str = And(cnf_str, brackets=True)
             self.__variables: Typeset = Typeset()
-
+            self.__cnf: Set[LTL] = cnf
             for x in cnf:
                 self.__variables |= x.variables
 
-            self.__cnf: Set[Union[LTL]] = cnf
 
-            """Rules derived from typeset and refinement/mutex relations"""
-            if self.__kind != "refinement_rule":
-                self.__refinement_rules: Set[LTL] = self.extract_refinement_rules()
-            if self.__kind != "mutex_rule":
-                self.__mutex_rules: Set[LTL] = self.extract_mutex_rules()
+        elif dnf is not None:
 
-            if not skip_checks and len(cnf) > 1:
-                if not self.is_satisfiable():
-                    raise InconsistentException(self, self)
+            dnf_str = [x.formula for x in cnf]
 
-        elif cnf is None and formula is None:
-            self.__formula: str = "TRUE"
-            self.__cnf: Set[LTL] = {self}
+            self.__base_formula: str = Or(dnf_str)
+            self.__dnf: Set[LTL] = dnf
             self.__variables: Typeset = Typeset()
+            for x in dnf:
+                self.__variables |= x.variables
+
 
         else:
             raise Exception("Wrong parameters LTL construction")
 
-    from ._copying import __deepcopy__
+        """Rules derived from typeset and refinement/mutex relations"""
+        if self.__kind != "refinement_rule":
+            self.__refinement_rules: Set[LTL] = self.extract_refinement_rules()
+        if self.__kind != "mutex_rule":
+            self.__mutex_rules: Set[LTL] = self.extract_mutex_rules()
+
+        """Check satisfiability"""
+        if not skip_checks:
+            if not self.is_satisfiable():
+                raise InconsistentException(self, self)
+
+    from ._copying import __deepcopy__, __hash__
+    from ._operators import __eq__, __le__, __ge__, __gt__, __lt__, __ne__
+
+    def __and__(self, other: Union[LTL, Boolean]) -> LTL:
+        """self & other
+        Returns a new LTL with the conjunction with other"""
+        if isinstance(other, Boolean):
+            other = other.assign_true()
+
+        return LTL(cnf={self, other})
+
+    def __or__(self, other: Union[LTL, Boolean]) -> LTL:
+        """self | other
+        Returns a new LTL with the disjunction with other"""
+        if isinstance(other, Boolean):
+            other = other.assign_true()
+
+        return LTL(dnf={self, other})
+
+    def __invert__(self: LTL) -> LTL:
+        """Returns a new LTL with the negation of self"""
+
+        formula = Not(self.formula)
+
+        return LTL(formula=formula, variables=self.variables)
+
+    def __rshift__(self, other: Union[LTL, Boolean]) -> LTL:
+        """>>
+        Returns a new LTL that is the result of self -> other (implies)"""
+        if isinstance(other, Boolean):
+            other = other.assign_true()
+        return LTL(
+            formula=Implies(self.formula, other.formula),
+            variables=self.variables | other.variables
+        )
+
+    def __lshift__(self, other: Union[LTL, Boolean]) -> LTL:
+        """<<
+        Returns a new LTL that is the result of other -> self (implies)"""
+        if isinstance(other, Boolean):
+            other = other.assign_true()
+        return LTL(
+            formula=Implies(other.formula, self.formula),
+            variables=self.variables | other.variables
+        )
+
+    def __iand__(self, other: Union[LTL, Boolean]) -> LTL:
+        """self &= other
+        Modifies self with the conjunction with other"""
+        if isinstance(other, Boolean):
+            other = other.assign_true()
+
+        if self.is_true() or other.is_false():
+            self.__base_formula = deepcopy(other.base_formula)
+            self.__context = deepcopy(other.context)
+            self.__saturation = deepcopy(other.saturation)
+            self.__cnf = deepcopy(other.cnf)
+            return self
+
+        if other.is_true() or self.is_false():
+            return self
+
+        old_self = deepcopy(self)
+        self.__cnf = {old_self, other}
+        self.__base_formula = And([self.formula, other.formula])
+        self.__variables |= other.variables
+
+        if not self.is_satisfiable():
+            raise InconsistentException(self, other)
+        return self
+
+    def __ior__(self, other: Union[LTL, Boolean]) -> LTL:
+        """self |= other
+        Modifies self with the disjunction with other"""
+        if isinstance(other, Boolean):
+            other = other.assign_true()
+
+        if self.is_false() or other.is_true():
+            self.__base_formula = deepcopy(other.base_formula)
+            self.__context = deepcopy(other.context)
+            self.__saturation = deepcopy(other.saturation)
+            self.__cnf = deepcopy(other.cnf)
+            return self
+
+        if other.is_false() or self.is_true():
+            return self
+
+        old_self = deepcopy(self)
+        self.__dnf = {old_self, other}
+        self.__base_formula = Or([self.formula, other.formula])
+        self.__variables |= other.variables
+
+        if not self.is_satisfiable():
+            raise InconsistentException(self, other)
+        return self
 
     @property
     def formula(self) -> str:
-        formula = self.__formula
+        formula = self.__base_formula
 
         """We add the rules r for both a and g, since the overall contract is the same: 
                 (a & r) -> (G(c -> (a->g))) === (r -> a) -> (r -> G(c -> (a->g)))"""
 
-        """Adding context"""
-        if self.__context is not None:
-            formula = "G((" + self.__context.formula + ") -> (" + self.__formula + "))"
-
         """Adding saturation"""
-        if self.__saturation is not None and self.__saturation.formula != "TRUE":
-            formula = "((" + self.__saturation.formula + ") -> (" + formula + "))"
+        if not self.__saturation.is_true():
+            formula = "((" + self.__saturation.formula + ") -> (" + self.__base_formula + "))"
+
+        """Adding context"""
+        if not self.__context.is_true():
+            formula = "G((" + self.__context.formula + ") -> (" + formula + "))"
+
+        rules = []
 
         """Adding refinement rules"""
         if len(self.__refinement_rules) > 0:
-            rules = []
             for rule in self.__refinement_rules:
                 rules.append(rule.formula)
-            rules = And(rules, brackets=True)
-            formula = rules + " -> " + formula
 
         """Adding mutex rules"""
         if len(self.__mutex_rules) > 0:
-            rules = []
             for rule in self.__mutex_rules:
                 rules.append(rule.formula)
+
+        if len(rules) > 0:
             rules = And(rules, brackets=True)
             formula = rules + " & " + formula
 
@@ -122,11 +228,11 @@ class LTL:
 
     @property
     def unsaturated(self) -> str:
-        formula = self.__formula
+        formula = self.__base_formula
 
         """Adding context"""
-        if self.__context is not None:
-            formula = "G((" + self.__context.formula + ") -> (" + self.__formula + "))"
+        if not self.__context.is_true():
+            formula = "G((" + self.__context.formula + ") -> (" + self.__base_formula + "))"
 
         """Adding refinement rules"""
         if len(self.__refinement_rules) > 0:
@@ -148,16 +254,7 @@ class LTL:
 
     @property
     def variables(self) -> Typeset:
-        if self.__saturation is not None:
-            if self.__context is not None:
-                return self.__variables | self.__context.variables | self.__saturation.variables
-            else:
-                return self.__variables | self.__saturation.variables
-        else:
-            if self.__context is not None:
-                return self.__variables | self.__context.variables
-            else:
-                return self.__variables
+        return self.__variables | self.__context.variables | self.__saturation.variables
 
     @property
     def objective_variables(self) -> Typeset:
@@ -168,8 +265,16 @@ class LTL:
         return self.__cnf
 
     @property
+    def dnf(self) -> Set[LTL]:
+        return self.__dnf
+
+    @property
     def kind(self) -> str:
         return self.__kind
+
+    @property
+    def base_formula(self) -> str:
+        return self.__base_formula
 
     @property
     def context(self) -> LTL:
@@ -238,179 +343,26 @@ class LTL:
                 rules.add(LTL(formula=ltl, variables=variables, kind="mutex_rule"))
         return rules
 
-    """Logic Operators"""
-
-    def __iand__(self, other: Union[LTL, Boolean]) -> LTL:
-        """self &= other
-        Modifies self with the conjunction with other"""
-        if isinstance(other, Boolean):
-            other = other.is_true()
-
-        if self.context is not None and other.context is not None:
-            if self.context != other.context:
-                raise DifferentContextException(self.context, other.context)
-
-        if self.context is None and other.context is not None:
-            raise DifferentContextException(self.context, other.context)
-
-        """Contexts must be equal"""
-
-        if self.__formula == "TRUE":
-            self.__formula = deepcopy(other.formula)
-            self.__variables = deepcopy(other.variables)
-            self.__cnf = deepcopy(other.cnf)
-            return self
-
-        if other.formula == "TRUE":
-            return self
-        if other.formula == "FALSE":
-            self.__formula = "FALSE"
-            self.__cnf |= other.cnf
-            return self
-
-        self.__formula = And([self.__formula, other.unsaturated])
-        self.__variables |= other.variables
-        self.__cnf |= other.cnf
-
-        if not self.is_satisfiable():
-            raise InconsistentException(self, other)
-        return self
-
-    def __ior__(self, other: Union[LTL, Boolean]) -> LTL:
-        """self |= other
-        Modifies self with the disjunction with other"""
-        if isinstance(other, Boolean):
-            other = other.is_true()
-
-        if self.__formula == "TRUE":
-            return self
-
-        if other.formula == "FALSE":
-            return self
-        if other.formula == "TRUE":
-            self.__formula = "TRUE"
-            self.__cnf |= other.cnf
-            return self
-
-        self.__formula = Or([self.formula, other.formula])
-        self.__variables = self.variables | other.variables
-
-        return self
-
-    def __and__(self, other: Union[LTL, Boolean]) -> LTL:
-        """self & other
-        Returns a new LTL with the conjunction with other"""
-        if isinstance(other, Boolean):
-            other = other.is_true()
-
-        return LTL(cnf={self, other})
-
-    def __or__(self, other: Union[LTL, Boolean]) -> LTL:
-        """self | other
-        Returns a new LTL with the disjunction with other"""
-        if isinstance(other, Boolean):
-            other = other.is_true()
-
-        formula = Or([self.formula, other.formula])
-        variables = self.variables | other.variables
-
-        return LTL(formula=formula, variables=variables)
-
-    def __invert__(self: LTL) -> LTL:
-        """Returns a new LTL with the negation of self"""
-
-        formula = Not(self.formula)
-
-        return LTL(formula=formula, variables=self.variables)
-
-    def __rshift__(self, other: Union[LTL, Boolean]) -> LTL:
-        """>>
-        Returns a new LTL that is the result of self -> other (implies)"""
-        if isinstance(other, Boolean):
-            other = other.is_true()
-        return LTL(
-            formula=Implies(self.formula, other.formula),
-            variables=self.variables | other.variables
-        )
-
-    def __lshift__(self, other: Union[LTL, Boolean]) -> LTL:
-        """<<
-        Returns a new LTL that is the result of other -> self (implies)"""
-        if isinstance(other, Boolean):
-            other = other.is_true()
-        return LTL(
-            formula=Implies(other.formula, self.formula),
-            variables=self.variables | other.variables
-        )
-
-    """Refinement operators"""
-
-    def __lt__(self, other: LTL):
-        """Check if the set of behaviours is smaller in the other set of behaviours"""
-        if self.formula == other.formula:
-            return False
-        lt = self <= other
-        neq = self != other
-        return lt and neq
-
-    def __le__(self, other: LTL):
-        if other.is_true():
-            return True
-        """Create a new LTL self -> other and check its validity"""
-        implication_formula = self >> other
-        return check_validity(implication_formula.variables.get_nusmv_names(), implication_formula.formula)
-
-    def __eq__(self, other: LTL):
-        """Check if the set of behaviours is equal to the other set of behaviours"""
-        if self.formula == other.formula:
-            return True
-        implied_a = self >= other
-        implied_b = self <= other
-        return implied_a and implied_b
-
-    def __ne__(self, other: LTL):
-        """Check if the set of behaviours is different from the other set of behaviours"""
-        return not (self == other)
-
-    def __gt__(self, other: LTL):
-        """Check if the set of behaviours is bigger than the other set of behaviours"""
-        gt = self >= other
-        neq = self != other
-        return gt and neq
-
-    def __ge__(self, other: LTL):
-        if self.is_true():
-            return True
-        """Create a new LTL self -> other anche check its validity"""
-        implication_formula = other >> self
-        return check_validity(implication_formula.variables.get_nusmv_names(), implication_formula.formula)
-
-    def __hash__(self):
-        try:
-            return hash(self.__formula)
-        except Exception as e:
-            raise e
-
     def copy(self):
         """Return a new LTL which is a copy of self"""
         return self & self
 
     def negate(self):
         """Modifies the LTL formula with its negation"""
-        self.__formula = Not(self.formula)
+        self.__base_formula = Not(self.formula)
 
     def remove(self, element):
         self.cnf.remove(element)
 
         if len(self.cnf) == 0:
-            self.__formula: str = "TRUE"
+            self.__base_formula: str = "TRUE"
             self.__cnf: Set[LTL] = {self}
             self.__variables: Typeset = Typeset()
             return
 
         cnf_str = [x.formula for x in self.cnf]
 
-        self.__formula: str = And(cnf_str)
+        self.__base_formula: str = And(cnf_str)
         self.__variables: Typeset = Typeset()
 
         variables = set()
@@ -420,6 +372,9 @@ class LTL:
 
     def is_true(self):
         return self.formula == "TRUE"
+
+    def is_false(self):
+        return self.formula == "FALSE"
 
     def is_satisfiable(self):
         if self.formula == "TRUE":
@@ -450,17 +405,3 @@ class LTL:
 
     def are_satisfiable_with(self, assumptions):
         pass
-
-
-class InconsistentException(Exception):
-
-    def __init__(self, conj_a: LTL, conj_b: LTL):
-        self.conj_a = conj_a
-        self.conj_b = conj_b
-
-
-class DifferentContextException(Exception):
-
-    def __init__(self, ctx_a: LTL, ctx_b: LTL):
-        self.ctx_a = ctx_a
-        self.ctx_b = ctx_b

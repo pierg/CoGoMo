@@ -20,10 +20,10 @@ t = Typeset(variables)
 
 day: LTL = (t["time"] > 17) | (t["time"] < 9)
 night: LTL = ~day
-mild: LTL = t["mild_symptoms"].is_true()
-severe: LTL = t["severe_symptoms"].is_true()
-pharmacy: LTL = t["pharmacy"].is_true()
-entrance: LTL = t["entrance"].is_true()
+mild: LTL = t["mild_symptoms"].assign_true()
+severe: LTL = t["severe_symptoms"].assign_true()
+pharmacy: LTL = t["pharmacy"].assign_true()
+entrance: LTL = t["entrance"].assign_true()
 low_battery: LTL = t["battery"] < 10
 full_battery: LTL = t["battery"] == 100
 
@@ -55,7 +55,7 @@ goals = {
         description="always go the charging point when the battery is low",
         specification=FP_between_Q_and_R(
             q=low_battery,
-            p=t["do_charge"].is_true(),
+            p=t["do_charge"].assign_true(),
             r=full_battery
         )
     )

@@ -109,7 +109,7 @@ def composition(goals: Set[Goal],
     for c in composition_contracts:
         contracts: List[Contract] = list(c.values())
         try:
-            composed_contract = compose_contracts(contracts)
+            composed_contract, refined_contract = compose_contracts(contracts)
 
         except InconsistentContracts as e:
             goals_involved = []
@@ -181,11 +181,10 @@ def create_cgt(goals: Set[Goal]) -> Goal:
         print(ctx)
         print(ctx_goals)
 
-        for goal in ctx_goals:
-            goal.context = ctx
         try:
             new_goal = composition(goals)
             composed_goals.add(new_goal)
+            new_goal.context = ctx
         except GoalFailException as e:
             print("FAILED OPE:\t" + e.failed_operation.name)
             print("FAILED MOT:\t" + e.failed_operation.name)

@@ -36,7 +36,7 @@ class Contract:
     @assumptions.setter
     def assumptions(self, value: LTL_types):
         if value is None:
-            self.__assumptions = LTL()
+            self.__assumptions = LTL("TRUE")
         else:
             if not isinstance(value, LTL):
                 raise AttributeError
@@ -53,7 +53,7 @@ class Contract:
     @guarantees.setter
     def guarantees(self, value: LTL_types):
         if value is None:
-            self.__guarantees = LTL()
+            self.__guarantees = LTL("TRUE")
         else:
             if not isinstance(value, LTL):
                 raise AttributeError

@@ -10,7 +10,7 @@ class G(Pattern):
 
     def __init__(self, element: Union[LTL, Boolean]):
         if isinstance(element, Boolean):
-            element = element.is_true()
+            element = element.assign_true()
 
         pattern_formula = "G(" + element.formula + ")"
 
@@ -22,7 +22,7 @@ class F(Pattern):
 
     def __init__(self, element: Union[LTL, Boolean]):
         if isinstance(element, Boolean):
-            element = element.is_true()
+            element = element.assign_true()
 
         pattern_formula = "F(" + element.formula + ")"
 
@@ -34,7 +34,7 @@ class GF(Pattern):
 
     def __init__(self, element: Union[LTL, Boolean]):
         if isinstance(element, Boolean):
-            element = element.is_true()
+            element = element.assign_true()
 
         pattern_formula = "G(F(" + element.formula + "))"
 

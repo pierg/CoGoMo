@@ -23,3 +23,10 @@ def __deepcopy__(self: LTL, memo):
         else:
             setattr(result, k, deepcopy(v))
     return result
+
+
+def __hash__(self: LTL):
+    try:
+        return hash(self.formula)
+    except Exception as e:
+        raise e

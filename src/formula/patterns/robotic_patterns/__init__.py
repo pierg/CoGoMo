@@ -35,7 +35,7 @@ class Visit(CoreMovement):
     def __init__(self, locations: Union[List[LTL], List[Boolean]]):
         for i, elem in enumerate(locations):
             if isinstance(elem, Boolean):
-                locations[i] = elem.is_true()
+                locations[i] = elem.assign_true()
 
         variables = Typeset()
         formula = []
@@ -55,7 +55,7 @@ class SequencedVisit(CoreMovement):
     def __init__(self, locations: Union[List[LTL], List[Boolean]]):
         for i, elem in enumerate(locations):
             if isinstance(elem, Boolean):
-                locations[i] = elem.is_true()
+                locations[i] = elem.assign_true()
 
         variables = Typeset()
         formula = "F("
@@ -78,7 +78,7 @@ class Patrolling(CoreMovement):
     def __init__(self, locations: Union[List[LTL], List[Boolean]] = None):
         for i, elem in enumerate(locations):
             if isinstance(elem, Boolean):
-                locations[i] = elem.is_true()
+                locations[i] = elem.assign_true()
 
         variables = Typeset()
         formula = []
@@ -98,7 +98,7 @@ class SequencedPatrolling(CoreMovement):
     def __init__(self, locations: Union[List[LTL], List[Boolean]] = None):
         for i, elem in enumerate(locations):
             if isinstance(elem, Boolean):
-                locations[i] = elem.is_true()
+                locations[i] = elem.assign_true()
 
         variables = Typeset()
         formula = "G(F("
@@ -123,7 +123,7 @@ class OrderedPatrolling(CoreMovement):
     def __init__(self, locations: Union[List[LTL], List[Boolean]] = None):
         for i, elem in enumerate(locations):
             if isinstance(elem, Boolean):
-                locations[i] = elem.is_true()
+                locations[i] = elem.assign_true()
 
         variables = Typeset()
         formula = []
@@ -161,7 +161,7 @@ class StrictOrderPatrolling(CoreMovement):
     def __init__(self, locations: Union[List[LTL], List[Boolean]] = None):
         for i, elem in enumerate(locations):
             if isinstance(elem, Boolean):
-                locations[i] = elem.is_true()
+                locations[i] = elem.assign_true()
 
         variables = Typeset()
         formula = []
@@ -205,7 +205,7 @@ class FairPatrolling(CoreMovement):
     def __init__(self, locations: Union[List[LTL], List[Boolean]] = None):
         for i, elem in enumerate(locations):
             if isinstance(elem, Boolean):
-                locations[i] = elem.is_true()
+                locations[i] = elem.assign_true()
 
         variables = Typeset()
         sub_formula = []
@@ -234,7 +234,7 @@ class StrictOrderVisit(CoreMovement):
     def __init__(self, locations: Union[List[LTL], List[Boolean]] = None):
         for i, elem in enumerate(locations):
             if isinstance(elem, Boolean):
-                locations[i] = elem.is_true()
+                locations[i] = elem.assign_true()
 
         variables = Typeset()
         formula = []
@@ -273,7 +273,7 @@ class OrderedVisit(CoreMovement):
     def __init__(self, locations: Union[List[LTL], List[Boolean]]):
         for i, elem in enumerate(locations):
             if isinstance(elem, Boolean):
-                locations[i] = elem.is_true()
+                locations[i] = elem.assign_true()
 
         variables = Typeset()
         formula = []
@@ -312,7 +312,7 @@ class GlobalAvoidance(Avoidance):
 
     def __init__(self, proposition: Union[List[LTL], List[Boolean]]):
         if isinstance(proposition, Boolean):
-            proposition = proposition.is_true()
+            proposition = proposition.assign_true()
 
         variables = proposition.variables
         formula = "G(!" + proposition.formula + ")"
@@ -335,10 +335,10 @@ class DelayedReaction(Triggers):
     def __init__(self, trigger: Union[LTL, Boolean], reaction: Union[LTL, Boolean]):
 
         if isinstance(trigger, Boolean):
-            trigger = trigger.is_true()
+            trigger = trigger.assign_true()
 
         if isinstance(reaction, Boolean):
-            reaction = reaction.is_true()
+            reaction = reaction.assign_true()
 
         formula = "G(({t}) -> F({r}))".format(t=trigger.formula, r=reaction.formula)
 
@@ -351,10 +351,10 @@ class InstantReaction(Triggers):
     def __init__(self, trigger: Union[LTL, Boolean], reaction: Union[LTL, Boolean]):
 
         if isinstance(trigger, Boolean):
-            trigger = trigger.is_true()
+            trigger = trigger.assign_true()
 
         if isinstance(reaction, Boolean):
-            reaction = reaction.is_true()
+            reaction = reaction.assign_true()
 
         formula = "G(({t}) -> ({r}))".format(t=trigger.formula, r=reaction.formula)
 
@@ -367,10 +367,10 @@ class PromptReaction(Triggers):
     def __init__(self, trigger: Union[LTL, Boolean], reaction: Union[LTL, Boolean]):
 
         if isinstance(trigger, Boolean):
-            trigger = trigger.is_true()
+            trigger = trigger.assign_true()
 
         if isinstance(reaction, Boolean):
-            reaction = reaction.is_true()
+            reaction = reaction.assign_true()
 
         formula = "G(({t}) -> X({r}))".format(t=trigger.formula, r=reaction.formula)
 
@@ -383,10 +383,10 @@ class BoundReaction(Triggers):
     def __init__(self, trigger: Union[LTL, Boolean], reaction: Union[LTL, Boolean]):
 
         if isinstance(trigger, Boolean):
-            trigger = trigger.is_true()
+            trigger = trigger.assign_true()
 
         if isinstance(reaction, Boolean):
-            reaction = reaction.is_true()
+            reaction = reaction.assign_true()
 
         formula = "G( (({t}) -> ({r})) & (({r}) -> ({t})))".format(t=trigger.formula, r=reaction.formula)
 
@@ -400,10 +400,10 @@ class BoundDelay(Triggers):
     def __init__(self, trigger: Union[LTL, Boolean], reaction: Union[LTL, Boolean]):
 
         if isinstance(trigger, Boolean):
-            trigger = trigger.is_true()
+            trigger = trigger.assign_true()
 
         if isinstance(reaction, Boolean):
-            reaction = reaction.is_true()
+            reaction = reaction.assign_true()
 
         formula = "G( (({t}) -> X({r})) & (X({r}) -> ({t})))".format(t=trigger.formula, r=reaction.formula)
 

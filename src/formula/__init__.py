@@ -24,78 +24,66 @@ class LTL:
         """Basic LTL formula.
         It can be build by a single formula (str) or by a conjunction of other LTL formulae (CNF form)"""
 
-        self.__saturation = LTL("TRUE")
+        self.__negation = False
+        self.__kind = kind
+        self.__refinement_rules = None
+        self.__mutex_rules = None
+        self.__base_variables: Typeset = Typeset()
 
-        if kind is not None:
-            self.__kind: str = kind
+        """Base Case"""
+        if formula is not None and (formula == "TRUE" or formula == "true"):
+            self.__base_formula: str = "TRUE"
+            self.__saturation = None
+            self.__context = None
+            self.__cnf: Set[LTL] = {self}
+            self.__dnf: Set[LTL] = {self}
         else:
-            self.__kind: str = ""
+            self.__context = LTL("TRUE") if context is None else context
+            self.__saturation = LTL("TRUE")
 
-        self.__refinement_rules: Set[LTL] = set()
-        self.__mutex_rules: Set[LTL] = set()
+            if formula is not None:
+                if formula == "TRUE" or formula == "true":
+                    self.__base_formula: str = "TRUE"
 
-        if context is None:
-            self.__context = LTL("TRUE")
-
-        if formula is not None:
-            if formula == "TRUE" or formula == "true":
-                self.__base_formula: str = "TRUE"
+                if formula == "FALSE" or formula == "false":
+                    self.__base_formula: str = "FALSE"
+                else:
+                    self.__base_formula: str = formula
+                    self.__base_variables: Typeset = variables
                 self.__cnf: Set[LTL] = {self}
                 self.__dnf: Set[LTL] = {self}
-                self.__variables: Typeset = Typeset()
 
-            elif formula == "FALSE" or formula == "false":
-                self.__base_formula: str = "FALSE"
-                self.__cnf: Set[LTL] = {self}
-                self.__dnf: Set[LTL] = {self}
-                self.__variables: Typeset = Typeset()
+            elif cnf is not None:
+
+                cnf_str = [x.formula for x in cnf]
+
+                self.__base_formula: str = And(cnf_str, brackets=True)
+                self.__cnf: Set[LTL] = cnf
+                for x in cnf:
+                    self.__base_variables |= x.variables
+
+            elif dnf is not None:
+
+                dnf_str = [x.formula for x in dnf]
+
+                self.__base_formula: str = Or(dnf_str)
+                self.__dnf: Set[LTL] = dnf
+                for x in dnf:
+                    self.__base_variables |= x.variables
 
             else:
+                raise Exception("Wrong parameters LTL construction")
 
-                """String representing the LTL"""
-                self.__base_formula: str = formula
+            """Rules derived from typeset and refinement/mutex relations"""
+            if self.kind != "refinement_rule":
+                self.__refinement_rules: Set[LTL] = self.extract_refinement_rules()
+            if self.kind != "mutex_rule":
+                self.__mutex_rules: Set[LTL] = self.extract_mutex_rules()
 
-                """Typeset present in the formula"""
-                self.__variables: Typeset = variables
-
-                """Set of LTL that conjoined result in the formula"""
-                self.__cnf: Set[LTL] = {self}
-
-        elif cnf is not None:
-
-            cnf_str = [x.formula for x in cnf]
-
-            self.__base_formula: str = And(cnf_str, brackets=True)
-            self.__variables: Typeset = Typeset()
-            self.__cnf: Set[LTL] = cnf
-            for x in cnf:
-                self.__variables |= x.variables
-
-
-        elif dnf is not None:
-
-            dnf_str = [x.formula for x in cnf]
-
-            self.__base_formula: str = Or(dnf_str)
-            self.__dnf: Set[LTL] = dnf
-            self.__variables: Typeset = Typeset()
-            for x in dnf:
-                self.__variables |= x.variables
-
-
-        else:
-            raise Exception("Wrong parameters LTL construction")
-
-        """Rules derived from typeset and refinement/mutex relations"""
-        if self.__kind != "refinement_rule":
-            self.__refinement_rules: Set[LTL] = self.extract_refinement_rules()
-        if self.__kind != "mutex_rule":
-            self.__mutex_rules: Set[LTL] = self.extract_mutex_rules()
-
-        """Check satisfiability"""
-        if not skip_checks:
-            if not self.is_satisfiable():
-                raise InconsistentException(self, self)
+            """Check satisfiability"""
+            if not skip_checks:
+                if not self.is_satisfiable():
+                    raise InconsistentException(self, self)
 
     from ._copying import __deepcopy__, __hash__
     from ._operators import __eq__, __le__, __ge__, __gt__, __lt__, __ne__
@@ -162,7 +150,7 @@ class LTL:
         old_self = deepcopy(self)
         self.__cnf = {old_self, other}
         self.__base_formula = And([self.formula, other.formula])
-        self.__variables |= other.variables
+        self.__base_variables |= other.variables
 
         if not self.is_satisfiable():
             raise InconsistentException(self, other)
@@ -187,78 +175,39 @@ class LTL:
         old_self = deepcopy(self)
         self.__dnf = {old_self, other}
         self.__base_formula = Or([self.formula, other.formula])
-        self.__variables |= other.variables
+        self.__base_variables |= other.variables
 
         if not self.is_satisfiable():
             raise InconsistentException(self, other)
         return self
 
     @property
-    def formula(self) -> str:
-        formula = self.__base_formula
-
-        """We add the rules r for both a and g, since the overall contract is the same: 
-                (a & r) -> (G(c -> (a->g))) === (r -> a) -> (r -> G(c -> (a->g)))"""
-
-        """Adding saturation"""
-        if not self.__saturation.is_true():
-            formula = "((" + self.__saturation.formula + ") -> (" + self.__base_formula + "))"
-
-        """Adding context"""
-        if not self.__context.is_true():
-            formula = "G((" + self.__context.formula + ") -> (" + formula + "))"
-
-        rules = []
-
-        """Adding refinement rules"""
-        if len(self.__refinement_rules) > 0:
-            for rule in self.__refinement_rules:
-                rules.append(rule.formula)
-
-        """Adding mutex rules"""
-        if len(self.__mutex_rules) > 0:
-            for rule in self.__mutex_rules:
-                rules.append(rule.formula)
-
-        if len(rules) > 0:
-            rules = And(rules, brackets=True)
-            formula = rules + " & " + formula
-
-        return formula
+    def kind(self) -> str:
+        return self.__kind
 
     @property
-    def unsaturated(self) -> str:
-        formula = self.__base_formula
-
-        """Adding context"""
-        if not self.__context.is_true():
-            formula = "G((" + self.__context.formula + ") -> (" + self.__base_formula + "))"
-
-        """Adding refinement rules"""
-        if len(self.__refinement_rules) > 0:
-            rules = []
-            for rule in self.__refinement_rules:
-                rules.append(rule.formula)
-            rules = And(rules, brackets=True)
-            formula = rules + " -> " + formula
-
-        """Adding mutex rules"""
-        if len(self.__mutex_rules) > 0:
-            rules = []
-            for rule in self.__mutex_rules:
-                rules.append(rule.formula)
-            rules = And(rules, brackets=True)
-            formula = rules + " -> " + formula
-
-        return formula
+    def saturation(self) -> LTL:
+        return self.__saturation
 
     @property
-    def variables(self) -> Typeset:
-        return self.__variables | self.__context.variables | self.__saturation.variables
+    def context(self) -> LTL:
+        return self.__context
 
     @property
-    def objective_variables(self) -> Typeset:
-        return self.__variables
+    def base_formula(self) -> str:
+        return self.__base_formula
+
+    @property
+    def refinement_rules(self) -> Set[LTL]:
+        if self.__refinement_rules is None:
+            return set()
+        return self.__refinement_rules
+
+    @property
+    def mutex_rules(self) -> Set[LTL]:
+        if self.__mutex_rules is None:
+            return set()
+        return self.__mutex_rules
 
     @property
     def cnf(self) -> Set[LTL]:
@@ -269,45 +218,62 @@ class LTL:
         return self.__dnf
 
     @property
-    def kind(self) -> str:
-        return self.__kind
+    def variables(self) -> Typeset:
+        variables = Typeset()
+        variables |= self.__base_variables
+        if self.__saturation is not None:
+            variables |= self.__saturation.variables
+        if self.__context is not None:
+            variables |= self.__context.variables
+        return variables
 
     @property
-    def base_formula(self) -> str:
-        return self.__base_formula
+    def base_variables(self) -> Typeset:
+        return self.__base_variables
 
     @property
-    def context(self) -> LTL:
-        return self.__context
+    def formula(self) -> str:
+
+        formula = self.__base_formula
+
+        """We add the rules r for both a and g, since the overall contract is the same: 
+                (a & r) -> (G(c -> (a->g))) === (r -> a) -> (r -> G(c -> (a->g)))"""
+
+        """Adding saturation"""
+        if self.__saturation is not None and not self.saturation.is_true():
+            formula = "((" + self.saturation.formula + ") -> (" + self.__base_formula + "))"
+
+        """Adding context"""
+        if self.__context is not None and not self.context.is_true():
+            formula = "G((" + self.context.formula + ") -> (" + formula + "))"
+
+        """Adding negation if necessary"""
+        if self.__negation:
+            formula = Not(formula)
+
+        rules = []
+
+        """Adding refinement rules"""
+        for rule in self.refinement_rules:
+            rules.append(rule.formula)
+
+        """Adding mutex rules"""
+        for rule in self.mutex_rules:
+            rules.append(rule.formula)
+
+        if len(rules) > 0:
+            rules = And(rules, brackets=True)
+            formula = rules + " & " + formula
+
+        return formula
 
     @context.setter
     def context(self, value: LTL):
         self.__context = value
-        self.__variables |= value.variables
-
-    @property
-    def saturation(self) -> LTL:
-        return self.__saturation
 
     @saturation.setter
     def saturation(self, value: LTL):
         self.__saturation = value
-        self.__variables |= value.variables
-
-    def remove_kind(self, kind: str):
-
-        for elem in self.cnf:
-            if elem.kind == kind:
-                self.cnf.remove(elem)
-
-        super().__init__(cnf=self.cnf, skip_checks=True)
-
-    def get_kind(self, kind: str) -> List[LTL]:
-        ret = []
-        for elem in self.cnf:
-            if elem.kind == kind:
-                ret.append(elem)
-        return ret
 
     def extract_refinement_rules(self) -> Set[LTL]:
         rules: Set[LTL] = set()
@@ -317,7 +283,7 @@ class LTL:
                 formula = "G(" + variable.name + " -> " + supertype.name + ")"
                 rule = LTL(formula=formula, variables=Typeset({variable, supertype}), kind="refinement_rule")
                 rules.add(rule)
-                self.__variables |= supertype
+                self.__base_variables |= supertype
 
         return rules
 
@@ -325,7 +291,7 @@ class LTL:
         rules: Set[LTL] = set()
 
         for mutextypes in self.variables.mutextypes:
-            if len(mutextypes) > 1:
+            if len(mutextypes) > 0:
                 variables: Typeset = Typeset()
                 ltl = "G("
                 for vs in mutextypes:
@@ -343,35 +309,28 @@ class LTL:
                 rules.add(LTL(formula=ltl, variables=variables, kind="mutex_rule"))
         return rules
 
-    def copy(self):
-        """Return a new LTL which is a copy of self"""
-        return self & self
-
-    def negate(self):
-        """Modifies the LTL formula with its negation"""
-        self.__base_formula = Not(self.formula)
-
     def remove(self, element):
         self.cnf.remove(element)
 
         if len(self.cnf) == 0:
             self.__base_formula: str = "TRUE"
             self.__cnf: Set[LTL] = {self}
-            self.__variables: Typeset = Typeset()
+            self.__base_variables: Typeset = Typeset()
             return
 
         cnf_str = [x.formula for x in self.cnf]
 
         self.__base_formula: str = And(cnf_str)
-        self.__variables: Typeset = Typeset()
+        self.__base_variables: Typeset = Typeset()
 
         variables = set()
         for x in self.cnf:
             variables.add(x.variables)
-        self.__variables &= variables
+        self.__base_variables &= variables
 
     def is_true(self):
-        return self.formula == "TRUE"
+        """G(ctx -> sat -> true) == true"""
+        return self.__base_formula == "TRUE"
 
     def is_false(self):
         return self.formula == "FALSE"
@@ -382,6 +341,20 @@ class LTL:
         if self.formula == "FALSE":
             return False
         return check_satisfiability(self.variables.get_nusmv_names(), self.formula)
+
+    def remove_kind(self, kind: str):
+
+        for elem in self.cnf:
+            if elem.kind == kind:
+                self.cnf.remove(elem)
+        super().__init__(cnf=self.cnf, skip_checks=True)
+
+    def get_kind(self, kind: str) -> List[LTL]:
+        ret = []
+        for elem in self.cnf:
+            if elem.kind == kind:
+                ret.append(elem)
+        return ret
 
     def is_satisfiable_with(self, other):
         if self.formula == "TRUE":
@@ -402,6 +375,9 @@ class LTL:
 
     def __str__(self):
         return self.formula
+
+    def negate(self):
+        self.__negation = False if True else True
 
     def are_satisfiable_with(self, assumptions):
         pass

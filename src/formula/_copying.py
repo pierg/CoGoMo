@@ -12,12 +12,12 @@ def __deepcopy__(self: LTL, memo):
     result = cls.__new__(cls)
     memo[id(self)] = result
     for k, v in self.__dict__.items():
-        if k == "_LTL__cnf":
+        if k == "_LTL__cnf" or k == "_LTL__dnf":
             if len(v) == 1 and self == next(iter(v)):
                 setattr(result, k, {result})
             else:
                 setattr(result, k, deepcopy(v))
-        elif k == "_LTL__variables":
+        elif k == "_LTL__base_variables":
             """Shallow copy of variables"""
             setattr(result, k, copy(v))
         else:
@@ -27,6 +27,8 @@ def __deepcopy__(self: LTL, memo):
 
 def __hash__(self: LTL):
     try:
+        if self.base_formula == "TRUE":
+            return hash("TRUE")
         return hash(self.formula)
     except Exception as e:
         raise e

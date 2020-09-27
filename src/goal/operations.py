@@ -146,9 +146,9 @@ def composition(goals: Set[Goal],
             goals_failed = []
             for goal in goals:
                 for contract in goal.specification.conjoined_by:
-                    if e.assumptions.formula <= contract.assumptions:
+                    if e.assumptions.formula() <= contract.assumptions:
                         goals_involved.append(goal)
-                    if e.guarantees.formula <= contract.assumptions:
+                    if e.guarantees.formula() <= contract.assumptions:
                         goals_failed.append(goal)
             raise GoalFailException(failed_operation=FailOperations.composition,
                                     faild_motivation=FailMotivations.unfeasible,

@@ -12,7 +12,7 @@ class G(Pattern):
         if isinstance(element, Boolean):
             element = element.assign_true()
 
-        pattern_formula = "G(" + element.formula + ")"
+        pattern_formula = "G(" + element.formula() + ")"
 
         super().__init__(formula=pattern_formula, variables=element.variables)
 
@@ -24,7 +24,7 @@ class F(Pattern):
         if isinstance(element, Boolean):
             element = element.assign_true()
 
-        pattern_formula = "F(" + element.formula + ")"
+        pattern_formula = "F(" + element.formula() + ")"
 
         super().__init__(formula=pattern_formula, variables=element.variables)
 
@@ -36,6 +36,6 @@ class GF(Pattern):
         if isinstance(element, Boolean):
             element = element.assign_true()
 
-        pattern_formula = "G(F(" + element.formula + "))"
+        pattern_formula = "G(F(" + element.formula() + "))"
 
         super().__init__(formula=pattern_formula, variables=element.variables)

@@ -29,6 +29,6 @@ def __hash__(self: LTL):
     try:
         if self.base_formula == "TRUE":
             return hash("TRUE")
-        return hash(self.formula)
+        return hash(self.formula())
     except Exception as e:
         raise e

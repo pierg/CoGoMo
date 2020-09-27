@@ -6,7 +6,7 @@ from tools.logic import Not, Or, And, Implies
 from controller.parser import parse_controller
 from controller.synthesis import create_controller_if_exists
 from tools.strings_manipulation import save_to_file
-from typescogomo.formula import LTL, InconsistentException
+from typescogomo.formula() import LTL, InconsistentException
 from old_src.typescogomo.variables import Variables
 from old_src.goals.cgtgoal import Goal
 
@@ -66,8 +66,8 @@ def extract_rules(rules: Dict) -> Dict:
         rules_ltl["gridworld"] = []
         for elem, adjacent in rules["gridworld"].items():
             ltl = "G("
-            ltl += elem.formula + " -> X ("
-            ltl += " | ".join([a.formula for a in adjacent])
+            ltl += elem.formula() + " -> X ("
+            ltl += " | ".join([a.formula() for a in adjacent])
             ltl += "))"
             variables = Variables()
             variables |= elem.variables
@@ -84,7 +84,7 @@ def extract_rules(rules: Dict) -> Dict:
                     ltl = "G("
                     for vs in mtx_elements:
                         variables |= vs.variables
-                    mtx_elements_str = [n.formula for n in mtx_elements]
+                    mtx_elements_str = [n.formula() for n in mtx_elements]
                     clauses = []
                     for vs_a in mtx_elements_str:
                         clause = [deepcopy(vs_a)]
@@ -100,7 +100,7 @@ def extract_rules(rules: Dict) -> Dict:
             for pre, post in rules["context"]["inclusion"].items():
                 variables = Variables()
                 variables |= pre.variables | post.variables
-                ltl = "G((" + pre.formula + ") -> (" + post.formula + "))"
+                ltl = "G((" + pre.formula() + ") -> (" + post.formula() + "))"
                 rules_ltl["context"].append(LTL(formula=ltl, variables=variables, kind="context"))
 
     if "context_gridworld" in rules:
@@ -108,7 +108,7 @@ def extract_rules(rules: Dict) -> Dict:
         for pre, post in rules["context_gridworld"].items():
             variables = Variables()
             variables |= pre.variables | post.variables
-            ltl = "G((" + pre.formula + ") -> (" + post.formula + "))"
+            ltl = "G((" + pre.formula() + ") -> (" + post.formula() + "))"
             rules_ltl["context_gridworld"].append(LTL(formula=ltl, variables=variables, kind="context_gridworld"))
 
     if "constraints" in rules:
@@ -120,7 +120,7 @@ def extract_rules(rules: Dict) -> Dict:
                     ltl = "G("
                     for vs in mtx_elements:
                         variables |= vs.variables
-                    mtx_elements_str = [n.formula for n in mtx_elements]
+                    mtx_elements_str = [n.formula() for n in mtx_elements]
                     clauses = []
                     for vs_a in mtx_elements_str:
                         clause = [deepcopy(vs_a)]
@@ -137,7 +137,7 @@ def extract_rules(rules: Dict) -> Dict:
             for pre, post in rules["constraints"]["inclusion"].items():
                 variables = Variables()
                 variables |= pre.variables | post.variables
-                ltl = "G((" + pre.formula + ") -> (" + post.formula + "))"
+                ltl = "G((" + pre.formula() + ") -> (" + post.formula() + "))"
                 rules_ltl["constraints"].append(
                     LTL(formula=ltl, variables=variables, kind="constraints"))
 
@@ -156,7 +156,7 @@ def extract_ltl_rules(context_rules: Dict) -> List[LTL]:
                 ltl = "G("
                 for vs in cvars:
                     variables |= vs.variables
-                cvars_str = [n.formula for n in cvars]
+                cvars_str = [n.formula() for n in cvars]
                 clauses = []
                 for vs_a in cvars_str:
                     clause = [deepcopy(vs_a)]
@@ -225,7 +225,7 @@ def extract_all_combinations_and_negations_from_contexts(contexts: List[LTL]) \
             comb_contexts_neg = list(comb)
 
             for ctx in contexts:
-                if ctx.formula not in [n.formula for n in comb_contexts_neg]:
+                if ctx.formula() not in [n.formula() for n in comb_contexts_neg]:
                     ctx_copy = deepcopy(ctx)
                     ctx_copy.negate()
                     comb_contexts_neg.append(ctx_copy)
@@ -340,9 +340,9 @@ def map_goals_to_contexts(contexts: List[LTL], goals: List[Goal],
     for ctxa, goalsa in context_goals_copy.items():
 
         for ctxb, goalsb in context_goals_copy.items():
-            if ctxa.formula in ctx_removed:
+            if ctxa.formula() in ctx_removed:
                 continue
-            if ctxb.formula in ctx_removed:
+            if ctxb.formula() in ctx_removed:
                 continue
             if ctxa is not ctxb:
                 if set(goalsa) == set(goalsb):
@@ -350,11 +350,11 @@ def map_goals_to_contexts(contexts: List[LTL], goals: List[Goal],
                         print(str(ctxa) + "\nINCLUDED IN\n" + str(ctxb))
                         if SAVE_SMALLER_CONTEXT:
                             del context_goals[ctxb]
-                            ctx_removed.append(ctxb.formula)
+                            ctx_removed.append(ctxb.formula())
                             print(str(ctxb) + "\nREMOVED")
                         else:
                             del context_goals[ctxa]
-                            ctx_removed.append(ctxa.formula)
+                            ctx_removed.append(ctxa.formula())
                             print(str(ctxa) + "\nREMOVED")
 
     """Check the all the goals have been mapped"""
@@ -396,10 +396,10 @@ def generate_general_controller_inputs_from_goal(ap: dict,
     guarantees = []
 
     """Adding A/G from the goal"""
-    a = goal.get_ltl_assumptions().formula
+    a = goal.get_ltl_assumptions().formula()
     if a != "TRUE":
         assumptions.append(a)
-    g = goal.get_ltl_guarantees().formula
+    g = goal.get_ltl_guarantees().formula()
     if g != "TRUE":
         guarantees.append(g)
     variables |= goal.get_variables()
@@ -408,20 +408,20 @@ def generate_general_controller_inputs_from_goal(ap: dict,
     liveness_rules = extract_ltl_rules(rules["environment"])
     for r in liveness_rules:
         variables |= r.variables
-        assumptions.append(r.formula)
+        assumptions.append(r.formula())
 
     """Adding domain rules of the robot as guarantees"""
     domain_rules = extract_ltl_rules(rules["domain"])
     for r in domain_rules:
         variables |= r.variables
-        guarantees.append(r.formula)
+        guarantees.append(r.formula())
 
     """Adding context rules as assumptions if not already included (cgt includes them)"""
     if complete:
         context_rules = extract_ltl_rules(rules["context"])
         for r in context_rules:
             variables |= r.variables
-            assumptions.append(r.formula)
+            assumptions.append(r.formula())
 
     uncontrollable = []
     controllable = []
@@ -466,15 +466,15 @@ def generate_controller_specs(environment_rules: Dict, system_rules: Dict, syste
     assumptions = []
     for type, formulas in environment_rules.items():
         for formula in formulas:
-            assumptions.append(formula.formula)
+            assumptions.append(formula.formula())
 
     guarantees = []
     for type, formulas in system_rules.items():
         for formula in formulas:
-            guarantees.append(formula.formula)
+            guarantees.append(formula.formula())
 
     for formula in system_goals:
-        guarantees.append(formula.formula)
+        guarantees.append(formula.formula())
 
     uncontrollable = []
     controllable = []

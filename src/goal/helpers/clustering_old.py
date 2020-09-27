@@ -1,7 +1,7 @@
 import itertools
 from typing import Union, Dict, List, Tuple
 from goal import Goal
-from typescogomo.formula import LTL, InconsistentException
+from typescogomo.formula() import LTL, InconsistentException
 
 
 def create_contextual_clusters(goals: List[Goal],
@@ -150,8 +150,8 @@ def extract_all_combinations_and_negations_from_contexts(contexts: List[LTL]) \
             comb_contexts_neg = list(comb)
 
             for ctx in contexts:
-                if ctx.formula not in [n.formula for n in comb_contexts_neg]:
-                    ctx_copy = LTL(formula=ctx.formula, variables=ctx.variables)
+                if ctx.formula() not in [n.formula() for n in comb_contexts_neg]:
+                    ctx_copy = LTL(formula=ctx.formula(), variables=ctx.variables)
                     ctx_copy.negate()
                     comb_contexts_neg.append(ctx_copy)
 
@@ -266,9 +266,9 @@ def map_goals_to_contexts(contexts: List[LTL], goals: List[Goal],
     for ctxa, goalsa in context_goals_copy.items():
 
         for ctxb, goalsb in context_goals_copy.items():
-            if ctxa.formula in ctx_removed:
+            if ctxa.formula() in ctx_removed:
                 continue
-            if ctxb.formula in ctx_removed:
+            if ctxb.formula() in ctx_removed:
                 continue
             if ctxa is not ctxb:
                 if set(goalsa) == set(goalsb):
@@ -276,11 +276,11 @@ def map_goals_to_contexts(contexts: List[LTL], goals: List[Goal],
                         print(str(ctxa) + "\nINCLUDED IN\n" + str(ctxb))
                         if SAVE_SMALLER_CONTEXT:
                             del context_goals[ctxb]
-                            ctx_removed.append(ctxb.formula)
+                            ctx_removed.append(ctxb.formula())
                             print(str(ctxb) + "\nREMOVED")
                         else:
                             del context_goals[ctxa]
-                            ctx_removed.append(ctxa.formula)
+                            ctx_removed.append(ctxa.formula())
                             print(str(ctxa) + "\nREMOVED")
 
     """Check the all the goals have been mapped"""

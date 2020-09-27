@@ -42,7 +42,7 @@ class Visit(CoreMovement):
 
         for location in locations:
             variables |= location.variables
-            formula.append("F(" + location.formula + ")")
+            formula.append("F(" + location.formula() + ")")
 
         formula = And(formula)
 
@@ -62,7 +62,7 @@ class SequencedVisit(CoreMovement):
 
         for n, location in enumerate(locations):
             variables |= location.variables
-            formula += location.formula
+            formula += location.formula()
             if n == len(locations) - 1:
                 for _ in range(len(locations)):
                     formula += ")"
@@ -85,7 +85,7 @@ class Patrolling(CoreMovement):
 
         for location in locations:
             variables |= location.variables
-            formula.append("G(F(" + location.formula + "))")
+            formula.append("G(F(" + location.formula() + "))")
 
         formula = And(formula)
 
@@ -105,7 +105,7 @@ class SequencedPatrolling(CoreMovement):
 
         for n, location in enumerate(locations):
             variables |= location.variables
-            formula += location.formula
+            formula += location.formula()
             if n == len(locations) - 1:
                 for _ in range(len(locations)):
                     formula += ")"
@@ -131,7 +131,7 @@ class OrderedPatrolling(CoreMovement):
         sub_formula = "G("
         for i, location in enumerate(locations):
             variables |= location.variables
-            sub_formula += "F(" + location.formula
+            sub_formula += "F(" + location.formula()
             if i < len(locations) - 1:
                 sub_formula += " & "
         for i in range(0, len(locations)):
@@ -142,13 +142,13 @@ class OrderedPatrolling(CoreMovement):
 
         for n, location in enumerate(locations):
             if n < len(locations) - 1:
-                formula.append("(!" + locations[n + 1].formula + " U " + locations[n].formula + ")")
+                formula.append("(!" + locations[n + 1].formula() + " U " + locations[n].formula() + ")")
 
         for n, location in enumerate(locations):
             if n < len(locations):
-                formula.append("G(" + locations[(n + 1) % len(locations)].formula + " ->  " +
-                               "X((!" + locations[(n + 1) % len(locations)].formula + ") U " + locations[
-                                   n].formula + "))")
+                formula.append("G(" + locations[(n + 1) % len(locations)].formula() + " ->  " +
+                               "X((!" + locations[(n + 1) % len(locations)].formula() + ") U " + locations[
+                                   n].formula() + "))")
 
         formula = And(formula)
 
@@ -169,7 +169,7 @@ class StrictOrderPatrolling(CoreMovement):
         sub_formula = "G("
         for i, location in enumerate(locations):
             variables |= location.variables
-            sub_formula += "F(" + location.formula
+            sub_formula += "F(" + location.formula()
             if i < len(locations) - 1:
                 sub_formula += " & "
         for i in range(0, len(locations)):
@@ -180,19 +180,19 @@ class StrictOrderPatrolling(CoreMovement):
 
         for n, location in enumerate(locations):
             if n < len(locations) - 1:
-                formula.append("(!" + locations[n + 1].formula + " U " + locations[n].formula + ")")
+                formula.append("(!" + locations[n + 1].formula() + " U " + locations[n].formula() + ")")
 
         for n, location in enumerate(locations):
             if n < len(locations):
-                formula.append("G(" + locations[(n + 1) % len(locations)].formula + " ->  " +
-                               "X((!" + locations[(n + 1) % len(locations)].formula + ") U " + locations[
-                                   n].formula + "))")
+                formula.append("G(" + locations[(n + 1) % len(locations)].formula() + " ->  " +
+                               "X((!" + locations[(n + 1) % len(locations)].formula() + ") U " + locations[
+                                   n].formula() + "))")
 
         for n, location in enumerate(locations):
             if n < len(locations) - 1:
-                formula.append("G(" + locations[n].formula + " ->  " +
-                               "X((!" + locations[n].formula + ") U " + locations[
-                                   (n + 1) % len(locations)].formula + "))")
+                formula.append("G(" + locations[n].formula() + " ->  " +
+                               "X((!" + locations[n].formula() + ") U " + locations[
+                                   (n + 1) % len(locations)].formula() + "))")
 
         formula = And(formula)
 
@@ -212,16 +212,16 @@ class FairPatrolling(CoreMovement):
 
         for location in locations:
             variables |= location.variables
-            sub_formula.append("G(F(" + location.formula + "))")
+            sub_formula.append("G(F(" + location.formula() + "))")
 
         sub_formula = [And(sub_formula)]
 
         for n, location in enumerate(locations):
             if n < len(locations) - 1:
-                sub_formula.append("G(" + locations[n].formula + " ->  " +
-                                   "X( ((!" + locations[n].formula + ") U " + locations[
-                                       (n + 1) % len(locations)].formula + ") | G " +
-                                   "(!" + locations[n].formula + ")" + " ))")
+                sub_formula.append("G(" + locations[n].formula() + " ->  " +
+                                   "X( ((!" + locations[n].formula() + ") U " + locations[
+                                       (n + 1) % len(locations)].formula() + ") | G " +
+                                   "(!" + locations[n].formula() + ")" + " ))")
 
         formula = And(sub_formula)
 
@@ -242,7 +242,7 @@ class StrictOrderVisit(CoreMovement):
         sub_formula = ""
         for i, location in enumerate(locations):
             variables |= location.variables
-            sub_formula += "F(" + location.formula
+            sub_formula += "F(" + location.formula()
             if i < len(locations) - 1:
                 sub_formula += " & "
         for i in range(0, len(locations)):
@@ -252,13 +252,13 @@ class StrictOrderVisit(CoreMovement):
 
         for n, location in enumerate(locations):
             if n < len(locations) - 1:
-                formula.append("(!" + locations[n + 1].formula + " U " + locations[n].formula + ")")
+                formula.append("(!" + locations[n + 1].formula() + " U " + locations[n].formula() + ")")
 
         for n, location in enumerate(locations):
             if n < len(locations) - 1:
                 formula.append(
-                    "(!" + locations[n].formula + " U (" + locations[n].formula + " & X(!" + locations[
-                        n].formula + " U(" + locations[n + 1].formula + "))))")
+                    "(!" + locations[n].formula() + " U (" + locations[n].formula() + " & X(!" + locations[
+                        n].formula() + " U(" + locations[n + 1].formula() + "))))")
 
         formula = And(formula)
 
@@ -281,7 +281,7 @@ class OrderedVisit(CoreMovement):
         sub_formula = "F("
         for n, location in enumerate(locations):
             variables |= location.variables
-            sub_formula += location.formula
+            sub_formula += location.formula()
             if n == len(locations) - 1:
                 for _ in range(len(locations)):
                     sub_formula += ")"
@@ -292,7 +292,7 @@ class OrderedVisit(CoreMovement):
 
         for n, location in enumerate(locations):
             if n < len(locations) - 1:
-                formula.append("(!" + locations[n + 1].formula + " U " + locations[n].formula + ")")
+                formula.append("(!" + locations[n + 1].formula() + " U " + locations[n].formula() + ")")
 
         formula = And(formula)
 
@@ -315,7 +315,7 @@ class GlobalAvoidance(Avoidance):
             proposition = proposition.assign_true()
 
         variables = proposition.variables
-        formula = "G(!" + proposition.formula + ")"
+        formula = "G(!" + proposition.formula() + ")"
 
         super().__init__(formula=formula, variables=variables, kind=None)
 
@@ -340,7 +340,7 @@ class DelayedReaction(Triggers):
         if isinstance(reaction, Boolean):
             reaction = reaction.assign_true()
 
-        formula = "G(({t}) -> F({r}))".format(t=trigger.formula, r=reaction.formula)
+        formula = "G(({t}) -> F({r}))".format(t=trigger.formula(), r=reaction.formula())
 
         super().__init__(formula, trigger.variables | reaction.variables)
 
@@ -356,7 +356,7 @@ class InstantReaction(Triggers):
         if isinstance(reaction, Boolean):
             reaction = reaction.assign_true()
 
-        formula = "G(({t}) -> ({r}))".format(t=trigger.formula, r=reaction.formula)
+        formula = "G(({t}) -> ({r}))".format(t=trigger.formula(), r=reaction.formula())
 
         super().__init__(formula, trigger.variables | reaction.variables)
 
@@ -372,7 +372,7 @@ class PromptReaction(Triggers):
         if isinstance(reaction, Boolean):
             reaction = reaction.assign_true()
 
-        formula = "G(({t}) -> X({r}))".format(t=trigger.formula, r=reaction.formula)
+        formula = "G(({t}) -> X({r}))".format(t=trigger.formula(), r=reaction.formula())
 
         super().__init__(formula, trigger.variables | reaction.variables)
 
@@ -388,7 +388,7 @@ class BoundReaction(Triggers):
         if isinstance(reaction, Boolean):
             reaction = reaction.assign_true()
 
-        formula = "G( (({t}) -> ({r})) & (({r}) -> ({t})))".format(t=trigger.formula, r=reaction.formula)
+        formula = "G( (({t}) -> ({r})) & (({r}) -> ({t})))".format(t=trigger.formula(), r=reaction.formula())
 
         super().__init__(formula, trigger.variables | reaction.variables)
 
@@ -405,7 +405,7 @@ class BoundDelay(Triggers):
         if isinstance(reaction, Boolean):
             reaction = reaction.assign_true()
 
-        formula = "G( (({t}) -> X({r})) & (X({r}) -> ({t})))".format(t=trigger.formula, r=reaction.formula)
+        formula = "G( (({t}) -> X({r})) & (X({r}) -> ({t})))".format(t=trigger.formula(), r=reaction.formula())
 
         super().__init__(formula, trigger.variables | reaction.variables)
 
@@ -414,6 +414,6 @@ class Wait(Triggers):
     """Applies when a counteraction must be performed every time and only when a specific location is entered"""
 
     def __init__(self, where: LTL, until: LTL):
-        formula = "(({w}) U ({u}))".format(w=where.formula, u=until.formula)
+        formula = "(({w}) U ({u}))".format(w=where.formula(), u=until.formula())
 
         super().__init__(formula, where.variables | until.variables)

@@ -19,7 +19,7 @@ def generate_buchi(formula: LTL, file_path: str):
             file_path = results_folder + file_path
 
         if isinstance(formula, LTL):
-            formula_str = formula.formula
+            formula_str = formula.formula()
         else:
             formula_str = formula
 

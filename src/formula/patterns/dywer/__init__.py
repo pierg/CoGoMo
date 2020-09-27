@@ -19,7 +19,7 @@ class Globally(Pattern):
         variables = Typeset()
         variables |= ltl.variables
 
-        pattern_formula = "G(" + ltl.formula + ")"
+        pattern_formula = "G(" + ltl.formula() + ")"
 
         super().__init__(pattern_formula, variables)
 
@@ -31,7 +31,7 @@ class Eventually(Pattern):
         variables = Typeset()
         variables |= ltl.variables
 
-        pattern_formula = "G(" + ltl.formula + ")"
+        pattern_formula = "G(" + ltl.formula() + ")"
 
         super().__init__(pattern_formula, variables)
 
@@ -43,7 +43,7 @@ class InfinitelyOften(Pattern):
         variables = Typeset()
         variables |= ltl.variables
 
-        pattern_formula = "G( F(" + ltl.formula + "))"
+        pattern_formula = "G( F(" + ltl.formula() + "))"
 
         super().__init__(pattern_formula, variables)
 

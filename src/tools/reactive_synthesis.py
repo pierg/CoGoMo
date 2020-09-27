@@ -2,7 +2,7 @@ from copy import deepcopy
 from typing import Dict, List
 
 from tools.logic import Not, And, Or
-from typescogomo.formula import LTL
+from typescogomo.formula() import LTL
 from old_src.typescogomo.variables import Variables
 
 
@@ -42,8 +42,8 @@ def adjacencies_str_to_LTL(map_dict: Dict, ap: Dict) -> List[LTL]:
             adjacent.append(ap[adjacent_str])
 
         ltl = "G("
-        ltl += elem.formula + " -> X ("
-        ltl += " | ".join([a.formula for a in adjacent])
+        ltl += elem.formula() + " -> X ("
+        ltl += " | ".join([a.formula() for a in adjacent])
         ltl += "))"
         variables = Variables()
         variables |= elem.variables
@@ -61,7 +61,7 @@ def infinetely_often_str_to_LTL(ap_list: List[str], ap: Dict) -> List[LTL]:
 
         elem = ap[elem_str]
         ltl = "G( F("
-        ltl += elem.formula + "))"
+        ltl += elem.formula() + "))"
         variables = Variables()
         variables |= elem.variables
         list_LTL.append(LTL(formula=ltl, variables=variables, kind="infinetely_often"))

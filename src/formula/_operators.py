@@ -20,24 +20,24 @@ if TYPE_CHECKING:
 
 def __lt__(self, other: LTL):
     """Check if the set of behaviours is smaller in the other set of behaviours"""
-    if self.formula == other.formula:
+    if self.formula() == other.formula():
         return False
     lt = self <= other
     neq = self != other
     return lt and neq
 
 
-def __le__(self, other: LTL):
+def __le__(self: LTL, other: LTL):
     if other.is_true():
         return True
     """Create a new LTL self -> other and check its validity"""
     implication_formula = self >> other
-    return check_validity(implication_formula.variables.get_nusmv_names(), implication_formula.formula)
+    return check_validity(implication_formula.variables.get_nusmv_names(), implication_formula.formula())
 
 
 def __eq__(self, other: LTL):
     """Check if the set of behaviours is equal to the other set of behaviours"""
-    if self.formula == other.formula:
+    if self.formula() == other.formula():
         return True
     implied_a = self >= other
     implied_b = self <= other
@@ -57,8 +57,8 @@ def __gt__(self, other: LTL):
 
 
 def __ge__(self, other: LTL):
-    if self.assign_true():
+    if self.is_true():
         return True
     """Create a new LTL self -> other anche check its validity"""
     implication_formula = other >> self
-    return check_validity(implication_formula.variables.get_nusmv_names(), implication_formula.formula)
+    return check_validity(implication_formula.variables.get_nusmv_names(), implication_formula.formula())

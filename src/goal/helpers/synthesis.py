@@ -5,7 +5,7 @@ from tools.logic import Implies
 from controller.parser import parse_controller
 from controller.synthesis import create_controller_if_exists
 from tools.strings_manipulation import save_to_file
-from typescogomo.formula import LTL
+from typescogomo.formula() import LTL
 from old_src.typescogomo.variables import Variables
 
 
@@ -20,10 +20,10 @@ def generate_general_controller_inputs_from_goal(ap: dict,
     guarantees = []
 
     """Adding A/G from the goal"""
-    a = goal.get_ltl_assumptions().formula
+    a = goal.get_ltl_assumptions().formula()
     if a != "TRUE":
         assumptions.append(a)
-    g = goal.get_ltl_guarantees().formula
+    g = goal.get_ltl_guarantees().formula()
     if g != "TRUE":
         guarantees.append(g)
     variables |= goal.get_variables()
@@ -32,20 +32,20 @@ def generate_general_controller_inputs_from_goal(ap: dict,
     liveness_rules = extract_ltl_rules(rules["environment"])
     for r in liveness_rules:
         variables |= r.variables
-        assumptions.append(r.formula)
+        assumptions.append(r.formula())
 
     """Adding domain rules of the robot as guarantees"""
     domain_rules = extract_ltl_rules(rules["domain"])
     for r in domain_rules:
         variables |= r.variables
-        guarantees.append(r.formula)
+        guarantees.append(r.formula())
 
     """Adding context rules as assumptions if not already included (cgt includes them)"""
     if complete:
         context_rules = extract_ltl_rules(rules["context"])
         for r in context_rules:
             variables |= r.variables
-            assumptions.append(r.formula)
+            assumptions.append(r.formula())
 
     uncontrollable = []
     controllable = []
@@ -90,15 +90,15 @@ def generate_controller_specs(environment_rules: Dict, system_rules: Dict, syste
     assumptions = []
     for type, formulas in environment_rules.items():
         for formula in formulas:
-            assumptions.append(formula.formula)
+            assumptions.append(formula.formula())
 
     guarantees = []
     for type, formulas in system_rules.items():
         for formula in formulas:
-            guarantees.append(formula.formula)
+            guarantees.append(formula.formula())
 
     for formula in system_goals:
-        guarantees.append(formula.formula)
+        guarantees.append(formula.formula())
 
     uncontrollable = []
     controllable = []

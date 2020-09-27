@@ -53,11 +53,10 @@ def create_contextual_clusters(goals: Set[Goal],
     return context_goals
 
 
-
 def extract_unique_contexts_from_goals(goals: Set[Goal]) -> Set[LTL]:
     contexts: Set[LTL] = set()
     for goal in goals:
-        if goal.context is not None:
+        if not goal.context.is_true():
             contexts.add(goal.context)
     return contexts
 
@@ -79,8 +78,8 @@ def extract_all_combinations_and_negations_from_contexts(contexts: Set[LTL]) \
             comb_contexts_neg = list(comb)
 
             for ctx in contexts:
-                if ctx.formula not in [n.formula for n in comb_contexts_neg]:
-                    ctx_copy = LTL(formula=ctx.formula, variables=ctx.variables)
+                if ctx.formula() not in [n.formula() for n in comb_contexts_neg]:
+                    ctx_copy = LTL(formula=ctx.formula(), variables=ctx.variables)
                     ctx_copy.negate()
                     comb_contexts_neg.append(ctx_copy)
 
@@ -120,38 +119,46 @@ def map_goals_to_contexts(contexts: Set[LTL], goals: Set[Goal],
         """Initializing the set"""
         context_goals[ctx] = set()
         for goal in goals:
-            """If the goal has no context"""
-            if goal.context is None:
+            print(ctx)
+            print(goal.context)
+            if ctx <= goal.context:
+                print("Ctx: " + str(ctx) + " \t-->\t Goal_ctx: " + str(goal.context))
                 """Add goal to the context"""
                 context_goals[ctx].add(goal)
                 if goal in goals_non_mapped:
                     goals_non_mapped.remove(goal)
-            else:
-                if GOAL_CTX_SAT:
-                    """Verify that the goal-context is satisfiable with the context"""
-                    if goal.context.is_satisfiable_with(ctx):
-                        print("Goal_ctx (" + goal.name + "): " + str(goal.context) + " \t-->\t Ctx: " + str(ctx))
-                        """Add goal to the context"""
-                        context_goals[ctx].add(goal)
-                        if goal in goals_non_mapped:
-                            goals_non_mapped.remove(goal)
-                else:
-                    if GOAL_CTX_SMALLER:
-                        """Verify that the goal is included the context"""
-                        if goal.context <= ctx:
-                            print("Goal_ctx: " + str(goal.context) + " \t-->\t Ctx: " + str(ctx))
-                            """Add goal to the context"""
-                            context_goals[ctx].add(goal)
-                            if goal in goals_non_mapped:
-                                goals_non_mapped.remove(goal)
-                    else:
-                        """Verify that the context is included in goal context"""
-                        if ctx <= goal.context:
-                            print("Ctx: " + str(ctx) + " \t-->\t Goal_ctx: " + str(goal.context))
-                            """Add goal to the context"""
-                            context_goals[ctx].add(goal)
-                            if goal in goals_non_mapped:
-                                goals_non_mapped.remove(goal)
+            # """If the goal has no context"""
+            # if goal.context is None:
+            #     """Add goal to the context"""
+            #     context_goals[ctx].add(goal)
+            #     if goal in goals_non_mapped:
+            #         goals_non_mapped.remove(goal)
+            # else:
+            #     if GOAL_CTX_SAT:
+            #         """Verify that the goal-context is satisfiable with the context"""
+            #         if goal.context.is_satisfiable_with(ctx):
+            #             print("Goal_ctx (" + goal.name + "): " + str(goal.context) + " \t-->\t Ctx: " + str(ctx))
+            #             """Add goal to the context"""
+            #             context_goals[ctx].add(goal)
+            #             if goal in goals_non_mapped:
+            #                 goals_non_mapped.remove(goal)
+            #     else:
+            #         if GOAL_CTX_SMALLER:
+            #             """Verify that the goal is included the context"""
+            #             if goal.context <= ctx:
+            #                 print("Goal_ctx: " + str(goal.context) + " \t-->\t Ctx: " + str(ctx))
+            #                 """Add goal to the context"""
+            #                 context_goals[ctx].add(goal)
+            #                 if goal in goals_non_mapped:
+            #                     goals_non_mapped.remove(goal)
+            #         else:
+            #             """Verify that the context is included in goal context"""
+            #             if ctx <= goal.context:
+            #                 print("Ctx: " + str(ctx) + " \t-->\t Goal_ctx: " + str(goal.context))
+            #                 """Add goal to the context"""
+            #                 context_goals[ctx].add(goal)
+            #                 if goal in goals_non_mapped:
+            #                     goals_non_mapped.remove(goal)
 
     """Check all the contexts that point to the same set of goals and take the most abstract one"""
     ctx_removed = []
@@ -159,9 +166,9 @@ def map_goals_to_contexts(contexts: Set[LTL], goals: Set[Goal],
     for ctxa, goalsa in context_goals_copy.items():
 
         for ctxb, goalsb in context_goals_copy.items():
-            if ctxa.formula in ctx_removed:
+            if ctxa.formula() in ctx_removed:
                 continue
-            if ctxb.formula in ctx_removed:
+            if ctxb.formula() in ctx_removed:
                 continue
             if ctxa is not ctxb:
                 if set(goalsa) == set(goalsb):
@@ -169,11 +176,11 @@ def map_goals_to_contexts(contexts: Set[LTL], goals: Set[Goal],
                         print(str(ctxa) + "\nINCLUDED IN\n" + str(ctxb))
                         if SAVE_SMALLER_CONTEXT:
                             del context_goals[ctxb]
-                            ctx_removed.append(ctxb.formula)
+                            ctx_removed.append(ctxb.formula())
                             print(str(ctxb) + "\nREMOVED")
                         else:
                             del context_goals[ctxa]
-                            ctx_removed.append(ctxa.formula)
+                            ctx_removed.append(ctxa.formula())
                             print(str(ctxa) + "\nREMOVED")
 
     """Check the all the goals have been mapped"""

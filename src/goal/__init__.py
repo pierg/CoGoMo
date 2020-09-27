@@ -94,8 +94,8 @@ class Goal(object):
                 goals = set()
                 for ctx in value:
                     goals.add(Goal(
-                        name=self.name + " & " + ctx.formula,
-                        description=self.description + " in " + ctx.formula,
+                        name=self.name + " & " + ctx.formula(),
+                        description=self.description + " in " + ctx.formula(),
                         specification=deepcopy(self.specification),
                         context=ctx
                     ))

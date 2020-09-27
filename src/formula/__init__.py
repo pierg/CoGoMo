@@ -55,7 +55,7 @@ class LTL:
 
             elif cnf is not None:
 
-                cnf_str = [x.formula for x in cnf]
+                cnf_str = [x.formula() for x in cnf]
 
                 self.__base_formula: str = And(cnf_str, brackets=True)
                 self.__cnf: Set[LTL] = cnf
@@ -64,7 +64,7 @@ class LTL:
 
             elif dnf is not None:
 
-                dnf_str = [x.formula for x in dnf]
+                dnf_str = [x.formula() for x in dnf]
 
                 self.__base_formula: str = Or(dnf_str)
                 self.__dnf: Set[LTL] = dnf
@@ -107,9 +107,9 @@ class LTL:
     def __invert__(self: LTL) -> LTL:
         """Returns a new LTL with the negation of self"""
 
-        formula = Not(self.formula)
-
-        return LTL(formula=formula, variables=self.variables)
+        new_LTL = deepcopy(self)
+        new_LTL.negate()
+        return new_LTL
 
     def __rshift__(self, other: Union[LTL, Boolean]) -> LTL:
         """>>
@@ -117,7 +117,7 @@ class LTL:
         if isinstance(other, Boolean):
             other = other.assign_true()
         return LTL(
-            formula=Implies(self.formula, other.formula),
+            formula=Implies(self.formula(include_rules=False), other.formula(include_rules=False)),
             variables=self.variables | other.variables
         )
 
@@ -127,7 +127,7 @@ class LTL:
         if isinstance(other, Boolean):
             other = other.assign_true()
         return LTL(
-            formula=Implies(other.formula, self.formula),
+            formula=Implies(self.formula(include_rules=False), other.formula(include_rules=False)),
             variables=self.variables | other.variables
         )
 
@@ -149,7 +149,7 @@ class LTL:
 
         old_self = deepcopy(self)
         self.__cnf = {old_self, other}
-        self.__base_formula = And([self.formula, other.formula])
+        self.__base_formula = And([self.formula(), other.formula()])
         self.__base_variables |= other.variables
 
         if not self.is_satisfiable():
@@ -174,7 +174,7 @@ class LTL:
 
         old_self = deepcopy(self)
         self.__dnf = {old_self, other}
-        self.__base_formula = Or([self.formula, other.formula])
+        self.__base_formula = Or([self.formula(), other.formula()])
         self.__base_variables |= other.variables
 
         if not self.is_satisfiable():
@@ -231,8 +231,7 @@ class LTL:
     def base_variables(self) -> Typeset:
         return self.__base_variables
 
-    @property
-    def formula(self) -> str:
+    def formula(self, include_rules=True) -> str:
 
         formula = self.__base_formula
 
@@ -241,29 +240,31 @@ class LTL:
 
         """Adding saturation"""
         if self.__saturation is not None and not self.saturation.is_true():
-            formula = "((" + self.saturation.formula + ") -> (" + self.__base_formula + "))"
+            formula = "((" + self.saturation.formula() + ") -> (" + self.__base_formula + "))"
 
         """Adding context"""
         if self.__context is not None and not self.context.is_true():
-            formula = "G((" + self.context.formula + ") -> (" + formula + "))"
+            formula = "G((" + self.context.formula() + ") -> (" + formula + "))"
 
         """Adding negation if necessary"""
         if self.__negation:
             formula = Not(formula)
 
-        rules = []
+        if include_rules:
 
-        """Adding refinement rules"""
-        for rule in self.refinement_rules:
-            rules.append(rule.formula)
+            rules = []
 
-        """Adding mutex rules"""
-        for rule in self.mutex_rules:
-            rules.append(rule.formula)
+            """Adding refinement rules"""
+            for rule in self.refinement_rules:
+                rules.append(rule.formula())
 
-        if len(rules) > 0:
-            rules = And(rules, brackets=True)
-            formula = rules + " & " + formula
+            """Adding mutex rules"""
+            for rule in self.mutex_rules:
+                rules.append(rule.formula())
+
+            if len(rules) > 0:
+                rules = And(rules, brackets=True)
+                formula = rules + " -> " + formula
 
         return formula
 
@@ -291,7 +292,7 @@ class LTL:
         rules: Set[LTL] = set()
 
         for mutextypes in self.variables.mutextypes:
-            if len(mutextypes) > 0:
+            if len(mutextypes) > 1:
                 variables: Typeset = Typeset()
                 ltl = "G("
                 for vs in mutextypes:
@@ -318,7 +319,7 @@ class LTL:
             self.__base_variables: Typeset = Typeset()
             return
 
-        cnf_str = [x.formula for x in self.cnf]
+        cnf_str = [x.formula() for x in self.cnf]
 
         self.__base_formula: str = And(cnf_str)
         self.__base_variables: Typeset = Typeset()
@@ -333,14 +334,14 @@ class LTL:
         return self.__base_formula == "TRUE"
 
     def is_false(self):
-        return self.formula == "FALSE"
+        return self.formula() == "FALSE"
 
     def is_satisfiable(self):
-        if self.formula == "TRUE":
+        if self.formula() == "TRUE":
             return True
-        if self.formula == "FALSE":
+        if self.formula() == "FALSE":
             return False
-        return check_satisfiability(self.variables.get_nusmv_names(), self.formula)
+        return check_satisfiability(self.variables.get_nusmv_names(), self.formula())
 
     def remove_kind(self, kind: str):
 
@@ -357,7 +358,7 @@ class LTL:
         return ret
 
     def is_satisfiable_with(self, other):
-        if self.formula == "TRUE":
+        if self.formula() == "TRUE":
             return True
         try:
             self & other
@@ -368,16 +369,16 @@ class LTL:
     def can_provide_for(self, other):
         """Check if the set of behaviours is smaller or equal in the other set of behaviours but on the types"""
         variables = self.variables | other.variables
-        proposition = Implies(self.formula, other.formula)
+        proposition = Implies(self.formula(), other.formula())
         for v in variables:
             proposition = proposition.replace(v.name, v.port_type)
         return check_validity(variables.get_nusmv_types(), proposition)
 
     def __str__(self):
-        return self.formula
+        return self.formula()
 
     def negate(self):
-        self.__negation = False if True else True
+        self.__negation = not self.__negation
 
     def are_satisfiable_with(self, assumptions):
         pass

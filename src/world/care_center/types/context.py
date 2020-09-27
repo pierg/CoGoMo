@@ -36,7 +36,7 @@ class Positive(ContextIdentity, MutexCovid):
 
 class Negative(ContextIdentity, MutexCovid):
 
-    def __init__(self, name: str = "entrance"):
+    def __init__(self, name: str = "negative"):
         super().__init__(name)
 
 
@@ -44,13 +44,18 @@ class MutexContextLocation(MutexType):
     pass
 
 
-class Pharmacy(ContextLocation):
+class Pharmacy(ContextLocation, MutexContextLocation):
 
     def __init__(self, name: str = "pharmacy"):
         super().__init__(name)
 
+class Entrance(ContextLocation, MutexContextLocation):
 
-class Corridoor(ContextLocation):
+    def __init__(self, name: str = "entrance"):
+        super().__init__(name)
+
+
+class Corridoor(ContextLocation, MutexContextLocation):
 
     def __init__(self, name: str = "corridor"):
         super().__init__(name)

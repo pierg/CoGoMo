@@ -23,7 +23,7 @@ def __str__(self: Contract):
     #     astr += str(var) + ', '
     # astr = astr[:-2] + ' ]\n  assumptions   :\t[ '
     # for assumption in self.assumptions.cnf:
-    #     astr += assumption.formula + ', '
+    #     astr += assumption.formula() + ', '
     # astr = astr[:-2] + ' ]\n  guarantees    :\t[ '
     # for guarantee in self.guarantees.cnf:
-    #     astr += guarantee.formula + ', '
+    #     astr += guarantee.formula() + ', '

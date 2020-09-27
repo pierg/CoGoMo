@@ -4,7 +4,7 @@ from collections import defaultdict
 def print_cgt_CROME(self, level=0):
     """Override the print behavior"""
     ret = "\t" * level + "GOAL    :\t" + repr(self.name) + "\n"
-    ret += "\t" * level + "SCENARIO:\t" + str(self.context.formula) + "\n"
+    ret += "\t" * level + "SCENARIO:\t" + str(self.context.formula()) + "\n"
     for n, contract in enumerate(self.contracts):
         if n > 0:
             ret += "\t" * level + "\t/\\ \n"
@@ -91,16 +91,16 @@ def print_cgt_detailed(self, level=0):
             ret += "\t" * level + "\t/\\ \n"
         ret += "\t" * level + "  ASSUMPTIONS:\n"
         for a in contract.assumptions.cnf:
-            ret += "\t" * level + "  \t\t[" + a.kind + "]\t\t\t" + a.formula + "\n"
+            ret += "\t" * level + "  \t\t[" + a.kind + "]\t\t\t" + a.formula() + "\n"
 
         ret += "\t" * level + "  GUARANTEES:\n"
         for g in contract.guarantees.cnf:
             if g.kind == "constraints":
-                ret += "\t" * level + "  \t\t[" + g.kind + "]\t\t" + g.formula + "\n"
+                ret += "\t" * level + "  \t\t[" + g.kind + "]\t\t" + g.formula() + "\n"
             elif g.kind == "scope":
-                ret += "\t" * level + "  \t\t[" + g.kind + "]\t\t\t\t" + g.formula + "\n"
+                ret += "\t" * level + "  \t\t[" + g.kind + "]\t\t\t\t" + g.formula() + "\n"
             else:
-                ret += "\t" * level + "  \t\t[" + g.kind + "]\t\t\t" + g.formula + "\n"
+                ret += "\t" * level + "  \t\t[" + g.kind + "]\t\t\t" + g.formula() + "\n"
 
     ret += "\n"
     if self.refined_by is not None:
@@ -164,7 +164,7 @@ def __str__(self, level=0):
     #     a_constraints = contract.guarantees.get_kind("constraints")
     #
     #     ret += "\t" * level + "  G:\t\t" + ' & '.join(map(str, g_objective)) + "\n"
-    #     # ret += "\t" * level + "  Gs:\t\t" + contract.guarantees.formula + "\n"
+    #     # ret += "\t" * level + "  Gs:\t\t" + contract.guarantees.formula() + "\n"
     #
     #     if a_gridworld is not None:
     #         ret += "\t" * level + " \tGRD:\t" + ', '.join(map(str, a_gridworld)) + "\n"

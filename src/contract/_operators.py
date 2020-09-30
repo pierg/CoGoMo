@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from contract import Contract
 
 
-def __iand__(self, other: Contract):
+def __iand__(self: Contract, other: Contract):
     """self &= other. And of assumptions and guarantees"""
     try:
         self.assumptions &= other.assumptions
@@ -23,7 +23,7 @@ def __iand__(self, other: Contract):
     return self
 
 
-def __ior__(self, other: Contract):
+def __ior__(self: Contract, other: Contract):
     """self |= other. Or of assumptions and  And of (saturated) guarantees"""
     try:
         self.assumptions |= other.assumptions

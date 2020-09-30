@@ -6,14 +6,18 @@ from .exceptions import InconsistentContracts, IncompatibleContracts, Unfeasible
 
 def compose_contracts(contracts: List[Contract]) -> Tuple[Contract, Contract]:
     """Composition operation among list of contract.
-        It returns two contracts: one is the composition, the other one is the composition + refinement"""
+        It returns two contracts: one is the composition (having guarantees G1),
+        the other one is the composition + refinement (having guarantees G2) where:
+        G1 = G(c1 -> (a1 -> g1)) & G(c2 -> (a2 -> g2)) which accepts  (!c1 & !c2) | (!c1 & s2) | (!c2 & s1) | (s1 & s2)
+        G2 = G((c1 | c2) -> ((a1 -> g1) & (a2 -> g2))) which accepts  (s1 & s2) | (!c1 & !c2)
+        """
 
     if len(contracts) == 1:
         return contracts[0], contracts[0]
     if len(contracts) == 0:
         raise Exception("No contract specified in the composition")
 
-    new_contract = deepcopy(contracts[0])
+    new_contract: Contract = deepcopy(contracts[0])
 
     """Populate the data structure while checking for compatibility and consistency"""
     for contract in contracts[1:]:
@@ -32,10 +36,9 @@ def compose_contracts(contracts: List[Contract]) -> Tuple[Contract, Contract]:
 
     print("The composition is compatible, consistent and feasible")
 
+    """For each combination of assumption/guarantees verify if some g_i -> a_i and simplify a_i"""
     a_removed = []
     g_used = []
-
-    """For each combination of assumption/guarantees verify if some g_i -> a_i and simplify a_i"""
     for a_elem in list(new_contract.assumptions.cnf):
         for g_elem in list(new_contract.guarantees.cnf):
             if g_elem not in g_used and a_elem not in a_removed:

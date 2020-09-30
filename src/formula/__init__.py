@@ -235,9 +235,6 @@ class LTL:
 
         formula = self.__base_formula
 
-        """We add the rules r for both a and g, since the overall contract is the same: 
-                (a & r) -> (G(c -> (a->g))) === (r -> a) -> (r -> G(c -> (a->g)))"""
-
         """Adding saturation"""
         if self.__saturation is not None and not self.saturation.is_true():
             formula = "((" + self.saturation.formula() + ") -> (" + self.__base_formula + "))"
@@ -264,7 +261,7 @@ class LTL:
 
             if len(rules) > 0:
                 rules = And(rules, brackets=True)
-                formula = rules + " -> " + formula
+                formula = rules + " & " + formula
 
         return formula
 
@@ -307,7 +304,7 @@ class LTL:
                     clauses.append(And(clause))
                 ltl += Or(clauses)
                 ltl += ")"
-                rules.add(LTL(formula=ltl, variables=variables, kind="mutex_rule"))
+                rules.add(LTL(formula=ltl, variables=variables, kind="mutex_rule", skip_checks=True))
         return rules
 
     def remove(self, element):

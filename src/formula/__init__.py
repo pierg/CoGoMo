@@ -55,7 +55,7 @@ class LTL:
 
             elif cnf is not None:
 
-                cnf_str = [x.formula() for x in cnf]
+                cnf_str = [x.formula(include_rules=False) for x in cnf]
 
                 self.__base_formula: str = And(cnf_str, brackets=True)
                 self.__cnf: Set[LTL] = cnf
@@ -64,7 +64,7 @@ class LTL:
 
             elif dnf is not None:
 
-                dnf_str = [x.formula() for x in dnf]
+                dnf_str = [x.formula(include_rules=False) for x in dnf]
 
                 self.__base_formula: str = Or(dnf_str)
                 self.__dnf: Set[LTL] = dnf
@@ -117,7 +117,7 @@ class LTL:
         if isinstance(other, Boolean):
             other = other.assign_true()
         return LTL(
-            formula=Implies(self.formula(include_rules=False), other.formula(include_rules=False)),
+            formula=Implies(self.formula(include_rules=True), other.formula(include_rules=True)),
             variables=self.variables | other.variables
         )
 
@@ -149,11 +149,12 @@ class LTL:
 
         old_self = deepcopy(self)
         self.__cnf = {old_self, other}
-        self.__base_formula = And([self.formula(), other.formula()])
+        self.__base_formula = And([self.formula(include_rules=False), other.formula(include_rules=False)])
         self.__base_variables |= other.variables
 
         if not self.is_satisfiable():
             raise InconsistentException(self, other)
+        print(self.formula())
         return self
 
     def __ior__(self, other: Union[LTL, Boolean]) -> LTL:
@@ -231,6 +232,10 @@ class LTL:
     def base_variables(self) -> Typeset:
         return self.__base_variables
 
+    @property
+    def unsaturated(self) -> LTL:
+        return self.__dnff
+
     def formula(self, include_rules=True) -> str:
 
         formula = self.__base_formula
@@ -268,6 +273,7 @@ class LTL:
     @context.setter
     def context(self, value: LTL):
         self.__context = value
+
 
     @saturation.setter
     def saturation(self, value: LTL):

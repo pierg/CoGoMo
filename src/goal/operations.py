@@ -78,13 +78,6 @@ def composition(goals: Set[Goal],
     if len(goals) == 1:
         return next(iter(goals))
 
-    # for n, goal in enumerate(goals):
-    #     if len(goal.parents) > 0:
-    #         print(goal.name + " is already part of another CGT. Making a copy of it...")
-    #         new_goal = deepcopy(goal)
-    #         goals.remove(goal)
-    #         goals.add(new_goal)
-
     contracts: Dict[Goal, List[Contract]] = {}
 
     if name is None:
@@ -146,9 +139,9 @@ def composition(goals: Set[Goal],
             goals_failed = []
             for goal in goals:
                 for contract in goal.specification.conjoined_by:
-                    if e.assumptions.formula() <= contract.assumptions:
+                    if e.assumptions <= contract.assumptions:
                         goals_involved.append(goal)
-                    if e.guarantees.formula() <= contract.assumptions:
+                    if e.guarantees <= contract.assumptions:
                         goals_failed.append(goal)
             raise GoalFailException(failed_operation=FailOperations.composition,
                                     faild_motivation=FailMotivations.unfeasible,
@@ -178,18 +171,15 @@ def create_cgt(goals: Set[Goal]) -> Goal:
 
     composed_goals = set()
     for i, (ctx, ctx_goals) in enumerate(context_goals.items()):
-        print(ctx)
-        print(ctx_goals)
-
         try:
-            new_goal = composition(goals)
+            new_goal = composition(ctx_goals)
             composed_goals.add(new_goal)
-            new_goal.context = ctx
+            # new_goal.context = ctx
         except GoalFailException as e:
             print("FAILED OPE:\t" + e.failed_operation.name)
-            print("FAILED MOT:\t" + e.failed_operation.name)
+            print("FAILED MOT:\t" + e.faild_motivation.name)
             print("GOALS_1:\t" + str([g.name for g in e.goals_involved_a]))
-            print("GOALS_2:\t" + str([g.name for g in e.goals_involved_a]))
+            print("GOALS_2:\t" + str([g.name for g in e.goals_involved_b]))
 
     """Conjoin the goals across all the mutually exclusive contexts"""
     cgt = conjunction(composed_goals, check_consistency=False)

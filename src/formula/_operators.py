@@ -32,7 +32,7 @@ def __le__(self: LTL, other: LTL):
         return True
     """Create a new LTL self -> other and check its validity"""
     implication_formula = self >> other
-    return check_validity(implication_formula.variables.get_nusmv_names(), implication_formula.formula())
+    return check_validity(implication_formula.variables.get_nusmv_names(), implication_formula.formula(include_rules=False))
 
 
 def __eq__(self, other: LTL):

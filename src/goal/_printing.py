@@ -125,7 +125,7 @@ def __str__(self, level=0):
     ret += "\n"
     if self.children is not None:
 
-        for link, goals in self.children().items():
+        for link, goals in self.children.items():
 
             ret += "\t" * level + "\t" + link + "\n"
             level += 1

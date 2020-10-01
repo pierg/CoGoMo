@@ -1,37 +1,49 @@
 from copy import deepcopy
-from typing import List, Tuple
+from typing import List, Tuple, Set
 from contract import Contract
 from .exceptions import InconsistentContracts, IncompatibleContracts, UnfeasibleContracts
 
 
-def compose_contracts(contracts: List[Contract]) -> Tuple[Contract, Contract]:
+def compose_contracts(contracts: Set[Contract]) -> Tuple[Contract, Contract]:
     """Composition operation among list of contract.
         It returns two contracts: one is the composition (having guarantees G1),
         the other one is the composition + refinement (having guarantees G2) where:
+        s1 = (a1 -> g1), s2 = (a2 -> g2)
         G1 = G(c1 -> (a1 -> g1)) & G(c2 -> (a2 -> g2)) which accepts  (!c1 & !c2) | (!c1 & s2) | (!c2 & s1) | (s1 & s2)
         G2 = G((c1 | c2) -> ((a1 -> g1) & (a2 -> g2))) which accepts  (s1 & s2) | (!c1 & !c2)
         """
 
     if len(contracts) == 1:
-        return contracts[0], contracts[0]
+        return next(iter(contracts)), next(iter(contracts))
     if len(contracts) == 0:
         raise Exception("No contract specified in the composition")
 
-    new_contract: Contract = deepcopy(contracts[0])
+    contracts_list = list(contracts)
+
+    new_contract: Contract = contracts_list[0]
 
     """Populate the data structure while checking for compatibility and consistency"""
-    for contract in contracts[1:]:
+    for contract in contracts_list[1:]:
         try:
             new_contract &= contract
             print(new_contract)
         except InconsistentContracts as e:
             print("Contracts inconsistent")
+            print(e.guarantee_1)
+            print("unsatisfiable with")
+            print(e.guarantee_2)
             raise e
         except IncompatibleContracts as e:
             print("Contracts incompatible")
+            print(e.assumptions_1)
+            print("unsatisfiable with")
+            print(e.assumptions_2)
             raise e
         except UnfeasibleContracts as e:
             print("Contracts unfeasible")
+            print(e.assumptions)
+            print("unsatisfiable with")
+            print(e.guarantees)
             raise e
 
     print("The composition is compatible, consistent and feasible")

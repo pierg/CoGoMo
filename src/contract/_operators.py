@@ -16,7 +16,7 @@ def __iand__(self: Contract, other: Contract):
         raise IncompatibleContracts(e.conj_a, e.conj_b)
 
     try:
-        self.guarantees &= other.guarantees
+        self.guarantees.unsaturated &= other.guarantees.unsaturated
     except InconsistentException as e:
         raise InconsistentContracts(e.conj_a, e.conj_b)
 

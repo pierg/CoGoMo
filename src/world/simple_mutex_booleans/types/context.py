@@ -6,19 +6,19 @@ class MutexContext(MutexType):
     pass
 
 
-class C1(ContextIdentity, MutexContext):
+class X1(ContextIdentity, MutexContext):
 
-    def __init__(self, name: str = "c1"):
+    def __init__(self, name: str = "x1"):
         super().__init__(name)
 
 
-class C2(ContextIdentity, MutexContext):
+class X2(ContextIdentity, MutexContext):
 
-    def __init__(self, name: str = "c2"):
+    def __init__(self, name: str = "x2"):
         super().__init__(name)
 
 
-class C3(ContextIdentity, MutexContext):
+class C3(ContextIdentity):
 
     def __init__(self, name: str = "c3"):
         super().__init__(name)

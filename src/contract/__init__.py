@@ -25,7 +25,6 @@ class Contract:
         if not self.assumptions.is_true():
             self.guarantees.saturation = deepcopy(self.assumptions)
 
-
         self.composed_by = {self}
         self.conjoined_by = {self}
 
@@ -46,6 +45,8 @@ class Contract:
         else:
             if not isinstance(value, LTL):
                 raise AttributeError
+            """Every contracts assigns a **copy** of A and G, so each contract has its saturated G"""
+            value = deepcopy(value)
             self.__assumptions = value
         """Check Feasibility"""
         if not self.assumptions.is_satisfiable_with(self.guarantees):
@@ -62,6 +63,8 @@ class Contract:
         else:
             if not isinstance(value, LTL):
                 raise AttributeError
+            """Every contracts assigns a **copy** of A and G, so each contract has its saturated G"""
+            value = deepcopy(value)
             self.__guarantees = value
         """Check Feasibility"""
         if self.assumptions is not None:

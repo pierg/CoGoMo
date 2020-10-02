@@ -21,21 +21,14 @@ def __iand__(self: Contract, other: Contract):
     except InconsistentException as e:
         raise IncompatibleContracts(e.conj_a, e.conj_b)
 
-    base_self = self.guarantees.base_formula
-    base_other = other.guarantees.base_formula
     try:
         self.guarantees &= other.guarantees
     except InconsistentException as e:
         raise InconsistentContracts(e.conj_a, e.conj_b)
 
-    old_guarantees = deepcopy(self.guarantees)
-    old_guarantees.base_formula = And([base_self, base_other])
-    old_guarantees.saturation = self.assumptions
-
     self.guarantees.saturation = self.assumptions
 
-    if old_guarantees == self.guarantees:
-        self.guarantees.base_formula = And([base_self, base_other])
+    self.guarantees.update_from_cnf()
 
     return self
 

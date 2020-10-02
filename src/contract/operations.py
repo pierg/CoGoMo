@@ -1,10 +1,11 @@
+import itertools
 from copy import deepcopy
 from typing import List, Tuple, Set
 from contract import Contract
 from .exceptions import InconsistentContracts, IncompatibleContracts, UnfeasibleContracts
 
 
-def compose_contracts(contracts: Set[Contract]) -> Tuple[Contract, Contract]:
+def compose_contracts(contracts: Set[Contract], refined=False) -> Contract:
     """Composition operation among list of contract.
         It returns two contracts: one is the composition (having guarantees G1),
         the other one is the composition + refinement (having guarantees G2) where:
@@ -14,7 +15,7 @@ def compose_contracts(contracts: Set[Contract]) -> Tuple[Contract, Contract]:
         """
 
     if len(contracts) == 1:
-        return next(iter(contracts)), next(iter(contracts))
+        return next(iter(contracts))
     if len(contracts) == 0:
         raise Exception("No contract specified in the composition")
 
@@ -51,14 +52,31 @@ def compose_contracts(contracts: Set[Contract]) -> Tuple[Contract, Contract]:
     """For each combination of assumption/guarantees verify if some g_i -> a_i and simplify a_i"""
     a_removed = []
     g_used = []
-    for a_elem in list(new_contract.assumptions.cnf):
-        for g_elem in list(new_contract.guarantees.cnf):
-            if g_elem not in g_used and a_elem not in a_removed:
-                if g_elem <= a_elem:
-                    print("Simplifying assumption " + str(a_elem))
-                    new_contract.assumptions.remove(a_elem)
-                    g_used.append(g_elem)
-                    a_removed.append(a_elem)
+    # print(new_contract)
+    # print("assumptions:")
+    # for a in new_contract.assumptions.cnf:
+    #     print(a)
+    # print("guarantees:")
+    # for g in new_contract.guarantees.cnf:
+    #     print(g)
+    # print("\n\n")
+    for (g, a) in list(itertools.product(new_contract.guarantees.cnf, new_contract.assumptions.cnf)):
+        if g not in g_used and a not in a_removed:
+            print(str(a) + " -> " + str(g))
+            if a <= g:
+                print("Simplifying assumption " + str(a))
+                new_contract.assumptions.remove(a)
+                g_used.append(g)
+                a_removed.append(a)
+    # for a_elem in list(new_contract.assumptions.cnf):
+    #     for g_elem in list(new_contract.guarantees.cnf):
+    #         if g_elem not in g_used and a_elem not in a_removed:
+    #             print(str(g_elem) + " -> " + str(a_elem))
+    #             if g_elem <= a_elem:
+    #                 print("Simplifying assumption " + str(a_elem))
+    #                 new_contract.assumptions.remove(a_elem)
+    #                 g_used.append(g_elem)
+    #                 a_removed.append(a_elem)
 
     new_contract.composed_by = contracts
 

@@ -3,7 +3,7 @@ from copy import deepcopy
 from typing import Set, Union, List
 
 from formula.exceptions import InconsistentException, DifferentContextException
-from formula.helpers import extract_refinement_rules
+from formula.helpers import extract_refinement_rules, extract_mutex_rules
 from tools.nusmv import check_satisfiability, check_validity
 from typeset import Typeset
 
@@ -76,17 +76,17 @@ class LTL:
 
             """Rules derived from typeset and refinement/mutex relations"""
             if self.kind != "refinement_rule":
-                self.__refinement_rules: Set[LTL] = self.extract_refinement_rules()
+                self.__refinement_rules: Set[LTL] = extract_refinement_rules(self.variables)
             if self.kind != "mutex_rule":
-                self.__mutex_rules: Set[LTL] = self.extract_mutex_rules()
+                self.__mutex_rules: Set[LTL] = extract_mutex_rules(self.variables)
 
             """Check satisfiability"""
             if not skip_checks:
                 if not self.is_satisfiable():
                     raise InconsistentException(self, self)
 
-    from ._copying import __deepcopy__, __hash__
     from ._operators import __eq__, __le__, __ge__, __gt__, __lt__, __ne__
+    from ._copying import __deepcopy__, __hash__
 
     def __and__(self, other: Union[LTL, Boolean]) -> LTL:
         """self & other
@@ -116,8 +116,19 @@ class LTL:
         Returns a new LTL that is the result of self -> other (implies)"""
         if isinstance(other, Boolean):
             other = other.assign_true()
+        common_refinement_rules = extract_refinement_rules(self.variables | other.variables)
+        individual_rules = self.refinement_rules | other.refinement_rules
+        common_refinement_rules = common_refinement_rules - individual_rules
+        common_rules_str = []
+        for rule in common_refinement_rules:
+            common_rules_str.append(rule.formula())
+        if len(common_rules_str) > 0:
+            formula = Implies(And(common_rules_str),
+                              Implies(self.formula(include_rules=True), other.formula(include_rules=True)))
+        else:
+            formula = Implies(self.formula(include_rules=True), other.formula(include_rules=True))
         return LTL(
-            formula=Implies(self.formula(include_rules=True), other.formula(include_rules=True)),
+            formula=formula,
             variables=self.variables | other.variables
         )
 
@@ -130,7 +141,6 @@ class LTL:
             formula=Implies(self.formula(include_rules=False), other.formula(include_rules=False)),
             variables=self.variables | other.variables
         )
-
 
     def __iand__(self, other: Union[LTL, Boolean]) -> LTL:
         """self &= other
@@ -157,9 +167,9 @@ class LTL:
 
         """Rules derived from typeset and refinement/mutex relations"""
         if self.kind != "refinement_rule":
-            self.__refinement_rules: Set[LTL] = self.extract_refinement_rules()
+            self.__refinement_rules: Set[LTL] = extract_refinement_rules(self.variables)
         if self.kind != "mutex_rule":
-            self.__mutex_rules: Set[LTL] = self.extract_mutex_rules()
+            self.__mutex_rules: Set[LTL] = extract_mutex_rules(self.variables)
 
         if not self.is_satisfiable():
             raise InconsistentException(self, other)
@@ -287,7 +297,6 @@ class LTL:
     def context(self, value: LTL):
         self.__context = value
 
-
     @saturation.setter
     def saturation(self, value: LTL):
         self.__saturation = value
@@ -296,39 +305,26 @@ class LTL:
     def base_formula(self, value: str):
         self.__base_formula = value
 
-    def extract_refinement_rules(self) -> Set[LTL]:
-        rules: Set[LTL] = set()
+    def update_from_cnf(self):
+        """G = (a1 & a2) -> ((a1 -> g1) & (a2 -> g2)) = (a1 & a2 ) -> (g1 & g2)"""
+        alt_self_1 = deepcopy(self)
+        alt_self_2 = deepcopy(self)
+        cnf_str_base = []
+        cnf_str_saturated = []
+        cnf_variables = Typeset()
+        for elem in self.cnf:
+            cnf_str_base.append(elem.base_formula)
+            cnf_str_saturated.append(elem.formula())
+            cnf_variables |= elem.variables
+        alt_self_1.base_formula = And(cnf_str_base)
+        alt_self_2.base_formula = And(cnf_str_saturated)
 
-        for variable, supertypes in self.variables.supertypes.items():
-            for supertype in supertypes:
-                formula = "G(" + variable.name + " -> " + supertype.name + ")"
-                rule = LTL(formula=formula, variables=Typeset({variable, supertype}), kind="refinement_rule")
-                rules.add(rule)
-                self.__base_variables |= supertype
+        self.__base_variables = cnf_variables
 
-        return rules
-
-    def extract_mutex_rules(self) -> Set[LTL]:
-        rules: Set[LTL] = set()
-
-        for mutextypes in self.variables.mutextypes:
-            if len(mutextypes) > 1:
-                variables: Typeset = Typeset()
-                ltl = "G("
-                for vs in mutextypes:
-                    variables |= vs
-                mutextypes_str = [n.name for n in mutextypes]
-                clauses = []
-                for vs_a in mutextypes_str:
-                    clause = [deepcopy(vs_a)]
-                    for vs_b in mutextypes_str:
-                        if vs_a is not vs_b:
-                            clause.append(Not(deepcopy(vs_b)))
-                    clauses.append(And(clause))
-                ltl += Or(clauses)
-                ltl += ")"
-                rules.add(LTL(formula=ltl, variables=variables, kind="mutex_rule", skip_checks=True))
-        return rules
+        if alt_self_1 == alt_self_2:
+            self.base_formula = alt_self_1.base_formula
+        else:
+            self.base_formula = alt_self_2.base_formula
 
     def remove(self, element):
         self.cnf.remove(element)
@@ -339,15 +335,7 @@ class LTL:
             self.__base_variables: Typeset = Typeset()
             return
 
-        cnf_str = [x.formula() for x in self.cnf]
-
-        self.__base_formula: str = And(cnf_str)
-        self.__base_variables: Typeset = Typeset()
-
-        variables = set()
-        for x in self.cnf:
-            variables.add(x.variables)
-        self.__base_variables &= variables
+        self.update_from_cnf()
 
     def is_true(self):
         """G(ctx -> sat -> true) == true"""

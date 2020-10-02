@@ -6,19 +6,19 @@ class MutexActions(MutexType):
     pass
 
 
-class A1(BooleanAction, MutexActions):
+class A1(BooleanAction):
 
     def __init__(self, name: str = "a1"):
         super().__init__(name)
 
 
-class A2(BooleanAction, MutexActions):
+class A2(BooleanAction):
 
     def __init__(self, name: str = "a2"):
         super().__init__(name)
 
 
-class A3(BooleanAction, MutexActions):
+class A3(BooleanAction):
 
     def __init__(self, name: str = "a3"):
         super().__init__(name)

@@ -1,4 +1,7 @@
 from __future__ import annotations
+
+from copy import deepcopy
+
 from formula import LTL
 from contract.exceptions import UnfeasibleContracts
 from typing import TypeVar, List, Set
@@ -19,6 +22,9 @@ class Contract:
         """Properties"""
         self.guarantees = guarantees
         self.assumptions = assumptions
+        if not self.assumptions.is_true():
+            self.guarantees.saturation = deepcopy(self.assumptions)
+
 
         self.composed_by = {self}
         self.conjoined_by = {self}
@@ -41,7 +47,6 @@ class Contract:
             if not isinstance(value, LTL):
                 raise AttributeError
             self.__assumptions = value
-            self.__guarantees.saturation = value
         """Check Feasibility"""
         if not self.assumptions.is_satisfiable_with(self.guarantees):
             raise UnfeasibleContracts(self.assumptions, self.guarantees)

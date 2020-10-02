@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from formula.patterns.robotic_patterns import *
 from world.simple_mutex_booleans.types.sensors import *
 from world.simple_mutex_booleans.types.actions import *
@@ -36,10 +38,11 @@ print(phi_2)
 phi_3 = a3 >> g3
 print(phi_3)
 
-
 psi_1 = phi_1 & phi_2
 print(psi_1)
 
-psi_1 &= phi_3
-print(psi_1)
-
+psi_1_b = deepcopy(psi_1)
+psi_1_b &= phi_3
+psi_5 = psi_1 & phi_3
+print(psi_1_b)
+print(psi_5)

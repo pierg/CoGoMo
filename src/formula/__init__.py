@@ -131,6 +131,7 @@ class LTL:
             variables=self.variables | other.variables
         )
 
+
     def __iand__(self, other: Union[LTL, Boolean]) -> LTL:
         """self &= other
         Modifies self with the conjunction with other"""
@@ -149,12 +150,19 @@ class LTL:
 
         old_self = deepcopy(self)
         self.__cnf = {old_self, other}
-        self.__base_formula = And([self.formula(include_rules=False), other.formula(include_rules=False)])
+        self.__base_variables = self.variables
+        self.__base_formula = And([old_self.formula(include_rules=False), other.formula(include_rules=False)])
+        self.__saturation = LTL("true")
         self.__base_variables |= other.variables
+
+        """Rules derived from typeset and refinement/mutex relations"""
+        if self.kind != "refinement_rule":
+            self.__refinement_rules: Set[LTL] = self.extract_refinement_rules()
+        if self.kind != "mutex_rule":
+            self.__mutex_rules: Set[LTL] = self.extract_mutex_rules()
 
         if not self.is_satisfiable():
             raise InconsistentException(self, other)
-        print(self.formula())
         return self
 
     def __ior__(self, other: Union[LTL, Boolean]) -> LTL:
@@ -234,7 +242,12 @@ class LTL:
 
     @property
     def unsaturated(self) -> LTL:
-        return self.__dnff
+        formula = self.__base_formula
+        """Adding context"""
+        if self.__context is not None and not self.context.is_true():
+            formula = "G((" + self.context.formula() + ") -> (" + formula + "))"
+
+        return formula
 
     def formula(self, include_rules=True) -> str:
 
@@ -278,6 +291,10 @@ class LTL:
     @saturation.setter
     def saturation(self, value: LTL):
         self.__saturation = value
+
+    @base_formula.setter
+    def base_formula(self, value: str):
+        self.__base_formula = value
 
     def extract_refinement_rules(self) -> Set[LTL]:
         rules: Set[LTL] = set()

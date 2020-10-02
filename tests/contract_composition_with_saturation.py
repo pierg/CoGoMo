@@ -43,24 +43,22 @@ contract_2 = Contract(
 
 contract_12 = compose_contracts({contract_1, contract_2})
 
-
-contract_3 = Contract(
-    assumptions=a3,
-    guarantees=g3
-)
-
-goal_1 = Goal(
-    name="G1",
-    specification=contract_1
-)
-
-goal_2 = Goal(
-    name="G2",
-    specification=contract_2
-)
-
-goal_3 = Goal(
-    name="G3",
-    specification=contract_3
-)
-
+# contract_3 = Contract(
+#     assumptions=a3,
+#     guarantees=g3
+# )
+#
+# goal_1 = Goal(
+#     name="G1",
+#     specification=contract_1
+# )
+#
+# goal_2 = Goal(
+#     name="G2",
+#     specification=contract_2
+# )
+#
+# goal_3 = Goal(
+#     name="G3",
+#     specification=contract_3
+# )

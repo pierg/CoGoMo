@@ -27,7 +27,6 @@ def compose_contracts(contracts: Set[Contract], refined=False) -> Contract:
     for contract in contracts_list[1:]:
         try:
             new_contract &= contract
-            print(new_contract)
         except InconsistentContracts as e:
             print("Contracts inconsistent")
             print(e.guarantee_1)
@@ -79,9 +78,6 @@ def compose_contracts(contracts: Set[Contract], refined=False) -> Contract:
     #                 a_removed.append(a_elem)
 
     new_contract.composed_by = contracts
-
-    print("Composed contract:")
-    print(new_contract)
     return new_contract
 
 
@@ -109,7 +105,5 @@ def conjoin_contracts(contracts: List[Contract], check_consistency=True) -> Cont
     new_contract.conjoined_by = contracts
 
     print("The conjunction is compatible, consistent and feasible")
-    print("Conjoined contract:")
-    print(new_contract)
 
     return new_contract

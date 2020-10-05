@@ -32,7 +32,6 @@ class Contract:
     from ._printing import __str__
     from ._copying import __deepcopy__
     from ._operators import __iand__, __ior__
-    # from ._functions import propagate_assumptions_from
 
     @property
     def assumptions(self) -> LTL_types:
@@ -46,8 +45,7 @@ class Contract:
             if not isinstance(value, LTL):
                 raise AttributeError
             """Every contracts assigns a **copy** of A and G, so each contract has its saturated G"""
-            value = deepcopy(value)
-            self.__assumptions = value
+            self.__assumptions = deepcopy(value)
         """Check Feasibility"""
         if not self.assumptions.is_satisfiable_with(self.guarantees):
             raise UnfeasibleContracts(self.assumptions, self.guarantees)
@@ -64,8 +62,7 @@ class Contract:
             if not isinstance(value, LTL):
                 raise AttributeError
             """Every contracts assigns a **copy** of A and G, so each contract has its saturated G"""
-            value = deepcopy(value)
-            self.__guarantees = value
+            self.__guarantees = deepcopy(value)
         """Check Feasibility"""
         if self.assumptions is not None:
             if not self.assumptions.is_satisfiable_with(self.guarantees):

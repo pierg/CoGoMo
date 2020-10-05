@@ -1,6 +1,5 @@
 from contract import Contract
 from contract.operations import compose_contracts
-from formula.patterns.robotic_patterns import *
 from world.simple_mutex_booleans.types.sensors import *
 from world.simple_mutex_booleans.types.actions import *
 
@@ -49,6 +48,11 @@ contract_2 = Contract(
     guarantees=carry_box
 )
 
+contract_2_refined = Contract(
+    assumptions=grasp_box,
+    guarantees=carry_box
+)
+
 #
 # """Without Simplification"""
 # contract_12 = compose_contracts({contract_1, contract_2})
@@ -56,3 +60,9 @@ contract_2 = Contract(
 """With Simplification"""
 contract_12 = compose_contracts({contract_1, contract_2})
 print(contract_12)
+
+
+contract_12_refined = compose_contracts({contract_1, contract_2_refined})
+
+print(contract_12)
+# print(contract_12_refined)

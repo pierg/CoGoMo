@@ -12,9 +12,11 @@ def __str__(self: Contract):
     # a = str(self.variables)
     # b = re.sub('\n', '\n\t\t\t', a)
     # print(b)
-    ret = '  types:\t' + re.sub('\n', '\n\t\t\t', str(self.variables))
+    ret = "\n\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
+    ret += '  types:\t' + re.sub('\n', '\n\t\t\t', str(self.variables))
     ret += '\n  assumptions:\t' + str(self.assumptions) + "\n"
     ret += '  guarantees:\t' + str(self.guarantees) + "\n"
+    ret += "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
 
     return ret
 

@@ -1,5 +1,4 @@
 from contract import Contract
-from formula.patterns.dywer.scopes import FP_between_Q_and_R
 from formula.patterns.robotic_patterns import *
 from goal import Goal
 from goal.operations import create_cgt

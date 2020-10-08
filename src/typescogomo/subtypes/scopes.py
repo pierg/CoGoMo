@@ -1,6 +1,5 @@
 from typing import Set, Union
 
-from z3 import Or
 
 from checks.tools import Not, Implies
 from typescogomo.formula import LTL

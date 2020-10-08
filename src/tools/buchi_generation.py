@@ -3,6 +3,7 @@ import subprocess
 
 from graphviz import Source
 
+from formula import LTL
 from tools.strings_manipulation import save_to_file
 
 results_folder = results_path = os.path.dirname(os.path.abspath(__file__)) + "/output/"

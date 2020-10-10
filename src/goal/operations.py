@@ -21,14 +21,6 @@ def conjunction(goals: Set[Goal],
     if len(goals) == 1:
         return next(iter(goals))
 
-    # """If any goal is already part of a CGG, then it creates a copy"""
-    # for n, goal in enumerate(goals):
-    #     if len(goal.parents) > 0:
-    #         print(goal.name + " is already part of another CGT. Making a copy of it...")
-    #         new_goal = deepcopy(goal)
-    #         goals -= goal
-    #         goals |= new_goal
-
     if name is None:
         names = []
         for goal in goals:
@@ -174,7 +166,6 @@ def create_cgt(goals: Set[Goal]) -> Goal:
         try:
             new_goal = composition(ctx_goals)
             composed_goals.add(new_goal)
-            # new_goal.context = ctx
         except GoalFailException as e:
             print("FAILED OPE:\t" + e.failed_operation.name)
             print("FAILED MOT:\t" + e.faild_motivation.name)

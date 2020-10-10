@@ -91,16 +91,15 @@ def conjoin_contracts(contracts: List[Contract], check_consistency=True) -> Cont
 
     new_contract = deepcopy(contracts[0])
 
-    if check_consistency:
-        for contract in contracts[1:]:
-            try:
-                new_contract |= contract
-            except InconsistentContracts as e:
-                print("Contracts inconsistent")
-                raise e
-            except UnfeasibleContracts as e:
-                print("Contracts unfeasible")
-                raise e
+    for contract in contracts[1:]:
+        try:
+            new_contract |= contract
+        except InconsistentContracts as e:
+            print("Contracts inconsistent")
+            raise e
+        except UnfeasibleContracts as e:
+            print("Contracts unfeasible")
+            raise e
 
     new_contract.conjoined_by = contracts
 

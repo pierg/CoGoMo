@@ -162,6 +162,8 @@ class LTL:
         self.__base_variables = self.variables
         self.__base_formula = And([old_self.formula(include_rules=False), other.formula(include_rules=False)])
         self.__saturation = LTL("true")
+        self.__context = self.context | other.context
+        # self.__context = LTL("true")
         self.__base_variables |= other.variables
 
         """Rules derived from typeset and refinement/mutex relations"""
@@ -419,7 +421,7 @@ def extract_mutex_rules(variables: Typeset) -> Set[LTL]:
                 for vs_b in mutextypes_str:
                     if vs_a is not vs_b:
                         clause.append(Not(deepcopy(vs_b)))
-                clauses.append(And(clause))
+                clauses.append(And(clause, brackets=True))
             ltl += Or(clauses)
             ltl += ")"
             rules.add(LTL(formula=ltl, variables=variables, kind="mutex_rule", skip_checks=True))

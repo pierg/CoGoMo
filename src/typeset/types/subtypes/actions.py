@@ -7,25 +7,8 @@ class IntegerAction(BoundedInteger):
         super().__init__(name, min_value=min_value, max_value=max_value)
         self.kind = "action"
 
-
-class MutexIntegerAction(BoundedInteger):
-
-    def __init__(self, name: str, min_value=0, max_value=50):
-        super().__init__(name, min_value=min_value, max_value=max_value)
-        self.kind = "action"
-
-
 class BooleanAction(Boolean):
 
     def __init__(self, name: str):
         super().__init__(name)
         self.kind = "action"
-
-
-class MutexBooleanAction(Boolean):
-
-    def __init__(self, name: str):
-        super().__init__(name)
-        self.kind = "action"
-
-

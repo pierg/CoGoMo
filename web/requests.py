@@ -63,13 +63,13 @@ def cgt_example():
 
     curpath = os.path.abspath(os.curdir)
 
-    with open(os.path.join(curpath, 'web/static/data_examples/example_goals.json')) as json_file:
+    with open(os.path.join(curpath, 'static/data_examples/example_goals.json')) as json_file:
         goal_list = json.load(json_file)
 
-    with open(os.path.join(curpath, 'web/static/data_examples/example_ops.json')) as json_file:
+    with open(os.path.join(curpath, 'static/data_examples/example_ops.json')) as json_file:
         operator_list = json.load(json_file)
 
-    with open(os.path.join(curpath, 'web/static/data_examples/example_edges.json')) as json_file:
+    with open(os.path.join(curpath, 'static/data_examples/example_edges.json')) as json_file:
         edges_list = json.load(json_file)
 
     emit('goal_list', [json.dumps(goal_list),
@@ -319,13 +319,13 @@ def render_goals(session_id):
         navigate_dag(cgt_head, operator_list, edges_list)
 
     # curpath = os.path.abspath(os.curdir)
-    # with open(os.path.join(curpath, "web/static/data_examples/new_goals.json"), 'w') as outfile:
+    # with open(os.path.join(curpath, "static/data_examples/new_goals.json"), 'w') as outfile:
     #     json.dump(goal_list, outfile)
     #
-    # with open(os.path.join(curpath, "web/static/data_examples/new_ops.json"), 'w') as outfile:
+    # with open(os.path.join(curpath, "static/data_examples/new_ops.json"), 'w') as outfile:
     #     json.dump(operator_list, outfile)
     #
-    # with open(os.path.join(curpath, "web/static/data_examples/new_edges.json"), 'w') as outfile:
+    # with open(os.path.join(curpath, "static/data_examples/new_edges.json"), 'w') as outfile:
     #     json.dump(edges_list, outfile)
 
     emit('goal_list', [json.dumps(goal_list),

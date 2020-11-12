@@ -1,0 +1,314 @@
+GOAL:	'low-battery||patrolling & day^^low-battery||patrolling & day||serve-pharmacy^^low-battery||patrolling & day||welcome-patients & ((entrance & day) & mild)^^low-battery||patrolling & day||welcome-patients & ((entrance & day) & severe)^^low-battery||patrolling & night'
+ID:	'f3197'
+  A:
+ 	CTX:	G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor)))) & G((charging) -> (care_center)) & G((a) -> (entrance)) & G(((day & !(night)) | (night & !(day)))) & G((waiting) -> (care_center)) & G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor)))) & G((corridor) -> (care_center)) & G((medical_room) -> (care_center)) & G((g) -> (medical_room)) & G((d) -> (pharmacy)) & G((isolation) -> (care_center)) & G((pharmacy) -> (care_center)) & G((entrance) -> (care_center))
+ 	CGR:
+  G:		G(F(care_center)) & (G((low_battery & F(full_battery)) -> (!(full_battery) U (charging))))
+ 	GRD:	G(g -> X (g | f)) & G(f -> X (f | e | g | charging)) & G(charging -> X (charging | f))
+ 	SYS:	G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+	/\
+  A:
+ 	CTX:	G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor)))) & G((charging) -> (care_center)) & G((a) -> (entrance)) & G(((day & !(night)) | (night & !(day)))) & G((waiting) -> (care_center)) & G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor)))) & G((corridor) -> (care_center)) & G((medical_room) -> (care_center)) & G((g) -> (medical_room)) & G((d) -> (pharmacy)) & G((isolation) -> (care_center)) & G((pharmacy) -> (care_center)) & G((entrance) -> (care_center))
+ 	CGR:
+  G:		G(F(care_center)) & (G((low_battery & F(full_battery)) -> (!(full_battery) U (charging))))
+ 	GRD:	G(g -> X (g | f)) & G(f -> X (f | e | g | charging)) & G(charging -> X (charging | f))
+ 	SYS:	G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+	/\
+  A:
+ 	CTX:	G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor)))) & G((get_med) -> ((look_up_meds & label_correct))) & G((medical_room) -> (care_center)) & G((deliver_medicine) -> (give_med)) & G((a) -> (entrance)) & G(((day & !(night)) | (night & !(day)))) & G((waiting) -> (care_center)) & G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor)))) & G((corridor) -> (care_center)) & G((charging) -> (care_center)) & G((g) -> (medical_room)) & G((d) -> (pharmacy)) & G((isolation) -> (care_center)) & G((pharmacy) -> (care_center)) & G((entrance) -> (care_center))
+ 	CGR:
+  G:		G(F(care_center)) & G((get_med) -> F(give_med)) & (G((low_battery & F(full_battery)) -> (!(full_battery) U (charging))))
+ 	GRD:	G(g -> X (g | f)) & G(f -> X (f | e | g | charging)) & G(charging -> X (charging | f))
+ 	SYS:	G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+	/\
+  A:
+ 	CTX:	G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor)))) & G((medical_room) -> (care_center)) & G((a) -> (entrance)) & G(((day & !(night)) | (night & !(day)))) & G((waiting) -> (care_center)) & G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor)))) & G((corridor) -> (care_center)) & G(((severe & !(mild)) | (mild & !(severe)))) & G((charging) -> (care_center)) & G((g) -> (medical_room)) & G((d) -> (pharmacy)) & G((isolation) -> (care_center)) & G((pharmacy) -> (care_center)) & G((entrance) -> (care_center))
+ 	CGR:
+  G:		G(F(care_center)) & G((human_entered) -> X(welcome_patient)) & (G((low_battery & F(full_battery)) -> (!(full_battery) U (charging))))
+ 	GRD:	G(g -> X (g | f)) & G(f -> X (f | e | g | charging)) & G(charging -> X (charging | f))
+ 	SYS:	G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+	/\
+  A:
+ 	CTX:	G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor)))) & G((medical_room) -> (care_center)) & G((a) -> (entrance)) & G(((day & !(night)) | (night & !(day)))) & G((waiting) -> (care_center)) & G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor)))) & G((corridor) -> (care_center)) & G(((severe & !(mild)) | (mild & !(severe)))) & G((charging) -> (care_center)) & G((g) -> (medical_room)) & G((d) -> (pharmacy)) & G((isolation) -> (care_center)) & G((pharmacy) -> (care_center)) & G((entrance) -> (care_center))
+ 	CGR:
+  G:		G(F(care_center)) & G((human_entered) -> X(welcome_patient)) & (G((low_battery & F(full_battery)) -> (!(full_battery) U (charging))))
+ 	GRD:	G(g -> X (g | f)) & G(f -> X (f | e | g | charging)) & G(charging -> X (charging | f))
+ 	SYS:	G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+
+	CONJUNCTION
+		GOAL:	'low-battery||patrolling & night'
+		ID:	'0169f'
+		  A:
+		 	CTX:	G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor)))) & G((medical_room) -> (care_center)) & G((a) -> (entrance)) & G(((day & !(night)) | (night & !(day)))) & G((waiting) -> (care_center)) & G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor)))) & G((corridor) -> (care_center)) & G((charging) -> (care_center)) & G((g) -> (medical_room)) & G((d) -> (pharmacy)) & G((isolation) -> (care_center)) & G((pharmacy) -> (care_center)) & G((entrance) -> (care_center))
+		 	CGR:
+		  G:		G(F(care_center)) & (G((low_battery & F(full_battery)) -> (!(full_battery) U (charging))))
+		 	GRD:	G(g -> X (g | f)) & G(f -> X (f | e | g | charging)) & G(charging -> X (charging | f))
+		 	SYS:	G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+
+			COMPOSITION
+				GOAL:	'patrolling & night'
+				ID:	'0754a'
+				  A:
+				 	CTX:	G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor)))) & G((charging) -> (care_center)) & G(((day & !(night)) | (night & !(day)))) & G((corridor) -> (care_center)) & G((g) -> (medical_room)) & G((isolation) -> (care_center)) & G((a) -> (entrance)) & G((waiting) -> (care_center)) & G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor)))) & G((medical_room) -> (care_center)) & G((d) -> (pharmacy)) & G((pharmacy) -> (care_center)) & G((entrance) -> (care_center))
+				 	CGR:
+				  G:		G(F(care_center))
+				 	GRD:
+				 	SYS:
+
+					REFINEMENT
+						GOAL:	'night-patrol-corridor'
+						ID:	'b750a'
+						  A:
+						 	CTX:	G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor)))) & G(((day & !(night)) | (night & !(day)))) & G((corridor) -> (care_center)) & G((g) -> (medical_room)) & G((isolation) -> (care_center)) & G((medical_room) -> (care_center)) & G((a) -> (entrance)) & G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor)))) & G((waiting) -> (care_center)) & G((charging) -> (care_center)) & G((d) -> (pharmacy)) & G((pharmacy) -> (care_center)) & G((entrance) -> (care_center))
+						 	CGR:
+						  G:		G(F(corridor))
+						 	GRD:
+						 	SYS:
+
+							REFINEMENT
+								GOAL:	'seq-patrol-b-c-e-f'
+								ID:	'fde12'
+								  A:
+								 	CTX:	G((waiting) -> (care_center)) & G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor)))) & G((charging) -> (care_center)) & G((g) -> (medical_room)) & G((d) -> (pharmacy)) & G((isolation) -> (care_center)) & G((a) -> (entrance))
+								 	CGR:
+								  G:		G(F(b & F(c & F(e & F(f)))))
+								 	GRD:	G(charging -> X (charging | f)) & G(waiting -> X (waiting | b)) & G(g -> X (g | f)) & G(b -> X (b | a | c | waiting)) & G(isolation -> X (isolation | c)) & G(f -> X (f | e | g | charging)) & G(d -> X (d | a | c)) & G(a -> X (a | b | d)) & G(e -> X (e | c | f)) & G(c -> X (c | b | d | e | isolation))
+								 	SYS:	G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+
+				GOAL:	'low-battery'
+				ID:	'6e453'
+				  A:
+				 	CTX:	G((g) -> (medical_room)) & G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor)))) & G((charging) -> (care_center))
+				 	CGR:
+				  G:		(G((low_battery & F(full_battery)) -> (!(full_battery) U (charging))))
+				 	GRD:	G(g -> X (g | f)) & G(f -> X (f | e | g | charging)) & G(charging -> X (charging | f))
+				 	SYS:	G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+
+		GOAL:	'low-battery||patrolling & day'
+		ID:	'ea5b0'
+		  A:
+		 	CTX:	G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor)))) & G((medical_room) -> (care_center)) & G((a) -> (entrance)) & G(((day & !(night)) | (night & !(day)))) & G((waiting) -> (care_center)) & G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor)))) & G((corridor) -> (care_center)) & G((charging) -> (care_center)) & G((g) -> (medical_room)) & G((d) -> (pharmacy)) & G((isolation) -> (care_center)) & G((pharmacy) -> (care_center)) & G((entrance) -> (care_center))
+		 	CGR:
+		  G:		G(F(care_center)) & (G((low_battery & F(full_battery)) -> (!(full_battery) U (charging))))
+		 	GRD:	G(g -> X (g | f)) & G(f -> X (f | e | g | charging)) & G(charging -> X (charging | f))
+		 	SYS:	G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+
+			COMPOSITION
+				GOAL:	'patrolling & day'
+				ID:	'5e476'
+				  A:
+				 	CTX:	G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor)))) & G((charging) -> (care_center)) & G(((day & !(night)) | (night & !(day)))) & G((corridor) -> (care_center)) & G((g) -> (medical_room)) & G((isolation) -> (care_center)) & G((a) -> (entrance)) & G((waiting) -> (care_center)) & G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor)))) & G((medical_room) -> (care_center)) & G((d) -> (pharmacy)) & G((pharmacy) -> (care_center)) & G((entrance) -> (care_center))
+				 	CGR:
+				  G:		G(F(care_center))
+				 	GRD:
+				 	SYS:
+
+					REFINEMENT
+						GOAL:	'day-patrol-entrance-pharmacy'
+						ID:	'2057b'
+						  A:
+						 	CTX:	G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor)))) & G(((day & !(night)) | (night & !(day)))) & G((corridor) -> (care_center)) & G((g) -> (medical_room)) & G((isolation) -> (care_center)) & G((medical_room) -> (care_center)) & G((a) -> (entrance)) & G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor)))) & G((waiting) -> (care_center)) & G((charging) -> (care_center)) & G((d) -> (pharmacy)) & G((pharmacy) -> (care_center)) & G((entrance) -> (care_center))
+						 	CGR:
+						  G:		(G(F(entrance)) & G(F(pharmacy)))
+						 	GRD:
+						 	SYS:
+
+							REFINEMENT
+								GOAL:	'seq-patrol-a-d'
+								ID:	'a4c9b'
+								  A:
+								 	CTX:	G((waiting) -> (care_center)) & G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor)))) & G((charging) -> (care_center)) & G((g) -> (medical_room)) & G((d) -> (pharmacy)) & G((isolation) -> (care_center)) & G((a) -> (entrance))
+								 	CGR:
+								  G:		G(F(a & F(d)))
+								 	GRD:	G(charging -> X (charging | f)) & G(waiting -> X (waiting | b)) & G(g -> X (g | f)) & G(b -> X (b | a | c | waiting)) & G(isolation -> X (isolation | c)) & G(f -> X (f | e | g | charging)) & G(d -> X (d | a | c)) & G(a -> X (a | b | d)) & G(e -> X (e | c | f)) & G(c -> X (c | b | d | e | isolation))
+								 	SYS:	G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+
+				GOAL:	'low-battery'
+				ID:	'6e453'
+				  A:
+				 	CTX:	G((g) -> (medical_room)) & G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor)))) & G((charging) -> (care_center))
+				 	CGR:
+				  G:		(G((low_battery & F(full_battery)) -> (!(full_battery) U (charging))))
+				 	GRD:	G(g -> X (g | f)) & G(f -> X (f | e | g | charging)) & G(charging -> X (charging | f))
+				 	SYS:	G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+
+		GOAL:	'low-battery||patrolling & day||serve-pharmacy'
+		ID:	'c5e82'
+		  A:
+		 	CTX:	G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor)))) & G((charging) -> (care_center)) & G(((day & !(night)) | (night & !(day)))) & G((corridor) -> (care_center)) & G((g) -> (medical_room)) & G((isolation) -> (care_center)) & G((get_med) -> ((look_up_meds & label_correct))) & G((a) -> (entrance)) & G((waiting) -> (care_center)) & G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor)))) & G((medical_room) -> (care_center)) & G((deliver_medicine) -> (give_med)) & G((d) -> (pharmacy)) & G((pharmacy) -> (care_center)) & G((entrance) -> (care_center))
+		 	CGR:
+		  G:		G((get_med) -> F(give_med)) & G(F(care_center)) & (G((low_battery & F(full_battery)) -> (!(full_battery) U (charging))))
+		 	GRD:	G(g -> X (g | f)) & G(f -> X (f | e | g | charging)) & G(charging -> X (charging | f))
+		 	SYS:	G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+
+			COMPOSITION
+				GOAL:	'patrolling & day'
+				ID:	'5e476'
+				  A:
+				 	CTX:	G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor)))) & G((charging) -> (care_center)) & G(((day & !(night)) | (night & !(day)))) & G((corridor) -> (care_center)) & G((g) -> (medical_room)) & G((isolation) -> (care_center)) & G((a) -> (entrance)) & G((waiting) -> (care_center)) & G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor)))) & G((medical_room) -> (care_center)) & G((d) -> (pharmacy)) & G((pharmacy) -> (care_center)) & G((entrance) -> (care_center))
+				 	CGR:
+				  G:		G(F(care_center))
+				 	GRD:
+				 	SYS:
+
+					REFINEMENT
+						GOAL:	'day-patrol-entrance-pharmacy'
+						ID:	'2057b'
+						  A:
+						 	CTX:	G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor)))) & G(((day & !(night)) | (night & !(day)))) & G((corridor) -> (care_center)) & G((g) -> (medical_room)) & G((isolation) -> (care_center)) & G((medical_room) -> (care_center)) & G((a) -> (entrance)) & G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor)))) & G((waiting) -> (care_center)) & G((charging) -> (care_center)) & G((d) -> (pharmacy)) & G((pharmacy) -> (care_center)) & G((entrance) -> (care_center))
+						 	CGR:
+						  G:		(G(F(entrance)) & G(F(pharmacy)))
+						 	GRD:
+						 	SYS:
+
+							REFINEMENT
+								GOAL:	'seq-patrol-a-d'
+								ID:	'a4c9b'
+								  A:
+								 	CTX:	G((waiting) -> (care_center)) & G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor)))) & G((charging) -> (care_center)) & G((g) -> (medical_room)) & G((d) -> (pharmacy)) & G((isolation) -> (care_center)) & G((a) -> (entrance))
+								 	CGR:
+								  G:		G(F(a & F(d)))
+								 	GRD:	G(charging -> X (charging | f)) & G(waiting -> X (waiting | b)) & G(g -> X (g | f)) & G(b -> X (b | a | c | waiting)) & G(isolation -> X (isolation | c)) & G(f -> X (f | e | g | charging)) & G(d -> X (d | a | c)) & G(a -> X (a | b | d)) & G(e -> X (e | c | f)) & G(c -> X (c | b | d | e | isolation))
+								 	SYS:	G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+
+				GOAL:	'serve-pharmacy'
+				ID:	'd2aaa'
+				  A:
+				 	CTX:	G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor)))) & G((get_med) -> ((look_up_meds & label_correct))) & G((charging) -> (care_center)) & G((deliver_medicine) -> (give_med)) & G((a) -> (entrance)) & G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor)))) & G(((day & !(night)) | (night & !(day)))) & G((waiting) -> (care_center)) & G((corridor) -> (care_center)) & G((medical_room) -> (care_center)) & G((g) -> (medical_room)) & G((d) -> (pharmacy)) & G((isolation) -> (care_center)) & G((pharmacy) -> (care_center)) & G((entrance) -> (care_center))
+				 	CGR:
+				  G:		G((get_med) -> F(give_med))
+				 	GRD:
+				 	SYS:
+
+					REFINEMENT
+						GOAL:	'search-check-pickup'
+						ID:	'd37f7'
+						  A:
+						 	CTX:	G((deliver_medicine) -> (give_med)) & G((get_med) -> ((look_up_meds & label_correct)))
+						 	CGR:
+						  G:		G((pick_up_medicine) -> X(deliver_medicine)) & G((look_up_meds) -> X((search_shelf & check_label))) & G(((search_shelf & check_label)) -> X(pick_up_medicine))
+						 	GRD:
+						 	SYS:	G(((search_shelf & !(check_label) & !(deliver_medicine)) | (check_label & !(search_shelf) & !(deliver_medicine)) | (deliver_medicine & !(search_shelf) & !(check_label))))
+
+				GOAL:	'low-battery'
+				ID:	'6e453'
+				  A:
+				 	CTX:	G((g) -> (medical_room)) & G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor)))) & G((charging) -> (care_center))
+				 	CGR:
+				  G:		(G((low_battery & F(full_battery)) -> (!(full_battery) U (charging))))
+				 	GRD:	G(g -> X (g | f)) & G(f -> X (f | e | g | charging)) & G(charging -> X (charging | f))
+				 	SYS:	G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+
+		GOAL:	'low-battery||patrolling & day||welcome-patients & ((entrance & day) & mild)'
+		ID:	'2e634'
+		  A:
+		 	CTX:	G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor)))) & G((charging) -> (care_center)) & G(((day & !(night)) | (night & !(day)))) & G((corridor) -> (care_center)) & G((g) -> (medical_room)) & G((isolation) -> (care_center)) & G((a) -> (entrance)) & G((waiting) -> (care_center)) & G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor)))) & G((medical_room) -> (care_center)) & G((d) -> (pharmacy)) & G(((severe & !(mild)) | (mild & !(severe)))) & G((pharmacy) -> (care_center)) & G((entrance) -> (care_center))
+		 	CGR:
+		  G:		G((human_entered) -> X(welcome_patient)) & G(F(care_center)) & (G((low_battery & F(full_battery)) -> (!(full_battery) U (charging))))
+		 	GRD:	G(g -> X (g | f)) & G(f -> X (f | e | g | charging)) & G(charging -> X (charging | f))
+		 	SYS:	G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+
+			COMPOSITION
+				GOAL:	'patrolling & day'
+				ID:	'5e476'
+				  A:
+				 	CTX:	G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor)))) & G((charging) -> (care_center)) & G(((day & !(night)) | (night & !(day)))) & G((corridor) -> (care_center)) & G((g) -> (medical_room)) & G((isolation) -> (care_center)) & G((a) -> (entrance)) & G((waiting) -> (care_center)) & G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor)))) & G((medical_room) -> (care_center)) & G((d) -> (pharmacy)) & G((pharmacy) -> (care_center)) & G((entrance) -> (care_center))
+				 	CGR:
+				  G:		G(F(care_center))
+				 	GRD:
+				 	SYS:
+
+					REFINEMENT
+						GOAL:	'day-patrol-entrance-pharmacy'
+						ID:	'2057b'
+						  A:
+						 	CTX:	G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor)))) & G(((day & !(night)) | (night & !(day)))) & G((corridor) -> (care_center)) & G((g) -> (medical_room)) & G((isolation) -> (care_center)) & G((medical_room) -> (care_center)) & G((a) -> (entrance)) & G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor)))) & G((waiting) -> (care_center)) & G((charging) -> (care_center)) & G((d) -> (pharmacy)) & G((pharmacy) -> (care_center)) & G((entrance) -> (care_center))
+						 	CGR:
+						  G:		(G(F(entrance)) & G(F(pharmacy)))
+						 	GRD:
+						 	SYS:
+
+							REFINEMENT
+								GOAL:	'seq-patrol-a-d'
+								ID:	'a4c9b'
+								  A:
+								 	CTX:	G((waiting) -> (care_center)) & G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor)))) & G((charging) -> (care_center)) & G((g) -> (medical_room)) & G((d) -> (pharmacy)) & G((isolation) -> (care_center)) & G((a) -> (entrance))
+								 	CGR:
+								  G:		G(F(a & F(d)))
+								 	GRD:	G(charging -> X (charging | f)) & G(waiting -> X (waiting | b)) & G(g -> X (g | f)) & G(b -> X (b | a | c | waiting)) & G(isolation -> X (isolation | c)) & G(f -> X (f | e | g | charging)) & G(d -> X (d | a | c)) & G(a -> X (a | b | d)) & G(e -> X (e | c | f)) & G(c -> X (c | b | d | e | isolation))
+								 	SYS:	G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+
+				GOAL:	'welcome-patients & ((entrance & day) & mild)'
+				ID:	'a73fa'
+				  A:
+				 	CTX:	G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor)))) & G((charging) -> (care_center)) & G((a) -> (entrance)) & G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor)))) & G(((day & !(night)) | (night & !(day)))) & G((waiting) -> (care_center)) & G((isolation) -> (care_center)) & G((corridor) -> (care_center)) & G((medical_room) -> (care_center)) & G((g) -> (medical_room)) & G((d) -> (pharmacy)) & G(((severe & !(mild)) | (mild & !(severe)))) & G((pharmacy) -> (care_center)) & G((entrance) -> (care_center))
+				 	CGR:
+				  G:		G((human_entered) -> X(welcome_patient))
+				 	GRD:
+				 	SYS:
+
+				GOAL:	'low-battery'
+				ID:	'6e453'
+				  A:
+				 	CTX:	G((g) -> (medical_room)) & G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor)))) & G((charging) -> (care_center))
+				 	CGR:
+				  G:		(G((low_battery & F(full_battery)) -> (!(full_battery) U (charging))))
+				 	GRD:	G(g -> X (g | f)) & G(f -> X (f | e | g | charging)) & G(charging -> X (charging | f))
+				 	SYS:	G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+
+		GOAL:	'low-battery||patrolling & day||welcome-patients & ((entrance & day) & severe)'
+		ID:	'fe1ef'
+		  A:
+		 	CTX:	G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor)))) & G((charging) -> (care_center)) & G(((day & !(night)) | (night & !(day)))) & G((corridor) -> (care_center)) & G((g) -> (medical_room)) & G((isolation) -> (care_center)) & G((a) -> (entrance)) & G((waiting) -> (care_center)) & G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor)))) & G((medical_room) -> (care_center)) & G((d) -> (pharmacy)) & G(((severe & !(mild)) | (mild & !(severe)))) & G((pharmacy) -> (care_center)) & G((entrance) -> (care_center))
+		 	CGR:
+		  G:		G((human_entered) -> X(welcome_patient)) & G(F(care_center)) & (G((low_battery & F(full_battery)) -> (!(full_battery) U (charging))))
+		 	GRD:	G(g -> X (g | f)) & G(f -> X (f | e | g | charging)) & G(charging -> X (charging | f))
+		 	SYS:	G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+
+			COMPOSITION
+				GOAL:	'patrolling & day'
+				ID:	'5e476'
+				  A:
+				 	CTX:	G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor)))) & G((charging) -> (care_center)) & G(((day & !(night)) | (night & !(day)))) & G((corridor) -> (care_center)) & G((g) -> (medical_room)) & G((isolation) -> (care_center)) & G((a) -> (entrance)) & G((waiting) -> (care_center)) & G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor)))) & G((medical_room) -> (care_center)) & G((d) -> (pharmacy)) & G((pharmacy) -> (care_center)) & G((entrance) -> (care_center))
+				 	CGR:
+				  G:		G(F(care_center))
+				 	GRD:
+				 	SYS:
+
+					REFINEMENT
+						GOAL:	'day-patrol-entrance-pharmacy'
+						ID:	'2057b'
+						  A:
+						 	CTX:	G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor)))) & G(((day & !(night)) | (night & !(day)))) & G((corridor) -> (care_center)) & G((g) -> (medical_room)) & G((isolation) -> (care_center)) & G((medical_room) -> (care_center)) & G((a) -> (entrance)) & G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor)))) & G((waiting) -> (care_center)) & G((charging) -> (care_center)) & G((d) -> (pharmacy)) & G((pharmacy) -> (care_center)) & G((entrance) -> (care_center))
+						 	CGR:
+						  G:		(G(F(entrance)) & G(F(pharmacy)))
+						 	GRD:
+						 	SYS:
+
+							REFINEMENT
+								GOAL:	'seq-patrol-a-d'
+								ID:	'a4c9b'
+								  A:
+								 	CTX:	G((waiting) -> (care_center)) & G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor)))) & G((charging) -> (care_center)) & G((g) -> (medical_room)) & G((d) -> (pharmacy)) & G((isolation) -> (care_center)) & G((a) -> (entrance))
+								 	CGR:
+								  G:		G(F(a & F(d)))
+								 	GRD:	G(charging -> X (charging | f)) & G(waiting -> X (waiting | b)) & G(g -> X (g | f)) & G(b -> X (b | a | c | waiting)) & G(isolation -> X (isolation | c)) & G(f -> X (f | e | g | charging)) & G(d -> X (d | a | c)) & G(a -> X (a | b | d)) & G(e -> X (e | c | f)) & G(c -> X (c | b | d | e | isolation))
+								 	SYS:	G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))
+
+				GOAL:	'welcome-patients & ((entrance & day) & severe)'
+				ID:	'e19db'
+				  A:
+				 	CTX:	G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor)))) & G((charging) -> (care_center)) & G((a) -> (entrance)) & G(((entrance & !(pharmacy) & !(corridor) & !(medical_room)) | (pharmacy & !(entrance) & !(corridor) & !(medical_room)) | (corridor & !(entrance) & !(pharmacy) & !(medical_room)) | (medical_room & !(entrance) & !(pharmacy) & !(corridor)))) & G(((day & !(night)) | (night & !(day)))) & G((waiting) -> (care_center)) & G((isolation) -> (care_center)) & G((corridor) -> (care_center)) & G((medical_room) -> (care_center)) & G((g) -> (medical_room)) & G((d) -> (pharmacy)) & G(((severe & !(mild)) | (mild & !(severe)))) & G((pharmacy) -> (care_center)) & G((entrance) -> (care_center))
+				 	CGR:
+				  G:		G((human_entered) -> X(welcome_patient))
+				 	GRD:
+				 	SYS:
+
+				GOAL:	'low-battery'
+				ID:	'6e453'
+				  A:
+				 	CTX:	G((g) -> (medical_room)) & G((G(F(b & F(c & F(e & F(f)))))) -> (G(F(corridor)))) & G((charging) -> (care_center))
+				 	CGR:
+				  G:		(G((low_battery & F(full_battery)) -> (!(full_battery) U (charging))))
+				 	GRD:	G(g -> X (g | f)) & G(f -> X (f | e | g | charging)) & G(charging -> X (charging | f))
+				 	SYS:	G(((a & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (b & !(a) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (c & !(a) & !(b) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (d & !(a) & !(b) & !(c) & !(e) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (e & !(a) & !(b) & !(c) & !(d) & !(f) & !(g) & !(waiting) & !(isolation) & !(charging)) | (f & !(a) & !(b) & !(c) & !(d) & !(e) & !(g) & !(waiting) & !(isolation) & !(charging)) | (g & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(waiting) & !(isolation) & !(charging)) | (waiting & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(isolation) & !(charging)) | (isolation & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(charging)) | (charging & !(a) & !(b) & !(c) & !(d) & !(e) & !(f) & !(g) & !(waiting) & !(isolation))))

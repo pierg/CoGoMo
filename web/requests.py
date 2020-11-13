@@ -213,7 +213,7 @@ def goals_link(message):
             txt = str(e)
             txt = "<br />".join(txt.split("\n"))
             emit('alert',
-                 {'title': "Mapping unsuccessful", 'content': txt})
+                 {'title': "Extension unsuccessful", 'content': txt})
             return
 
         abs_name = goal.get_name()
@@ -231,7 +231,7 @@ def goals_link(message):
 
         msg = "<br />".join(msg.split("\n"))
         emit('alert',
-             {'title': "Mapping successful", 'content': msg})
+             {'title': "Extension successful", 'content': msg})
 
         render_goals(request.sid)
         return

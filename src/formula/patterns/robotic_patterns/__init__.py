@@ -19,7 +19,7 @@ class RoboticPatterns(Pattern):
 
 
 class CoreMovement(RoboticPatterns):
-    """Core Movements RoboticPatternss
+    """Core Movements
     All the variables are locations where there robot can be at a certain time"""
 
     def __init__(self, formula: str, variables: Typeset, kind=None):
@@ -158,41 +158,41 @@ class OrderedPatrolling(CoreMovement):
 class StrictOrderPatrolling(CoreMovement):
     """Keep visiting a set of locations, but not in a particular order"""
 
-    def __init__(self, locations: Union[List[LTL], List[Boolean]] = None):
-        for i, elem in enumerate(locations):
+    def __init__(self, loc: Union[List[LTL], List[Boolean]] = None):
+        for i, elem in enumerate(loc):
             if isinstance(elem, Boolean):
-                locations[i] = elem.assign_true()
+                loc[i] = elem.assign_true()
 
         variables = Typeset()
         formula = []
 
         sub_formula = "G("
-        for i, location in enumerate(locations):
+        for i, location in enumerate(loc):
             variables |= location.variables
             sub_formula += "F(" + location.formula()
-            if i < len(locations) - 1:
+            if i < len(loc) - 1:
                 sub_formula += " & "
-        for i in range(0, len(locations)):
+        for i in range(0, len(loc)):
             sub_formula += ")"
         sub_formula += ")"
 
         formula.append(sub_formula)
 
-        for n, location in enumerate(locations):
-            if n < len(locations) - 1:
-                formula.append("(!" + locations[n + 1].formula() + " U " + locations[n].formula() + ")")
+        for n, location in enumerate(loc):
+            if n < len(loc) - 1:
+                formula.append("(!" + loc[n + 1].formula() + " U " + loc[n].formula() + ")")
 
-        for n, location in enumerate(locations):
-            if n < len(locations):
-                formula.append("G(" + locations[(n + 1) % len(locations)].formula() + " ->  " +
-                               "X((!" + locations[(n + 1) % len(locations)].formula() + ") U " + locations[
+        for n, location in enumerate(loc):
+            if n < len(loc):
+                formula.append("G(" + loc[(n + 1) % len(loc)].formula() + " ->  " +
+                               "X((!" + loc[(n + 1) % len(loc)].formula() + ") U " + loc[
                                    n].formula() + "))")
 
-        for n, location in enumerate(locations):
-            if n < len(locations) - 1:
-                formula.append("G(" + locations[n].formula() + " ->  " +
-                               "X((!" + locations[n].formula() + ") U " + locations[
-                                   (n + 1) % len(locations)].formula() + "))")
+        for n, location in enumerate(loc):
+            if n < len(loc) - 1:
+                formula.append("G(" + loc[n].formula() + " ->  " +
+                               "X((!" + loc[n].formula() + ") U " + loc[
+                                   (n + 1) % len(loc)].formula() + "))")
 
         formula = And(formula)
 

@@ -395,6 +395,17 @@ class LTL:
     def __str__(self):
         return self.formula()
 
+    def pretty_print(self):
+        ret = ""
+        if len(self.adjacency_rules) != 0:
+            ret += "\tADJ: " + " & ".join(str(e) for e in self.adjacency_rules) + "\n"
+        if len(self.mutex_rules) != 0:
+            ret += "\tMTX: " + " & ".join(str(e) for e in self.mutex_rules) + "\n"
+        if len(self.refinement_rules) != 0:
+            ret += "\tRFN: " + " & ".join(str(e) for e in self.refinement_rules) + "\n"
+        ret += "\tOBJ: " + self.base_formula
+        return ret
+
     def negate(self):
         self.__negation = not self.__negation
 

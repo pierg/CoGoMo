@@ -1,4 +1,3 @@
-from contract import Contract
 from formula.patterns.robotic_patterns import *
 from goal import Goal
 from goal.operations import create_cgt
@@ -82,6 +81,9 @@ goals_simple = {
     )
 }
 
-cgt = create_cgt(goals_simple)
+for goal in goals_simple:
+    print(goal)
 
-print(cgt)
+# cgt = create_cgt(goals_simple)
+#
+# print(cgt)

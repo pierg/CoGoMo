@@ -119,10 +119,10 @@ def __str__(self, level=0):
     ret = "\t" * level + "GOAL:\t" + repr(self.name) + "\n"
     ret += "\t" * level + "ID:\t\t" + repr(self.id) + "\n"
     ret += "\t" * level + "CONTEXT:\t" + str(self.context) + "\n"
-    ret += "\t" * level + "A:\t" + str(self.specification.assumptions) + "\n"
-    ret += "\t" * level + "G:\t" + str(self.specification.guarantees) + "\n"
-
-    # ret += "\t" * level + str(self.specification)
+    ret += "\t" * level + "ASSUMPTIONS:\n"
+    ret += self.specification.assumptions.pretty_print() + "\n"
+    ret += "\t" * level + "GUARANTEES:\n"
+    ret += self.specification.guarantees.pretty_print() + "\n"
 
     ret += "\n"
     if self.children is not None:

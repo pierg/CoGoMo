@@ -27,6 +27,7 @@ class LTL:
         self.__kind = kind
         self.__refinement_rules = None
         self.__mutex_rules = None
+        self.__adjacency_rules = None
         self.__base_variables: Typeset = Typeset()
 
         """Base Case"""
@@ -74,10 +75,10 @@ class LTL:
                 raise Exception("Wrong parameters LTL construction")
 
             """Rules derived from typeset and refinement/mutex relations"""
-            if self.kind != "refinement_rule":
+            if self.kind != "refinement_rule" and self.kind != "mutex_rule" and self.kind != "adjacency_rule":
                 self.__refinement_rules: Set[LTL] = extract_refinement_rules(self.variables)
-            if self.kind != "mutex_rule":
                 self.__mutex_rules: Set[LTL] = extract_mutex_rules(self.variables)
+                self.__adjacency_rules: Set[LTL] = extract_adjacency_rule(self.variables)
 
             """Check satisfiability"""
             if not skip_checks:
@@ -163,14 +164,13 @@ class LTL:
         self.__base_formula = And([old_self.formula(include_rules=False), other.formula(include_rules=False)])
         self.__saturation = LTL("true")
         self.__context = self.context | other.context
-        # self.__context = LTL("true")
         self.__base_variables |= other.variables
 
         """Rules derived from typeset and refinement/mutex relations"""
-        if self.kind != "refinement_rule":
+        if self.kind != "refinement_rule" and self.kind != "mutex_rule" and self.kind != "adjacency_rule":
             self.__refinement_rules: Set[LTL] = extract_refinement_rules(self.variables)
-        if self.kind != "mutex_rule":
             self.__mutex_rules: Set[LTL] = extract_mutex_rules(self.variables)
+            self.__adjacency_rules: Set[LTL] = extract_adjacency_rule(self.variables)
 
         if not self.is_satisfiable():
             raise InconsistentException(self, other)
@@ -230,6 +230,12 @@ class LTL:
         return self.__mutex_rules
 
     @property
+    def adjacency_rules(self) -> Set[LTL]:
+        if self.__adjacency_rules is None:
+            return set()
+        return self.__adjacency_rules
+
+    @property
     def cnf(self) -> Set[LTL]:
         return self.__cnf
 
@@ -286,6 +292,9 @@ class LTL:
 
             """Adding mutex rules"""
             for rule in self.mutex_rules:
+                rules.append(rule.formula())
+
+            for rule in self.adjacency_rules:
                 rules.append(rule.formula())
 
             if len(rules) > 0:
@@ -396,7 +405,7 @@ class LTL:
 def extract_refinement_rules(variables: Typeset) -> Set[LTL]:
     rules: Set[LTL] = set()
 
-    for variable, supertypes in variables.supertypes.items():
+    for variable, supertypes in variables.super_types.items():
         for supertype in supertypes:
             formula = "G(" + variable.name + " -> " + supertype.name + ")"
             rule = LTL(formula=formula, variables=Typeset({variable, supertype}), kind="refinement_rule")
@@ -408,7 +417,7 @@ def extract_refinement_rules(variables: Typeset) -> Set[LTL]:
 def extract_mutex_rules(variables: Typeset) -> Set[LTL]:
     rules: Set[LTL] = set()
 
-    for mutextypes in variables.mutextypes:
+    for mutextypes in variables.mutex_types:
         if len(mutextypes) > 1:
             variables: Typeset = Typeset()
             ltl = "G("
@@ -425,4 +434,30 @@ def extract_mutex_rules(variables: Typeset) -> Set[LTL]:
             ltl += Or(clauses)
             ltl += ")"
             rules.add(LTL(formula=ltl, variables=variables, kind="mutex_rule", skip_checks=True))
+    return rules
+
+
+def extract_adjacency_rule(variables: Typeset) -> Set[LTL]:
+    rules: Set[LTL] = set()
+
+    for current, adjacent_to in variables.adjacent_types.items():
+
+        variables: Typeset = Typeset()
+        for vs in adjacent_to:
+            variables |= vs
+        variables |= current
+
+        ltl = "G(" + current.name + " -> X"
+
+        adjacent_str = [n.name for n in adjacent_to]
+
+        if current.name not in adjacent_str:
+            adjacent_str.append(current.name)
+
+        next_variables = Or(adjacent_str)
+
+        ltl += next_variables + ")"
+
+        rules.add(LTL(formula=ltl, variables=variables, kind="adjacency_rule", skip_checks=True))
+
     return rules

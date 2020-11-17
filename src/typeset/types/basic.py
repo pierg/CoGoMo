@@ -22,6 +22,8 @@ class Boolean(Type):
         from formula import LTL
         return ~ LTL(formula=self.name, variables=Typeset({self}), skip_checks=True)
 
+
+
     def __hash__(self):
         return hash(self.name + self.nusmv_type)
 

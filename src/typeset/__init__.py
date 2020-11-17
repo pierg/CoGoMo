@@ -71,10 +71,13 @@ class Typeset(dict):
     def __init__(self, types: Set[Type] = None):
 
         """Indicates the supertypes relationships for each type in the typeset"""
-        self.__supertypes: Dict[Type, Set[Type]] = {}
+        self.__super_types: Dict[Type, Set[Type]] = {}
 
         """Indicates the mutex relationships for the types in the typeset"""
-        self.__mutextypes: Set[Set[Type]] = set()
+        self.__mutex_types: Set[Set[Type]] = set()
+
+        """Indicates the adjacency relationships for the types in the typeset"""
+        self.__adjacent_types: Dict[Type, Set[Type]] = dict()
 
         if types is not None:
             self.add_elements(types)
@@ -85,9 +88,9 @@ class Typeset(dict):
         ret = ""
         for (key, elem) in self.items():
             ret += key + ":\t" + str(elem)
-            if elem in self.supertypes:
+            if elem in self.super_types:
                 ret += " -> "
-                for supertypes in self.supertypes[elem]:
+                for supertypes in self.super_types[elem]:
                     ret += supertypes.name
             ret += "\n"
         return ret[:-1]
@@ -132,25 +135,26 @@ class Typeset(dict):
 
         self.update_subtypes()
         self.update_mutextypes()
+        self.update_adjacenttypes()
 
     def update_subtypes(self):
         if len(self.values()) > 1:
             for (a, b) in combinations(self.values(), 2):
                 if isinstance(a, type(b)):
-                    if a in self.__supertypes:
-                        self.__supertypes[a].add(b)
+                    if a in self.__super_types:
+                        self.__super_types[a].add(b)
                     else:
-                        self.__supertypes[a] = {b}
+                        self.__super_types[a] = {b}
                 if isinstance(b, type(a)):
-                    if b in self.__supertypes:
-                        self.__supertypes[b].add(a)
+                    if b in self.__super_types:
+                        self.__super_types[b].add(a)
                     else:
-                        self.__supertypes[b] = {a}
+                        self.__super_types[b] = {a}
 
     def update_mutextypes(self):
         if len(self.values()) > 1:
             mutex_classes_checked = set()
-            self.__mutextypes = set()
+            self.__mutex_types = set()
             for variable in self.values():
                 base_classes = variable.__class__.__bases__
                 mutex = False
@@ -160,26 +164,40 @@ class Typeset(dict):
                         mutex = True
                         mutex_class = base
                 if mutex and mutex_class not in mutex_classes_checked:
-                    # print("Checking class:\t" + mutex_class.__name__)
                     mutex_types = set()
                     for variable in self.values():
                         if mutex_class in variable.__class__.__bases__:
-                            # print("\t" + variable.name)
                             mutex_types.add(variable)
-                    self.__mutextypes.add(frozenset(mutex_types))
+                    self.__mutex_types.add(frozenset(mutex_types))
                     mutex_classes_checked.add(mutex_class)
 
+    def update_adjacenttypes(self):
+        if len(self.values()) > 1:
+            self.__adjacent_types = dict()
+            for variable in self.values():
+                if hasattr(variable, "adjacency_set"):
+                    for adjacent_class in variable.adjacency_set:
+                        for variable_candidate in self.values():
+                            if variable_candidate.__class__.__name__ == adjacent_class:
+                                if variable in self.__adjacent_types:
+                                    self.__adjacent_types[variable].add(variable_candidate)
+                                else:
+                                    self.__adjacent_types[variable] = {variable_candidate}
 
     def __setitem__(self, name, elem):
         self.add_elements({elem})
 
     @property
-    def supertypes(self) -> Dict[Type, Set[Type]]:
-        return self.__supertypes
+    def super_types(self) -> Dict[Type, Set[Type]]:
+        return self.__super_types
 
     @property
-    def mutextypes(self) -> Set[Set[Type]]:
-        return self.__mutextypes
+    def mutex_types(self) -> Set[Set[Type]]:
+        return self.__mutex_types
+
+    @property
+    def adjacent_types(self) -> Dict[Type, Set[Type]]:
+        return self.__adjacent_types
 
     def get_nusmv_names(self):
         """Get List[str] for nuxmv"""

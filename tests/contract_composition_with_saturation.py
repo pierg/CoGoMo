@@ -1,5 +1,5 @@
-from contract import Contract
-from contract.operations import compose_contracts
+from specification.contract import Contract
+from specification.contract import compose_contracts
 from world.simple_mutex_booleans.types.sensors import *
 from world.simple_mutex_booleans.types.actions import *
 

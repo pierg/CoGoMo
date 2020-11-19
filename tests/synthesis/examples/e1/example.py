@@ -1,6 +1,6 @@
 import os
 
-from tools.logic import Implies
+from tools.strings.logic import Implies
 from controller.parser import parse_controller
 from controller.synthesis import create_controller_if_exists
 from tools.strings_manipulation import save_to_file

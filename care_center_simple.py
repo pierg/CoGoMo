@@ -1,9 +1,7 @@
-from formula.patterns.robotic_patterns import *
+from specification.temporal import *
 from goal import Goal
-from goal.operations import create_cgt
-from typeset.types.basic import MutexType
-from typeset.types.subtypes.context import *
-from typeset.types.subtypes.locations import ReachLocation
+from specification.typeset import MutexType
+from specification.typeset import ReachLocation
 
 
 class MutexContextTime(MutexType):

@@ -1,5 +1,4 @@
-from formula.patterns.robotic_patterns import *
-from typeset.types.subtypes.context import ContextTime
+from specification.typeset import ContextTime
 from world.care_center.types.sensors import *
 from world.care_center.types.actions import *
 from world.care_center.types.locations import *

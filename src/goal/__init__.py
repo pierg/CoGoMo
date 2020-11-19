@@ -1,33 +1,15 @@
 from __future__ import annotations
-from enum import Enum
-from copy import deepcopy
-from typing import Union, Dict, Set
-
-from contract import Contract
-from formula import LTL
-from tools.strings_generation import get_name_and_id
-from typing import TypeVar, List
-
-LTL_types = TypeVar('LTL_types', bound=LTL)
+from specification import Specification
+from specification.atom import Propositional
 
 
-class Link(Enum):
-    REFINEMENT = 0
-    COMPOSITION = 1
-    CONJUNCTION = 2
-
-
-class Goal(object):
+class Goal:
 
     def __init__(self,
                  name: str = None,
                  description: str = None,
-                 specification: Union[Contract, LTL_types] = None,
-                 context: Union[LTL, List[LTL]] = None):
-
-        """Graph properties"""
-        self.__parents = {}
-        self.__children = {}
+                 specification: Specification = None,
+                 context: Propositional = None):
 
         """Read only properties"""
         self.__realizable = None
@@ -37,19 +19,8 @@ class Goal(object):
         """Properties defined on first instantiation"""
         self.name: str = name
         self.description: str = description
-        self.specification: Contract = specification
-        self.context: LTL = context
-
-    """Imported methods"""
-    from ._graph import get_parent_link, get_children_link, get_all_leaf_nodes, get_goals_by_name, get_all_nodes, \
-        get_goal_by_id
-    from ._printing import __str__, pretty_print_cgt_summary, print_cgt_CROME, print_cgt_detailed, print_cgt_summary
-    from ._copying import __copy__, __deepcopy__, __hash__
-    from ._operators import __le__, refine_by
-
-    @property
-    def id(self):
-        return self.__id
+        self.specification: Specification = specification
+        self.context: Atomic = context
 
     @property
     def name(self) -> str:

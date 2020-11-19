@@ -1,6 +1,4 @@
-from contract import Contract
-from formula.patterns.dywer.scopes import FP_between_Q_and_R
-from formula.patterns.robotic_patterns import *
+from specification.temporal import *
 from goal import Goal
 from goal.operations import create_cgt
 from world.simple_mutex_booleans.types.sensors import *

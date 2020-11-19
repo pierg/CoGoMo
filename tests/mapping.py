@@ -1,9 +1,8 @@
 import sys, os, shutil
 
-from contract import Contract
-from formula.patterns.dywer.scopes import FP_between_Q_and_R
+from specification.temporal import FP_between_Q_and_R
 from goal import Goal
-from formula.patterns.robotic_patterns import *
+from specification.temporal import *
 from old_src.goals import create_contextual_clusters
 from library import Library
 from variable import BoundedNat, Boolean

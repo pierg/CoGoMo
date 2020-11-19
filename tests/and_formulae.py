@@ -1,6 +1,5 @@
 from copy import deepcopy
 
-from formula.patterns.robotic_patterns import *
 from world.simple_mutex_booleans.types.sensors import *
 from world.simple_mutex_booleans.types.actions import *
 from world.simple_mutex_booleans.types.locations import *

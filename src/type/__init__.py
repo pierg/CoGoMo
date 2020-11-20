@@ -1,0 +1,74 @@
+from abc import ABC
+from enum import Enum, auto
+
+"""Template Pattern"""
+
+
+class TypeKinds(Enum):
+    SENSOR = auto()
+    LOCATION = auto()
+    ACTION = auto()
+    TIME = auto()
+    IDENTITY = auto()
+
+
+class MutexType:
+
+    @property
+    def mutex(self) -> bool:
+        return True
+
+
+class Types(ABC):
+
+    def __init__(self, name: str):
+        self.__name: str = name
+
+    @property
+    def name(self) -> str:
+        return self.__name
+
+    def kind(self) -> TypeKinds:
+        pass
+
+    @property
+    def controllable(self) -> bool:
+        if self.kind == TypeKinds.SENSOR:
+            return False
+        return True
+
+    def __eq__(self, other):
+        if self.name == other.name and type(self).__name__ == type(other).__name__:
+            if isinstance(self, BoundedInteger):
+                if self.min == other.min and self.max == other.max:
+                    return True
+                else:
+                    return False
+            return True
+        return False
+
+
+    def __hash__(self):
+        return hash(self.name + type(self).__name__)
+
+
+class Boolean(Types):
+
+    def __init__(self, name: str):
+        super().__init__(name)
+
+
+class BoundedInteger(Types):
+
+    def __init__(self, name: str, min_value: int, max_value: int):
+        self.__min = min_value
+        self.__max = max_value
+        super().__init__(name)
+
+    @property
+    def min(self) -> int:
+        return self.__min
+
+    @property
+    def max(self) -> int:
+        return self.__max

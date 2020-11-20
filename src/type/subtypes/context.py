@@ -1,29 +1,41 @@
-from specification.typeset import BoundedInteger, Boolean
+from type import BoundedInteger, Boolean, TypeKinds
 
 
 class ContextTime(BoundedInteger):
 
     def __init__(self, name: str = "time"):
         super().__init__(name, min_value=0, max_value=24)
-        self.kind = "time"
+
+    @property
+    def kind(self):
+        return TypeKinds.TIME
 
 
 class ContextBooleanTime(Boolean):
 
     def __init__(self, name: str = "time"):
         super().__init__(name)
-        self.kind = "time"
+
+    @property
+    def kind(self):
+        return TypeKinds.TIME
 
 
 class ContextLocation(Boolean):
 
     def __init__(self, name: str = "location"):
         super().__init__(name)
-        self.kind = "location"
+
+    @property
+    def kind(self):
+        return TypeKinds.LOCATION
 
 
 class ContextIdentity(Boolean):
 
     def __init__(self, name: str = "identity"):
         super().__init__(name)
-        self.kind = "identity"
+
+    @property
+    def kind(self):
+        return TypeKinds.IDENTITY

@@ -1,33 +1,11 @@
-from specification.temporal import *
-from goal import Goal
-from specification.typeset import MutexType
-from specification.typeset import ReachLocation
-
-
-class MutexContextTime(MutexType):
-    pass
+from specification.atom import Atom
+from type import MutexType
+from type.subtypes.locations import ReachLocation
+from typeset import Typeset
 
 
 class MutexLocation(MutexType):
     pass
-
-
-class Day(ContextBooleanTime, MutexContextTime):
-
-    def __init__(self, name: str = "day"):
-        super().__init__(name)
-
-
-class Night(ContextBooleanTime, MutexContextTime):
-
-    def __init__(self, name: str = "night"):
-        super().__init__(name)
-
-
-class GoX(ReachLocation, MutexLocation):
-
-    def __init__(self, name: str = "x"):
-        super().__init__(name, adjacent_to={"GoA", "GoB", "GoC", "GoD"})
 
 
 class GoA(ReachLocation, MutexLocation):
@@ -42,46 +20,9 @@ class GoB(ReachLocation, MutexLocation):
         super().__init__(name, adjacent_to={"GoX", "GoA"})
 
 
-class GoC(ReachLocation, MutexLocation):
+a = GoA
+b = GoB
 
-    def __init__(self, name: str = "c"):
-        super().__init__(name, adjacent_to={"GoX", "GoD"})
+typeset = Typeset({a, b})
 
-
-class GoD(ReachLocation, MutexLocation):
-
-    def __init__(self, name: str = "d"):
-        super().__init__(name, adjacent_to={"GoX", "GoC"})
-
-
-"""Instantiation"""
-day: LTL = Day().assign_true()
-night: LTL = Night().assign_true()
-
-x: LTL = GoX().assign_true()
-a: LTL = GoA().assign_true()
-b: LTL = GoB().assign_true()
-c: LTL = GoC().assign_true()
-d: LTL = GoD().assign_true()
-
-"""Adjacency"""
-
-goals_simple = {
-    Goal(
-        name="day-ab",
-        context=day,
-        specification=StrictOrderPatrolling([a, b])
-    ),
-    Goal(
-        name="night-cd",
-        context=night,
-        specification=StrictOrderPatrolling([c, d])
-    )
-}
-
-for goal in goals_simple:
-    print(goal)
-
-# cgt = create_cgt(goals_simple)
-#
-# print(cgt)
+print(typeset)

@@ -1,18 +1,27 @@
 from __future__ import annotations
 
-class Typeset(dict):
-    """Set of identified -> Types"""
+from copy import copy
+from itertools import combinations
+from typing import Set, Dict, Union, TypeVar
 
-    def __init__(self, types: Set[Type] = None):
+from type import Types
+
+AllTypes = TypeVar('AllTypes', bound=Types)
+
+
+class Typeset(dict):
+    """Set of identifier -> AllTypes"""
+
+    def __init__(self, types: Set[AllTypes] = None):
 
         """Indicates the supertypes relationships for each type in the typeset"""
-        self.__super_types: Dict[Type, Set[Type]] = {}
+        self.__super_types: Dict[AllTypes, Set[AllTypes]] = {}
 
         """Indicates the mutex relationships for the type in the typeset"""
-        self.__mutex_types: Set[Set[Type]] = set()
+        self.__mutex_types: Set[Set[AllTypes]] = set()
 
         """Indicates the adjacency relationships for the type in the typeset"""
-        self.__adjacent_types: Dict[Type, Set[Type]] = dict()
+        self.__adjacent_types: Dict[AllTypes, Set[AllTypes]] = dict()
 
         if types is not None:
             self.add_elements(types)
@@ -30,9 +39,9 @@ class Typeset(dict):
             ret += "\n"
         return ret[:-1]
 
-    def __or__(self, element: Union[Typeset, Type]) -> Typeset:
+    def __or__(self, element: Union[Typeset, AllTypes]) -> Typeset:
         """ Returns self |= element """
-        if isinstance(element, Type):
+        if isinstance(element, Types):
             element = Typeset({element})
         """Shallow copy"""
         new_dict = copy(self)
@@ -43,9 +52,9 @@ class Typeset(dict):
         """ Returns self &= element """
         pass
 
-    def __ior__(self, element: Union[Typeset, Type]):
+    def __ior__(self, element: Union[Typeset, AllTypes]):
         """ Updates self with self |= element """
-        if isinstance(element, Type):
+        if isinstance(element, Types):
             element = Typeset({element})
         for key, value in element.items():
             if key in self:
@@ -63,7 +72,7 @@ class Typeset(dict):
         """ Updates self with self -= element """
         pass
 
-    def add_elements(self, types: Set[Type]):
+    def add_elements(self, types: Set[AllTypes]):
         if types is not None:
             for elem in types:
                 super(Typeset, self).__setitem__(elem.name, elem)
@@ -123,27 +132,13 @@ class Typeset(dict):
         self.add_elements({elem})
 
     @property
-    def super_types(self) -> Dict[Type, Set[Type]]:
+    def super_types(self) -> Dict[AllTypes, Set[AllTypes]]:
         return self.__super_types
 
     @property
-    def mutex_types(self) -> Set[Set[Type]]:
+    def mutex_types(self) -> Set[Set[AllTypes]]:
         return self.__mutex_types
 
     @property
-    def adjacent_types(self) -> Dict[Type, Set[Type]]:
+    def adjacent_types(self) -> Dict[AllTypes, Set[AllTypes]]:
         return self.__adjacent_types
-
-    # def get_nusmv_names(self):
-    #     """Get List[str] for nuxmv"""
-    #     tuple_vars = []
-    #     for k, v in self.items():
-    #         tuple_vars.append(v.name + ": " + v.nusmv_type)
-    #     return tuple_vars
-    #
-    # def get_nusmv_types(self):
-    #     """Get List[str] for nuxmv"""
-    #     tuple_vars = []
-    #     for k, v in self.items():
-    #         tuple_vars.append(v.port_type + ": " + v.nusmv_type)
-    #     return tuple_vars

@@ -3,6 +3,19 @@ from specification import Specification
 from specification.atom import Propositional
 
 
+
+
+class Event(list):
+  def __call__(self, *args, **kwargs):
+    for item in self:
+      item(*args, **kwargs)
+
+
+class ContractChangedObservable:
+    def __init__(self):
+        self.property_changed = Event()
+
+
 class Goal:
 
     def __init__(self,

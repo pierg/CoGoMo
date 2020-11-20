@@ -1,24 +1,31 @@
 from __future__ import annotations
 from abc import ABC
 
-from specification.atom import Atom
+from tools.nuxmv import Nuxmv
+from typeset import Typeset
 
 
-class Specification(Atom):
+class Specification(ABC):
 
-    def is_satisfiable(self) -> bool: pass
+    def formula(self) -> (str, Typeset): pass
 
-    def is_valid(self) -> bool: pass
+    def is_satisfiable(self) -> bool:
+        return Nuxmv.check_satisfiability(self.formula)
 
-    def __lt__(self, other: LTL): pass
+    def is_realizable(self) -> bool: pass
 
-    def __le__(self: LTL, other: LTL): pass
+    def __lt__(self, other: Specification):
+        a = self.formula
+        b = other.formula
+        return a + b
 
-    def __eq__(self, other: LTL): pass
+    def __le__(self: Specification, other: Specification): pass
 
-    def __ne__(self, other: LTL): pass
+    def __eq__(self, other: Specification): pass
 
-    def __gt__(self, other: LTL): pass
+    def __ne__(self, other: Specification): pass
 
-    def __ge__(self, other: LTL): pass
+    def __gt__(self, other: Specification): pass
+
+    def __ge__(self, other: Specification): pass
 

@@ -1,80 +1,107 @@
-from typing import List, Union
+import subprocess
+from typing import List, Union, Tuple
+
+from tools.strings.logic import Logic
+from type import Boolean, BoundedInteger
+from typeset import Typeset
+
 smvfile = "nusmvfile.smv"
 
 
+class Nuxmv:
 
-def check_satisfiability(variables: List[str],
-                         propositions: Union[List[str], str]) -> bool:
-    if isinstance(propositions, str):
-        propositions = [propositions]
+    @staticmethod
+    def __convert_to_nuxmv(typeset: Typeset) -> List[str]:
+        tuple_vars = []
+        for k, v in typeset.items():
+            if isinstance(Boolean, v):
+                tuple_vars.append(f"{k}: boolean")
+            elif isinstance(BoundedInteger, v):
+                tuple_vars.append(f"{k}: {k.min}..{k.max}")
+        return tuple_vars
 
-    if len(propositions) == 1 and propositions[0] == "TRUE":
-        return True
-    if len(propositions) == 0:
-        return True
+    @staticmethod
+    def check_satisfiability(formula: Tuple[str, Typeset]) -> bool:
 
-    """Write the NuSMV file"""
-    with open(smvfile, 'w') as ofile:
+        expression, typeset = formula
 
-        ofile.write('MODULE main\n')
+        if not isinstance(expression, str) or not isinstance(typeset, Typeset):
+            raise AttributeError
 
-        ofile.write('VAR\n')
+        if expression == "TRUE":
+            return True
 
-        for v in list(set(variables)):
-            ofile.write('\t' + v + ";\n")
+        variables = Nuxmv.__convert_to_nuxmv(typeset)
 
-        ofile.write('\n')
-        ofile.write('LTLSPEC ')
-        ofile.write(str(Not(And(propositions))))
+        """Write the NuSMV file"""
+        with open(smvfile, 'w') as ofile:
 
-        ofile.write('\n')
+            ofile.write('MODULE main\n')
 
-    try:
-        output = subprocess.check_output(['nuXmv', smvfile], encoding='UTF-8', stderr=subprocess.DEVNULL).splitlines()
-        output = [x for x in output if not (x[:3] == '***' or x[:7] == 'WARNING' or x == '')]
-        for line in output:
-            if line[:16] == '-- specification':
-                if 'is false' in line:
-                    print("\t\t\tSAT:\t" + str(And(propositions)))
-                    return True
-                elif 'is true' in line:
-                    return False
+            ofile.write('VAR\n')
 
-    except Exception as e:
-        with open(smvfile, 'r') as fin:
-            print(fin.read())
-        raise e
+            for v in list(set(variables)):
+                ofile.write(f"\t{v};\n")
 
+            ofile.write('\n')
+            ofile.write('LTLSPEC ')
+            ofile.write(str(Logic._not(expression)))
 
-def check_validity(variables: List[str],
-                   proposition: str) -> bool:
-    proposition = proposition
+            ofile.write('\n')
 
-    """Write the NuSMV file"""
-    with open(smvfile, 'w') as ofile:
+        try:
+            output = subprocess.check_output(['nuXmv', smvfile], encoding='UTF-8',
+                                             stderr=subprocess.DEVNULL).splitlines()
+            output = [x for x in output if not (x[:3] == '***' or x[:7] == 'WARNING' or x == '')]
+            for line in output:
+                if line[:16] == '-- specification':
+                    if 'is false' in line:
+                        print("\t\t\tSAT:\t" + str(expression))
+                        return True
+                    elif 'is true' in line:
+                        return False
 
-        ofile.write('MODULE main\n')
+        except Exception as e:
+            with open(smvfile, 'r') as fin:
+                print(fin.read())
+            raise e
 
-        ofile.write('VAR\n')
+    @staticmethod
+    def check_validity(formula: Tuple[str, Typeset]) -> bool:
 
-        for v in list(set(variables)):
-            ofile.write('\t' + v + ";\n")
+        expression, typeset = formula
 
-        ofile.write('\n')
-        ofile.write('LTLSPEC ' + proposition)
+        if not isinstance(expression, str) or not isinstance(typeset, Typeset):
+            raise AttributeError
 
-    try:
-        output = subprocess.check_output(['nuXmv', smvfile], encoding='UTF-8', stderr=subprocess.DEVNULL).splitlines()
-        output = [x for x in output if not (x[:3] == '***' or x[:7] == 'WARNING' or x == '')]
-        for line in output:
-            if line[:16] == '-- specification':
-                if 'is false' in line:
-                    return False
-                elif 'is true' in line:
-                    print("\t\t\tVALID:\t" + proposition)
-                    return True
+        variables = Nuxmv.__convert_to_nuxmv(typeset)
 
-    except Exception as e:
-        with open(smvfile, 'r') as fin:
-            print(fin.read())
-        raise e
+        """Write the NuSMV file"""
+        with open(smvfile, 'w') as ofile:
+
+            ofile.write('MODULE main\n')
+
+            ofile.write('VAR\n')
+
+            for v in list(set(variables)):
+                ofile.write('\t' + v + ";\n")
+
+            ofile.write('\n')
+            ofile.write('LTLSPEC ' + expression)
+
+        try:
+            output = subprocess.check_output(['nuXmv', smvfile], encoding='UTF-8',
+                                             stderr=subprocess.DEVNULL).splitlines()
+            output = [x for x in output if not (x[:3] == '***' or x[:7] == 'WARNING' or x == '')]
+            for line in output:
+                if line[:16] == '-- specification':
+                    if 'is false' in line:
+                        return False
+                    elif 'is true' in line:
+                        print("\t\t\tVALID:\t" + expression)
+                        return True
+
+        except Exception as e:
+            with open(smvfile, 'r') as fin:
+                print(fin.read())
+            raise e

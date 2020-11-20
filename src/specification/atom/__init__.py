@@ -1,35 +1,28 @@
 from __future__ import annotations
+from specification import Specification
+from tools.nuxmv import Nuxmv
+from typeset import Typeset
 
-from specification.type import Type
 
-
-class Atom:
+class Atom(Specification):
 
     def __init__(self,
-                 atom_type: Type = None,
-                 expression: str = None):
+                 formula: str = None,
+                 typeset: Typeset = None):
+        """Atomic proposition"""
 
-        self.type: Type = atom_type
-        self.expression = expression
-
-    @property
-    def type(self) -> Type:
-        return self.__type
-
-    @type.setter
-    def type(self, value: Type):
-        if isinstance(value, Type):
-            self.__type: Type = value
-        else:
+        if formula is None or typeset is None:
             raise AttributeError
 
-    @property
-    def expression(self) -> str:
-        return self.__expression
+        if len(typeset) != 1:
+            raise Exception("Atomic propositions only predicate on one type")
 
-    @expression.setter
-    def expression(self, value: str):
-        if isinstance(value, str):
-            self.__expression: str = value
-        else:
-            raise AttributeError
+        self.__base_formula: str = formula
+        self.__typeset: Typeset = typeset
+
+    @property
+    def formula(self) -> (str, Typeset):
+        return self.__base_formula, self.__typeset
+
+    def is_satisfiable(self) -> bool:
+        return Nuxmv.check_satisfiability(self.formula)

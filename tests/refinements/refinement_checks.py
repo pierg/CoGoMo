@@ -1,4 +1,4 @@
-from specification.typeset import ContextTime
+from typeset import ContextTime
 from world.care_center.types.sensors import *
 from world.care_center.types.actions import *
 from world.care_center.types.locations import *

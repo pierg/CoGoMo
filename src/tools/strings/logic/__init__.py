@@ -11,8 +11,8 @@ temporal_ops = re.compile(TEMPORAL_OPS)
 class Logic:
 
     @staticmethod
-    def _and(propositions: List[str], brackets: bool = False) -> str:
-        """Returns an str temporal representing the logical AND of list_propoositions"""
+    def and_(propositions: List[str], brackets: bool = False) -> str:
+        """Returns an str formula representing the logical AND of list_propoositions"""
         if len(propositions) > 1:
 
             if "FALSE" in propositions:
@@ -35,13 +35,13 @@ class Logic:
             raise Exception("List of propositions is empty")
 
     @staticmethod
-    def _implies(prop_1: str, prop_2: str) -> str:
-        """Returns an str temporal representing the logical IMPLIES of prop_1 and prop_2"""
+    def implies_(prop_1: str, prop_2: str) -> str:
+        """Returns an str formula representing the logical IMPLIES of prop_1 and prop_2"""
         return f"(({prop_1}) -> ({prop_2}))"
 
     @staticmethod
-    def _not(prop: str) -> str:
-        """Returns an str temporal representing the logical NOT of prop"""
+    def not_(prop: str) -> str:
+        """Returns an str formula representing the logical NOT of prop"""
         match_operators = bool(re.search(operators, prop))
         match_temporal = bool(re.search(temporal_ops, prop))
         if match_operators or match_temporal:
@@ -49,8 +49,8 @@ class Logic:
         return "!" + prop
 
     @staticmethod
-    def _or(propositions: List[str]) -> str:
-        """Returns an LTL temporal representing the logical OR of list_propoositions"""
+    def or_(propositions: List[str]) -> str:
+        """Returns an formula formula representing the logical OR of list_propoositions"""
         if len(propositions) > 1:
             if "TRUE" in propositions:
                 return "TRUE"

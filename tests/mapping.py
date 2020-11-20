@@ -1,8 +1,8 @@
 import sys, os, shutil
 
-from specification.temporal import FP_between_Q_and_R
+from specification.formula import FP_between_Q_and_R
 from goal import Goal
-from specification.temporal import *
+from specification.formula import *
 from old_src.goals import create_contextual_clusters
 from library import Library
 from variable import BoundedNat, Boolean

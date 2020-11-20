@@ -20,9 +20,18 @@ class GoB(ReachLocation, MutexLocation):
         super().__init__(name, adjacent_to={"GoX", "GoA"})
 
 
-a = GoA
-b = GoB
+a = GoA()
+b = GoB()
 
+
+print(a.name)
+print(b.name)
 typeset = Typeset({a, b})
-
 print(typeset)
+
+a = Atom(a.name, Typeset({a}))
+b = Atom(b.name, Typeset({b}))
+
+print(a.is_satisfiable())
+print(b)
+

@@ -31,7 +31,7 @@ class Typeset(dict):
     def __str__(self):
         ret = ""
         for (key, elem) in self.items():
-            ret += key + ":\t" + str(elem)
+            ret += f"{key}:\t{elem.name}"
             if elem in self.super_types:
                 ret += " -> "
                 for supertypes in self.super_types[elem]:

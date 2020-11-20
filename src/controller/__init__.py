@@ -13,7 +13,7 @@ class Contract(Specification):
 class LTL(Specification):
     def __init__(self,
                  formula: str = None,
-                 variables: Typeset = None,
+                 typeset: Typeset = None,
                  cnf: Set[LTL] = None,
                  dnf: Set[LTL] = None,
                  kind: str = None,

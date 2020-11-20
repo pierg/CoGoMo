@@ -14,9 +14,9 @@ class Nuxmv:
     def __convert_to_nuxmv(typeset: Typeset) -> List[str]:
         tuple_vars = []
         for k, v in typeset.items():
-            if isinstance(Boolean, v):
+            if isinstance(v, Boolean):
                 tuple_vars.append(f"{k}: boolean")
-            elif isinstance(BoundedInteger, v):
+            elif isinstance(v, BoundedInteger):
                 tuple_vars.append(f"{k}: {k.min}..{k.max}")
         return tuple_vars
 
@@ -45,7 +45,7 @@ class Nuxmv:
 
             ofile.write('\n')
             ofile.write('LTLSPEC ')
-            ofile.write(str(Logic._not(expression)))
+            ofile.write(str(Logic.not_(expression)))
 
             ofile.write('\n')
 
@@ -73,6 +73,9 @@ class Nuxmv:
 
         if not isinstance(expression, str) or not isinstance(typeset, Typeset):
             raise AttributeError
+
+        if expression == "TRUE":
+            return True
 
         variables = Nuxmv.__convert_to_nuxmv(typeset)
 

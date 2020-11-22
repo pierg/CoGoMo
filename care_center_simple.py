@@ -1,4 +1,5 @@
 from specification.atom import Atom
+from specification.formula import LTL
 from type import MutexType
 from type.subtypes.locations import ReachLocation
 from typeset import Typeset
@@ -29,9 +30,11 @@ print(b.name)
 typeset = Typeset({a, b})
 print(typeset)
 
-a = Atom(a.name, Typeset({a}))
-b = Atom(b.name, Typeset({b}))
+a = Atom((a.name, Typeset({a})))
+b = Atom((b.name, Typeset({b})))
 
-print(a.is_satisfiable())
-print(b)
+a_ltl = LTL(atom=a)
+b_ltl = LTL(atom=b)
+
+print(a.formula)
 

@@ -31,6 +31,9 @@ class Nuxmv:
         if expression == "TRUE":
             return True
 
+        if expression == "FALSE":
+            return False
+
         variables = Nuxmv.__convert_to_nuxmv(typeset)
 
         """Write the NuSMV file"""
@@ -66,6 +69,7 @@ class Nuxmv:
                 print(fin.read())
             raise e
 
+
     @staticmethod
     def check_validity(formula: Tuple[str, Typeset]) -> bool:
 
@@ -76,6 +80,9 @@ class Nuxmv:
 
         if expression == "TRUE":
             return True
+
+        if expression == "FALSE":
+            return False
 
         variables = Nuxmv.__convert_to_nuxmv(typeset)
 

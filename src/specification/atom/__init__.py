@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Union, Tuple
+
 from specification import Specification
 from specification.formula import LTL
 from tools.nuxmv import Nuxmv
@@ -10,43 +12,93 @@ from typeset import Typeset
 class Atom(Specification):
 
     def __init__(self,
-                 formula: str = None,
-                 typeset: Typeset = None):
-        """Atomic proposition"""
+                 formula: Tuple[str, Typeset] = None):
+        """Atomic Specification (can be an AP, but also an LTL formula that cannot be broken down, e.g. a Pattern)"""
 
-        if formula is None or typeset is None:
+        if formula is None:
             raise AttributeError
 
-        if len(typeset) != 1:
-            raise Exception("Atomic propositions only predicate on one type")
-
-        self.__base_formula: str = formula
-        self.__typeset: Typeset = typeset
+        self.__base_formula: Tuple[str, Typeset] = formula
 
     @property
     def formula(self) -> (str, Typeset):
-        return self.__base_formula, self.__typeset
+        return self.__base_formula
 
-    def __gt__(self, other: Atom):
-        # TODO
-        if not isinstance(other, Atom):
+    def __and__(self, other: Union[Atom, LTL]) -> LTL:
+        """self & other
+        Returns a new Specification with the conjunction with other"""
+        if not isinstance(other, Atom) or not isinstance(other, LTL):
             raise AttributeError
 
-        f1, t1 = self.formula
-        f2, t2 = other.formula
-        return LTL(
-            formula=Logic.implies_(f1, f2),
-            typeset=t1 | t2
-        )
+        if isinstance(other, Atom):
+            other = LTL(atom=other)
 
-    def __ge__(self, other: Atom):
-        if not isinstance(other, Atom):
+        return LTL(atom=self) & other
+
+    def __or__(self, other: Union[Atom, LTL]) -> LTL:
+        """self | other
+        Returns a new Specification with the disjunction with other"""
+        if not isinstance(other, Atom) or not isinstance(other, LTL):
             raise AttributeError
 
-        f1, t1 = self.formula
-        f2, t2 = other.formula
+        if isinstance(other, Atom):
+            other = LTL(atom=other)
 
-        return LTL(
-            formula=Logic.implies_(f1, f2),
-            typeset=t1 | t2
-        )
+        return LTL(atom=self) | other
+
+    def __invert__(self) -> LTL:
+        """Returns a new Specification with the negation of self"""
+
+        return ~ LTL(atom=self)
+
+    def __rshift__(self, other: Union[Atom, LTL]) -> LTL:
+        """>>
+        Returns a new Specification that is the result of self -> other (implies)"""
+        if not isinstance(other, Atom) or not isinstance(other, LTL):
+            raise AttributeError
+
+        if isinstance(other, Atom):
+            other = LTL(atom=other)
+
+        return LTL(atom=self) >> other
+
+    def __lshift__(self, other: Union[Atom, LTL]) -> LTL:
+        """<<
+        Returns a new Specification that is the result of other -> self (implies)"""
+        if not isinstance(other, Atom) or not isinstance(other, LTL):
+            raise AttributeError
+
+        if isinstance(other, Atom):
+            other = LTL(atom=other)
+
+        return LTL(atom=self) << other
+
+    def __iand__(self, other: Union[Atom, LTL]) -> LTL:
+        """self &= other
+        Modifies self with the conjunction with other"""
+        if not isinstance(other, Atom) or not isinstance(other, LTL):
+            raise AttributeError
+
+        if isinstance(other, Atom):
+            other = LTL(atom=other)
+
+        self_ltl = LTL(atom=self)
+
+        self_ltl &= other
+
+        return self_ltl
+
+    def __ior__(self, other: Union[Atom, LTL]) -> LTL:
+        """self |= other
+        Modifies self with the disjunction with other"""
+        if not isinstance(other, Atom) or not isinstance(other, LTL):
+            raise AttributeError
+
+        if isinstance(other, Atom):
+            other = LTL(atom=other)
+
+        self_ltl = LTL(atom=self)
+
+        self_ltl |= other
+
+        return self_ltl

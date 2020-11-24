@@ -69,7 +69,6 @@ class Nuxmv:
                 print(fin.read())
             raise e
 
-
     @staticmethod
     def check_validity(formula: Tuple[str, Typeset]) -> bool:
 

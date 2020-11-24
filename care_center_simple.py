@@ -21,8 +21,22 @@ class GoB(ReachLocation, MutexLocation):
         super().__init__(name, adjacent_to={"GoX", "GoA"})
 
 
+class GoC(ReachLocation, MutexLocation):
+
+    def __init__(self, name: str = "c"):
+        super().__init__(name, adjacent_to={"GoX", "GoD"})
+
+
+class GoD(ReachLocation, MutexLocation):
+
+    def __init__(self, name: str = "d"):
+        super().__init__(name, adjacent_to={"GoX", "GoC"})
+
+
 a = GoA()
 b = GoB()
+c = GoC()
+d = GoD()
 
 
 print(a.name)
@@ -33,8 +47,20 @@ print(typeset)
 a = Atom((a.name, Typeset({a})))
 b = Atom((b.name, Typeset({b})))
 
+c = Atom((c.name, Typeset({c})))
+d = Atom((d.name, Typeset({d})))
+
 a_ltl = LTL(atom=a)
 b_ltl = LTL(atom=b)
 
-print(a.formula)
+one = a_ltl | b_ltl
+print(one)
+
+two = c & d
+
+print(two)
+
+three = one & two
+
+print(three)
 

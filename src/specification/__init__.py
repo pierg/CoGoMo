@@ -7,6 +7,8 @@ from typeset import Typeset
 from enum import Enum, auto
 
 class FormulaType(Enum):
+    CNF = auto()
+    DNF = auto()
     BASE_FORMULA = auto()
     SATURATION = auto()
     SATURATED = auto()
@@ -23,10 +25,10 @@ class Specification(ABC):
         pass
 
     def is_satisfiable(self) -> bool:
-        return Nuxmv.check_satisfiability(self.formula)
+        return Nuxmv.check_satisfiability(self.formula())
 
     def is_valid(self) -> bool:
-        return Nuxmv.check_validity(self.formula)
+        return Nuxmv.check_validity(self.formula())
 
     def is_realizable(self) -> bool:
         pass

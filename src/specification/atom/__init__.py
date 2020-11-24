@@ -26,6 +26,9 @@ class Atom(Specification):
     def formula(self, formulatype: FormulaType = None) -> (str, Typeset):
         return self.__base_formula
 
+    def __str__(self):
+        return self.formula()
+
     def __hash__(self):
         return hash(self.__base_formula[0])
 

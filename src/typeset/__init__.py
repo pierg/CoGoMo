@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from copy import copy
+from copy import copy, deepcopy
 from itertools import combinations
 from typing import Set, Dict, Union, TypeVar
 
@@ -28,6 +28,17 @@ class Typeset(dict):
         else:
             super(Typeset, self).__init__()
 
+    def __deepcopy__(self: Typeset, memo):
+        cls = self.__class__
+        result = cls.__new__(cls)
+        memo[id(self)] = result
+        for k, v in self.__dict__.items():
+            setattr(result, k, deepcopy(v))
+        """Do not perform a deepcopy of the types"""
+        for k, v in self.items():
+            result[k] = v
+        return result
+
     def __str__(self):
         ret = ""
         for (key, elem) in self.items():
@@ -40,7 +51,7 @@ class Typeset(dict):
         return ret[:-1]
 
     def __or__(self, element: Union[Typeset, AllTypes]) -> Typeset:
-        """ Returns self |= element """
+        """ Returns self | element """
         if isinstance(element, Types):
             element = Typeset({element})
         """Shallow copy"""

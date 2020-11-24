@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+import itertools
 from copy import deepcopy
 from enum import Enum, auto
 from typing import Set, Union, Tuple, TYPE_CHECKING
 
 from specification import Specification, FormulaType
-from tools.strings.logic import Logic
+from tools.strings.logic import Logic, LogicTuple
 from typeset import Typeset
 
 if TYPE_CHECKING:
@@ -50,6 +51,9 @@ class LTL(Specification):
         else:
             raise Exception("Wrong parameters LTL construction")
 
+        if not self.is_satisfiable():
+            raise NotSatisfiableException
+
     @property
     def cnf(self) -> Set[Union[Atom, LTL]]:
         return self.__cnf
@@ -58,9 +62,6 @@ class LTL(Specification):
     def cnf(self, value: Set[Union[Atom, LTL]]):
         self.__cnf = value
 
-        if not self.is_satisfiable():
-            raise NotSatisfiableException
-
     @property
     def dnf(self) -> Set[Union[Atom, LTL]]:
         return self.__dnf
@@ -68,9 +69,6 @@ class LTL(Specification):
     @dnf.setter
     def dnf(self, value: Set[Union[Atom, LTL]]):
         self.__dnf = value
-
-        if not self.is_satisfiable():
-            raise NotSatisfiableException
 
     def __hash__(self):
         return hash(self.formula()[0])
@@ -82,38 +80,10 @@ class LTL(Specification):
         """Generate the formula"""
 
         if formulatype == FormulaType.CNF:
-            if len(self.cnf) == 1:
-                element = list(self.cnf)[0]
-                if isinstance(element, LTL):
-                    return self.formula(formulatype=FormulaType.DNF)
-                else:
-                    return element.formula()
+            return LogicTuple.and_([elem.formula() for elem in self.cnf], inner_brackets=True, ext_brackets=False)
 
-            formulae = [e.formula() for e in self.cnf]
-            expressions = set()
-            typeset = Typeset()
-            for formula in formulae:
-                expressions.add(formula[0])
-                typeset |= formula[1]
-
-            return Logic.and_(list(expressions), brackets=True), typeset
-
-        elif formulatype == FormulaType.DNF:
-            if len(self.dnf) == 1:
-                element = list(self.dnf)[0]
-                if isinstance(element, LTL):
-                    return self.formula(formulatype=FormulaType.CNF)
-                else:
-                    return element.formula()
-
-            formulae = [e.formula() for e in self.dnf]
-            expressions = set()
-            typeset = Typeset()
-            for formula in formulae:
-                expressions.add(formula[0])
-                typeset |= formula[1]
-
-            return Logic.or_(list(expressions)), typeset
+        if formulatype == FormulaType.DNF:
+            return LogicTuple.or_([elem.formula() for elem in self.dnf], inner_brackets=True, ext_brackets=False)
 
     def __and__(self, other: LTL) -> LTL:
         """self & other
@@ -123,13 +93,15 @@ class LTL(Specification):
 
         new_ltl = deepcopy(self)
 
+        """Cartesian product between the two dnf"""
+        from specification.atom import Atom
+        new_ltl.dnf = {Atom(formula=LogicTuple.and_([a.formula(), b.formula()], ext_brackets=False)) for a, b in
+                       itertools.product(new_ltl.dnf, other.dnf)}
+
         new_ltl.cnf.update(other.cnf)
 
-        if len(new_ltl.dnf) == 1:
-            new_ltl.dnf = {new_ltl}
-        else:
-            for e in new_ltl.dnf:
-                e &= other
+        if not new_ltl.is_satisfiable():
+            raise NotSatisfiableException
 
         return new_ltl
 
@@ -141,13 +113,15 @@ class LTL(Specification):
 
         new_ltl = deepcopy(self)
 
+        """Cartesian product between the two dnf"""
+        from specification.atom import Atom
+        new_ltl.cnf = {Atom(formula=LogicTuple.or_([a.formula(), b.formula()], ext_brackets=False)) for a, b in
+                       itertools.product(new_ltl.cnf, other.cnf)}
+
         new_ltl.dnf.update(other.dnf)
 
-        if len(new_ltl.cnf) == 1:
-            new_ltl.cnf = {new_ltl}
-        else:
-            for e in new_ltl.cnf:
-                e |= other
+        if not new_ltl.is_satisfiable():
+            raise NotSatisfiableException
 
         return new_ltl
 

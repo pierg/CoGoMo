@@ -1,3 +1,4 @@
+from specification import FormulaType
 from specification.atom import Atom
 from specification.formula import LTL
 from type import MutexType
@@ -38,29 +39,67 @@ b = GoB()
 c = GoC()
 d = GoD()
 
-
-print(a.name)
-print(b.name)
-typeset = Typeset({a, b})
-print(typeset)
-
 a = Atom((a.name, Typeset({a})))
 b = Atom((b.name, Typeset({b})))
 
 c = Atom((c.name, Typeset({c})))
 d = Atom((d.name, Typeset({d})))
 
-a_ltl = LTL(atom=a)
-b_ltl = LTL(atom=b)
+#
+# one = a & b
+# print(one)
+#
 
-one = a_ltl | b_ltl
-print(one)
-
-two = c & d
-
-print(two)
+one = a & b
+two = c | d
 
 three = one & two
+four = one | two
 
-print(three)
+print("\none")
+print(one.formula(FormulaType.CNF)[0])
+print(one.formula(FormulaType.DNF)[0])
+
+
+print("\ntwo")
+print(two.formula(FormulaType.CNF)[0])
+print(two.formula(FormulaType.DNF)[0])
+
+
+print("\nthree")
+print(three.formula(FormulaType.CNF)[0])
+print(three.formula(FormulaType.DNF)[0])
+
+print("\nfour")
+print(four.formula(FormulaType.CNF)[0])
+print(four.formula(FormulaType.DNF)[0])
+
+
+five = three & four
+six = three | four
+
+print("\nfive")
+print(five.formula(FormulaType.CNF)[0])
+print(five.formula(FormulaType.DNF)[0])
+
+print("\nsix")
+print(six.formula(FormulaType.CNF)[0])
+print(six.formula(FormulaType.DNF)[0])
+
+#
+# a_ltl = LTL(atom=a)
+# b_ltl = LTL(atom=b)
+
+
+#
+# one = a_ltl | b_ltl
+# print(one)
+#
+# two = c & d
+#
+# print(two)
+#
+# three = one & two
+#
+# print(three)
 

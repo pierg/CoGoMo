@@ -13,14 +13,11 @@ temporal_ops = re.compile(TEMPORAL_OPS)
 class LogicTuple:
 
     @staticmethod
-    def and_(formulae: List[Tuple[str, Typeset]], inner_brackets: bool = False, ext_brackets: bool = False) -> Tuple[str, Typeset]:
+    def and_(formulae: List[Tuple[str, Typeset]], brackets: bool = False) -> Tuple[str, Typeset]:
         """Returns an str formula representing the logical AND of list_propoositions"""
         if len(formulae) > 1:
 
-            if inner_brackets:
-                propositions = [f"({formula[0]})" for formula in formulae]
-            else:
-                propositions = [formula[0] for formula in formulae]
+            propositions = [formula[0] for formula in formulae]
             typesets = [formula[1] for formula in formulae]
 
             if "FALSE" in propositions:
@@ -35,7 +32,7 @@ class LogicTuple:
             typeset = Typeset()
             for t in typesets:
                 typeset |= t
-            if ext_brackets:
+            if brackets:
                 return f"({conj})", typeset
             else:
                 return conj, typeset
@@ -60,15 +57,11 @@ class LogicTuple:
         return "!" + prop
 
     @staticmethod
-    def or_(formulae: List[Tuple[str, Typeset]], inner_brackets: bool = False, ext_brackets: bool = True) -> Tuple[str, Typeset]:
+    def or_(formulae: List[Tuple[str, Typeset]], brakets: bool = True) -> Tuple[str, Typeset]:
         """Returns an formula formula representing the logical OR of list_propoositions"""
         if len(formulae) > 1:
 
-            if inner_brackets:
-                propositions = [f"({formula[0]})" for formula in formulae]
-            else:
-                propositions = [formula[0] for formula in formulae]
-
+            propositions = [formula[0] for formula in formulae]
             typesets = [formula[1] for formula in formulae]
 
             typeset = Typeset()
@@ -82,7 +75,7 @@ class LogicTuple:
 
             res = " | ".join(propositions)
 
-            if ext_brackets:
+            if brakets:
                 return f"({res})", typeset
             else:
                 return res, typeset

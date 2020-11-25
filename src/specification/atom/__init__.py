@@ -1,19 +1,34 @@
 from __future__ import annotations
 
 from typing import Union, Tuple
-
+from enum import Enum, auto
 from specification import Specification, FormulaType
-from specification.formula import LTL
-from tools.nuxmv import Nuxmv
+from specification.formula import Formula
 from tools.strings.logic import Logic
 from typeset import Typeset
+
+
+class AtomKind(Enum):
+    SENSOR = auto()
+    LOCATION = auto()
+    ACTION = auto()
+    TIME = auto()
+    IDENTITY = auto()
+    UNDEFINED = auto()
 
 
 class Atom(Specification):
 
     def __init__(self,
-                 formula: Union[str, Tuple[str, Typeset]] = None):
+                 formula: Union[str, Tuple[str, Typeset]] = None,
+                 kind: AtomKind = None):
         """Atomic Specification (can be an AP, but also an LTL formula that cannot be broken down, e.g. a Pattern)"""
+
+        if kind is None:
+            self.__kind = AtomKind.UNDEFINED
+
+        """Indicates if the formula is negated"""
+        self.__negation: bool = False
 
         if formula is None:
             raise AttributeError
@@ -24,7 +39,25 @@ class Atom(Specification):
             self.__base_formula: Tuple[str, Typeset] = formula
 
     def formula(self, formulatype: FormulaType = None) -> (str, Typeset):
+        expression, typset = self.__base_formula
+        if self.negated:
+            return Logic.not_(expression), typset
         return self.__base_formula
+
+    def negate(self):
+        self.__negation = not self.negated
+
+    @property
+    def kind(self) -> AtomKind:
+        return self.__kind
+
+    @kind.setter
+    def kind(self, value: AtomKind):
+        self.__kind = value
+
+    @property
+    def negated(self) -> bool:
+        return self.__negation
 
     def __str__(self):
         return self.formula()
@@ -32,62 +65,62 @@ class Atom(Specification):
     def __hash__(self):
         return hash(self.__base_formula[0])
 
-    def __and__(self, other: Union[Atom, LTL]) -> LTL:
+    def __and__(self, other: Union[Atom, Formula]) -> Formula:
         """self & other
         Returns a new Specification with the conjunction with other"""
-        if not (isinstance(other, Atom) or isinstance(other, LTL)):
+        if not (isinstance(other, Atom) or isinstance(other, Formula)):
             raise AttributeError
 
         if isinstance(other, Atom):
-            other = LTL(atom=other)
+            other = Formula(atom=other)
 
-        return LTL(atom=self) & other
+        return Formula(atom=self) & other
 
-    def __or__(self, other: Union[Atom, LTL]) -> LTL:
+    def __or__(self, other: Union[Atom, Formula]) -> Formula:
         """self | other
         Returns a new Specification with the disjunction with other"""
-        if not (isinstance(other, Atom) or isinstance(other, LTL)):
+        if not (isinstance(other, Atom) or isinstance(other, Formula)):
             raise AttributeError
 
         if isinstance(other, Atom):
-            other = LTL(atom=other)
+            other = Formula(atom=other)
 
-        return LTL(atom=self) | other
+        return Formula(atom=self) | other
 
-    def __invert__(self) -> LTL:
+    def __invert__(self) -> Atom:
         """Returns a new Specification with the negation of self"""
+        self.__negation = not self.__negation
+        return self
 
-        return ~ LTL(atom=self)
-
-    def __rshift__(self, other: Union[Atom, LTL]) -> LTL:
+    def __rshift__(self, other: Union[Atom, Formula]) -> Formula:
         """>>
         Returns a new Specification that is the result of self -> other (implies)"""
-        if not (isinstance(other, Atom) or isinstance(other, LTL)):
+        if not (isinstance(other, Atom) or isinstance(other, Formula)):
             raise AttributeError
 
         if isinstance(other, Atom):
-            other = LTL(atom=other)
+            other = Formula(atom=other)
 
-        return LTL(atom=self) >> other
+        return Formula(atom=self) >> other
 
-    def __lshift__(self, other: Union[Atom, LTL]) -> LTL:
+    def __lshift__(self, other: Union[Atom, Formula]) -> Formula:
         """<<
         Returns a new Specification that is the result of other -> self (implies)"""
-        if not (isinstance(other, Atom) or isinstance(other, LTL)):
+        if not (isinstance(other, Atom) or isinstance(other, Formula)):
             raise AttributeError
 
         if isinstance(other, Atom):
-            other = LTL(atom=other)
+            other = Formula(atom=other)
 
-        return LTL(atom=self) << other
+        return Formula(atom=self) << other
 
-    def __iand__(self, other: Union[Atom, LTL]) -> LTL:
+    def __iand__(self, other: Union[Atom, Formula]) -> Formula:
         """self &= other
         Modifies self with the conjunction with other"""
 
         return self & other
 
-    def __ior__(self, other: Union[Atom, LTL]) -> LTL:
+    def __ior__(self, other: Union[Atom, Formula]) -> Formula:
         """self |= other
         Modifies self with the disjunction with other"""
 

@@ -1,6 +1,6 @@
 from specification import FormulaType
 from specification.atom import Atom
-from specification.formula import LTL
+from specification.formula import Formula
 from type import MutexType
 from type.subtypes.locations import ReachLocation
 from typeset import Typeset
@@ -51,15 +51,28 @@ d = Atom((d.name, Typeset({d})))
 #
 
 one = a & b
-two = c | d
-
-three = one & two
-four = one | two
 
 print("\none")
 print(one.formula(FormulaType.CNF)[0])
 print(one.formula(FormulaType.DNF)[0])
 
+one = ~ one
+
+print("\nNOT one")
+print(one.formula(FormulaType.CNF)[0])
+print(one.formula(FormulaType.DNF)[0])
+
+one = ~ one
+
+print("\nNOT NOT one")
+print(one.formula(FormulaType.CNF)[0])
+print(one.formula(FormulaType.DNF)[0])
+
+
+two = c | d
+
+three = one & one & two
+four = one | two
 
 print("\ntwo")
 print(two.formula(FormulaType.CNF)[0])
@@ -67,6 +80,18 @@ print(two.formula(FormulaType.DNF)[0])
 
 
 print("\nthree")
+print(three.formula(FormulaType.CNF)[0])
+print(three.formula(FormulaType.DNF)[0])
+
+three = ~three
+
+print("\nNOT three")
+print(three.formula(FormulaType.CNF)[0])
+print(three.formula(FormulaType.DNF)[0])
+
+three = ~three
+
+print("\nNOT NOT three")
 print(three.formula(FormulaType.CNF)[0])
 print(three.formula(FormulaType.DNF)[0])
 

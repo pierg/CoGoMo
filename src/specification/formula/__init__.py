@@ -3,10 +3,10 @@ from __future__ import annotations
 import itertools
 from copy import deepcopy
 from enum import Enum, auto
-from typing import Set, Union, Tuple, TYPE_CHECKING
+from typing import Set, Tuple, TYPE_CHECKING, List
 
 from specification import Specification, FormulaType
-from tools.strings.logic import Logic, LogicTuple
+from tools.strings.logic import LogicTuple
 from typeset import Typeset
 
 if TYPE_CHECKING:
@@ -14,11 +14,10 @@ if TYPE_CHECKING:
 
 
 class FormulaKind(Enum):
-    SENSOR = auto()
-    LOCATION = auto()
-    ACTION = auto()
-    TIME = auto()
-    IDENTITY = auto()
+    OBJECTIVE = auto()
+    MUTEXRULE = auto()
+    REFINEMENTRULE = auto()
+    ADJACENCYRULE = auto()
     UNDEFINED = auto()
 
 
@@ -26,10 +25,8 @@ class NotSatisfiableException(Exception):
     pass
 
 
-class LTL(Specification):
+class Formula(Specification):
     def __init__(self, atom: Atom = None, kind: FormulaKind = None):
-
-        self._negation = False
 
         if kind is None:
             self.__kind = FormulaKind.UNDEFINED
@@ -41,12 +38,12 @@ class LTL(Specification):
         self.__saturation = None
 
         if atom is None:
-            self.cnf: Set[Union[Atom, LTL]] = {Atom("TRUE")}
-            self.dnf: Set[Union[Atom, LTL]] = {Atom("TRUE")}
+            self.cnf: List[Set[Atom]] = [{Atom("TRUE")}]
+            self.dnf: List[Set[Atom]] = [{Atom("TRUE")}]
 
         elif atom is not None:
-            self.cnf: Set[Union[Atom, LTL]] = {atom}
-            self.dnf: Set[Union[Atom, LTL]] = {atom}
+            self.cnf: List[Set[Atom]] = [{atom}]
+            self.dnf: List[Set[Atom]] = [{atom}]
 
         else:
             raise Exception("Wrong parameters LTL construction")
@@ -55,19 +52,27 @@ class LTL(Specification):
             raise NotSatisfiableException
 
     @property
-    def cnf(self) -> Set[Union[Atom, LTL]]:
+    def kind(self) -> FormulaKind:
+        return self.__kind
+
+    @kind.setter
+    def kind(self, value: FormulaKind):
+        self.__kind = value
+
+    @property
+    def cnf(self) -> List[Set[Atom]]:
         return self.__cnf
 
     @cnf.setter
-    def cnf(self, value: Set[Union[Atom, LTL]]):
+    def cnf(self, value: List[Set[Atom]]):
         self.__cnf = value
 
     @property
-    def dnf(self) -> Set[Union[Atom, LTL]]:
+    def dnf(self) -> List[Set[Atom]]:
         return self.__dnf
 
     @dnf.setter
-    def dnf(self, value: Set[Union[Atom, LTL]]):
+    def dnf(self, value: List[Set[Atom]]):
         self.__dnf = value
 
     def __hash__(self):
@@ -80,109 +85,127 @@ class LTL(Specification):
         """Generate the formula"""
 
         if formulatype == FormulaType.CNF:
-            return LogicTuple.and_([elem.formula() for elem in self.cnf], inner_brackets=True, ext_brackets=False)
+            return LogicTuple.and_(
+                [LogicTuple.or_([a.formula() for a in atoms], brakets=True) for atoms in self.cnf],
+                brackets=False)
 
         if formulatype == FormulaType.DNF:
-            return LogicTuple.or_([elem.formula() for elem in self.dnf], inner_brackets=True, ext_brackets=False)
+            return LogicTuple.or_(
+                [LogicTuple.and_([a.formula() for a in atoms], brackets=True) for atoms in self.dnf],
+                brakets=False)
 
-    def __and__(self, other: LTL) -> LTL:
+    def __and__(self, other: Formula) -> Formula:
         """self & other
         Returns a new Specification with the conjunction with other"""
-        if not isinstance(other, LTL):
+        if not isinstance(other, Formula):
             raise AttributeError
 
         new_ltl = deepcopy(self)
 
         """Cartesian product between the two dnf"""
-        from specification.atom import Atom
-        new_ltl.dnf = {Atom(formula=LogicTuple.and_([a.formula(), b.formula()], ext_brackets=False)) for a, b in
-                       itertools.product(new_ltl.dnf, other.dnf)}
+        new_ltl.dnf = [a | b for a, b in itertools.product(new_ltl.dnf, other.dnf)]
 
-        new_ltl.cnf.update(other.cnf)
+        """Append to list if not already there"""
+        for other_elem in other.cnf:
+            if other_elem not in new_ltl.cnf:
+                new_ltl.cnf.append(other_elem)
 
         if not new_ltl.is_satisfiable():
             raise NotSatisfiableException
 
         return new_ltl
 
-    def __or__(self, other: LTL) -> LTL:
+    def __or__(self, other: Formula) -> Formula:
         """self | other
         Returns a new Specification with the disjunction with other"""
-        if not isinstance(other, LTL):
+        if not isinstance(other, Formula):
             raise AttributeError
 
         new_ltl = deepcopy(self)
 
         """Cartesian product between the two dnf"""
-        from specification.atom import Atom
-        new_ltl.cnf = {Atom(formula=LogicTuple.or_([a.formula(), b.formula()], ext_brackets=False)) for a, b in
-                       itertools.product(new_ltl.cnf, other.cnf)}
+        new_ltl.cnf = [a | b for a, b in itertools.product(new_ltl.cnf, other.cnf)]
 
-        new_ltl.dnf.update(other.dnf)
+        """Append to list if not already there"""
+        for other_elem in other.dnf:
+            if other_elem not in new_ltl.dnf:
+                new_ltl.dnf.append(other_elem)
 
         if not new_ltl.is_satisfiable():
             raise NotSatisfiableException
 
         return new_ltl
 
-    def __invert__(self) -> LTL:
+    def __invert__(self) -> Formula:
         """Returns a new Specification with the negation of self"""
 
         new_ltl = deepcopy(self)
-        new_ltl._negation = not new_ltl._negation
+
+        for atoms in new_ltl.cnf:
+            for atom in atoms:
+                atom.negate()
+
+        """Swap CNF with DNF"""
+        new_ltl.cnf, new_ltl.dnf = new_ltl.dnf, new_ltl.cnf
 
         return new_ltl
 
-    def __rshift__(self, other: LTL) -> LTL:
+    def __rshift__(self, other: Formula) -> Formula:
         """>>
         Returns a new Specification that is the result of self -> other (implies)
         NOT self OR other"""
-        if not isinstance(other, LTL):
+        if not isinstance(other, Formula):
             raise AttributeError
 
         new_ltl = ~ self
 
         return new_ltl | other
 
-    def __lshift__(self, other: LTL) -> LTL:
+    def __lshift__(self, other: Formula) -> Formula:
         """<<
         Returns a new Specification that is the result of other -> self (implies)
         NOT other OR self"""
-        if not isinstance(other, LTL):
+        if not isinstance(other, Formula):
             raise AttributeError
 
         new_ltl = ~ other
 
         return new_ltl | self
 
-    def __iand__(self, other: LTL) -> LTL:
+    def __iand__(self, other: Formula) -> Formula:
         """self &= other
         Modifies self with the conjunction with other"""
-        if not isinstance(other, LTL):
+        if not isinstance(other, Formula):
             raise AttributeError
 
-        self.cnf.update(other.cnf)
+        """Cartesian product between the two dnf"""
+        self.dnf = [a | b for a, b in itertools.product(self.dnf, other.dnf)]
 
-        if len(self.dnf) == 1:
-            self.dnf = {self}
-        else:
-            for e in self.dnf:
-                e &= other
+        """Append to list if not already there"""
+        for other_elem in other.cnf:
+            if other_elem not in self.cnf:
+                self.cnf.append(other_elem)
+
+        if not self.is_satisfiable():
+            raise NotSatisfiableException
 
         return self
 
-    def __ior__(self, other: LTL) -> LTL:
+    def __ior__(self, other: Formula) -> Formula:
         """self |= other
         Modifies self with the disjunction with other"""
-        if not isinstance(other, LTL):
+        if not isinstance(other, Formula):
             raise AttributeError
 
-        self.dnf.update(other.dnf)
+        """Cartesian product between the two dnf"""
+        self.cnf = [a | b for a, b in itertools.product(self.cnf, other.cnf)]
 
-        if len(self.cnf) == 1:
-            self.cnf = {self}
-        else:
-            for e in self.cnf:
-                e |= other
+        """Append to list if not already there"""
+        for other_elem in other.dnf:
+            if other_elem not in self.dnf:
+                self.dnf.append(other_elem)
+
+        if not self.is_satisfiable():
+            raise NotSatisfiableException
 
         return self

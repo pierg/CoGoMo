@@ -6,6 +6,7 @@ from typeset import Typeset
 
 from enum import Enum, auto
 
+
 class FormulaType(Enum):
     CNF = auto()
     DNF = auto()
@@ -42,8 +43,9 @@ class Specification(ABC):
         if other.is_valid():
             return True
 
+        implication = self >> other
         """Check if self -> other is valid"""
-        return Nuxmv.check_validity(self >> other)
+        return Nuxmv.check_validity(implication.formula())
 
     def __gt__(self, other: Specification):
         """self > other. True if self is an abstraction but not equal to other"""
@@ -54,12 +56,13 @@ class Specification(ABC):
         if self.is_valid():
             return True
 
+        implication = other >> self
         """Check if self -> other is valid"""
-        return Nuxmv.check_validity(other >> self)
+        return Nuxmv.check_validity(implication.formula())
 
     def __eq__(self, other: Specification):
         """Check if self -> other and other -> self"""
-        if self.formula == other.formula:
+        if self.formula()[0] == other.formula()[0]:
             return True
         else:
             return self.__le__(other) and self.__ne__(other)

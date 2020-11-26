@@ -1,84 +1,122 @@
 from __future__ import annotations
+
+import itertools
+from abc import ABC
+from copy import deepcopy
+from typing import Set, Tuple
+
 from specification import Specification
+from specification.contract.exceptions import *
+from specification.exceptions import NotSatisfiableException
+from specification.formula import Formula
+from typeset import Typeset
 
 
-class Contract(Specification):
+class Contract(Specification, ABC):
     def __init__(self,
-                 assumptions: LTL = None,
-                 guarantees: LTL = None):
+                 assumptions: Formula = None,
+                 guarantees: Formula = None):
         self.__assumptions = None
         self.__guarantees = None
 
+        """Properties"""
+        self.guarantees = guarantees
+        self.assumptions = assumptions
 
-class LTL(Specification):
-    def __init__(self,
-                 formula: str = None,
-                 variables: Typeset = None,
-                 cnf: Set[LTL] = None,
-                 dnf: Set[LTL] = None,
-                 kind: str = None,
-                 context: LTL = None,
-                 skip_checks: bool = False):
-        pass
+        self.composed_by = {self}
+        self.conjoined_by = {self}
 
+        """Imported methods"""
+        from ._printing import __str__
+        from ._copying import __deepcopy__
+        from ._operators import __ior__, __iand__
 
-class CGG:
+    def formula(self) -> Tuple[str, Typeset]:
+        """Generate the contract formula A->G"""
 
-    def __init__(self, graph_dict=None):
-        """ initializes a graph object
-            If no dictionary or None is given,
-            an empty dictionary will be used
-        """
-        if graph_dict == None:
-            graph_dict = {}
-        self.__graph_dict = graph_dict
+        return (self.assumptions >> self.guarantees).formula()
 
-    def vertices(self):
-        """ returns the vertices of a graph """
-        return list(self.__graph_dict.keys())
+    @property
+    def assumptions(self) -> Formula:
+        return self.__assumptions
 
-    def edges(self):
-        """ returns the edges of a graph """
-        return self.__generate_edges()
-
-    def add_vertex(self, vertex):
-        """ If the vertex "vertex" is not in
-            self.__graph_dict, a key "vertex" with an empty
-            list as a value is added to the dictionary.
-            Otherwise nothing has to be done.
-        """
-        if vertex not in self.__graph_dict:
-            self.__graph_dict[vertex] = []
-
-    def add_edge(self, edge):
-        """ assumes that edge is of type set, tuple or list;
-            between two vertices can be multiple edges!
-        """
-        edge = set(edge)
-        (vertex1, vertex2) = tuple(edge)
-        if vertex1 in self.__graph_dict:
-            self.__graph_dict[vertex1].append(vertex2)
+    @assumptions.setter
+    def assumptions(self, value: Formula):
+        if value is None:
+            self.__assumptions = Formula()
         else:
-            self.__graph_dict[vertex1] = [vertex2]
+            if not isinstance(value, Formula):
+                raise AttributeError
+            """Every contracts assigns a **copy** of A and G, so each contract has its saturated G"""
+            self.__assumptions = deepcopy(value)
+        """Check Feasibility"""
+        if not (self.assumptions & self.guarantees).is_satisfiable():
+            raise UnfeasibleContracts(self.assumptions, self.guarantees)
 
-    def __generate_edges(self):
-        """ A static method generating the edges of the
-            graph "graph". Edges are represented as sets
-            with one (a loop back to the vertex) or two
-            vertices
-        """
-        edges = []
-        for vertex in self.__graph_dict:
-            for neighbour in self.__graph_dict[vertex]:
-                if {neighbour, vertex} not in edges:
-                    edges.append({vertex, neighbour})
-        return edges
+    @property
+    def guarantees(self) -> Formula:
+        """Returning saturated guarantees"""
+        return self.__guarantees
 
-    def __str__(self):
-        res = "vertices: "
-        for k in self.__graph_dict:
-            res += str(k) + " "
-        res += "\nedges: "
-        for edge in self.__generate_edges():
-            res += str(edge) + " "
-        return res
+    @guarantees.setter
+    def guarantees(self, value: Formula):
+        if value is None:
+            self.__guarantees = Formula()
+        else:
+            if not isinstance(value, Formula):
+                raise AttributeError
+            """Every contracts assigns a **copy** of A and G, so each contract has its saturated G"""
+            self.__guarantees = deepcopy(value)
+        """Check Feasibility"""
+        if self.assumptions is not None:
+            if not (self.assumptions & self.guarantees).is_satisfiable():
+                raise UnfeasibleContracts(self.assumptions, self.guarantees)
+
+    @staticmethod
+    def composition(contracts: Set[Contract]) -> Contract:
+        if len(contracts) == 1:
+            return next(iter(contracts))
+        if len(contracts) == 0:
+            raise Exception("No contract specified in the composition")
+
+        contracts_list = list(contracts)
+
+        new_contract: Contract = contracts_list[0]
+
+        """Populate the data structure while checking for compatibility and consistency"""
+        for contract in contracts_list[1:]:
+
+            try:
+                new_contract.assumptions &= contract.assumptions
+            except NotSatisfiableException as e:
+                print("Contracts inconsistent")
+                print(e.conj_a)
+                print("unsatisfiable with")
+                print(e.conj_b)
+                raise IncompatibleContracts(e.conj_a, e.conj_b)
+
+            try:
+                new_contract.guarantees &= contract.guarantees
+            except NotSatisfiableException as e:
+                print("Contracts incompatible")
+                print(e.conj_a)
+                print("unsatisfiable with")
+                print(e.conj_b)
+                raise InconsistentContracts(e.conj_a, e.conj_b)
+
+            try:
+                new_contract.assumptions &= new_contract.guarantees
+            except NotSatisfiableException as e:
+                print("Contracts unfeasible")
+                print(e.conj_a)
+                print("unsatisfiable with")
+                print(e.conj_b)
+                raise UnfeasibleContracts(e.conj_a, e.conj_b)
+
+        print("The composition is compatible, consistent and feasible")
+
+        """Assumption relaxation"""
+        new_contract.__assumptions |= ~ new_contract.__guarantees
+
+        new_contract.composed_by = contracts
+        return new_contract

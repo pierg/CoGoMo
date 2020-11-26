@@ -4,25 +4,11 @@ from abc import ABC
 from tools.nuxmv import Nuxmv
 from typeset import Typeset
 
-from enum import Enum, auto
-
-
-class FormulaType(Enum):
-    CNF = auto()
-    DNF = auto()
-    BASE_FORMULA = auto()
-    SATURATION = auto()
-    SATURATED = auto()
-    RULES_INCLUSION = auto()
-    RULES_MUTEX = auto()
-    RULES_ADJACENCY = auto()
-    RULES = auto()
-    COMPLETE = auto()
 
 
 class Specification(ABC):
 
-    def formula(self, formulatype: FormulaType = None) -> (str, Typeset):
+    def formula(self) -> (str, Typeset):
         pass
 
     def is_satisfiable(self) -> bool:
@@ -33,6 +19,9 @@ class Specification(ABC):
 
     def is_realizable(self) -> bool:
         pass
+
+    def __hash__(self):
+        return hash(self.formula()[0])
 
     def __lt__(self, other: Specification):
         """self < other. True if self is a refinement but not equal to other"""

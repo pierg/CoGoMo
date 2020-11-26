@@ -1,4 +1,4 @@
-from specification import FormulaType
+from specification.formula import FormulaOutput
 from specification.atom import Atom
 from specification.formula import Formula
 from type import MutexType
@@ -53,20 +53,20 @@ d = Atom((d.name, Typeset({d})))
 one = a & b
 
 print("\none")
-print(one.formula(FormulaType.CNF)[0])
-print(one.formula(FormulaType.DNF)[0])
+print(one.formula(FormulaOutput.CNF)[0])
+print(one.formula(FormulaOutput.DNF)[0])
 
 one = ~ one
 
 print("\nNOT one")
-print(one.formula(FormulaType.CNF)[0])
-print(one.formula(FormulaType.DNF)[0])
+print(one.formula(FormulaOutput.CNF)[0])
+print(one.formula(FormulaOutput.DNF)[0])
 
 one = ~ one
 
 print("\nNOT NOT one")
-print(one.formula(FormulaType.CNF)[0])
-print(one.formula(FormulaType.DNF)[0])
+print(one.formula(FormulaOutput.CNF)[0])
+print(one.formula(FormulaOutput.DNF)[0])
 
 
 two = c | d
@@ -75,56 +75,45 @@ three = one & one & two
 four = one | two
 
 print("\ntwo")
-print(two.formula(FormulaType.CNF)[0])
-print(two.formula(FormulaType.DNF)[0])
+print(two.formula(FormulaOutput.CNF)[0])
+print(two.formula(FormulaOutput.DNF)[0])
 
 
 print("\nthree")
-print(three.formula(FormulaType.CNF)[0])
-print(three.formula(FormulaType.DNF)[0])
+print(three.formula(FormulaOutput.CNF)[0])
+print(three.formula(FormulaOutput.DNF)[0])
 
 three = ~three
 
 print("\nNOT three")
-print(three.formula(FormulaType.CNF)[0])
-print(three.formula(FormulaType.DNF)[0])
+print(three.formula(FormulaOutput.CNF)[0])
+print(three.formula(FormulaOutput.DNF)[0])
 
 three = ~three
 
 print("\nNOT NOT three")
-print(three.formula(FormulaType.CNF)[0])
-print(three.formula(FormulaType.DNF)[0])
+print(three.formula(FormulaOutput.CNF)[0])
+print(three.formula(FormulaOutput.DNF)[0])
 
 print("\nfour")
-print(four.formula(FormulaType.CNF)[0])
-print(four.formula(FormulaType.DNF)[0])
+print(four.formula(FormulaOutput.CNF)[0])
+print(four.formula(FormulaOutput.DNF)[0])
 
 
 five = three & four
 six = three | four
 
 print("\nfive")
-print(five.formula(FormulaType.CNF)[0])
-print(five.formula(FormulaType.DNF)[0])
+print(five.formula(FormulaOutput.CNF)[0])
+print(five.formula(FormulaOutput.DNF)[0])
 
 print("\nsix")
-print(six.formula(FormulaType.CNF)[0])
-print(six.formula(FormulaType.DNF)[0])
-
-#
-# a_ltl = LTL(atom=a)
-# b_ltl = LTL(atom=b)
+print(six.formula(FormulaOutput.CNF)[0])
+print(six.formula(FormulaOutput.DNF)[0])
 
 
-#
-# one = a_ltl | b_ltl
-# print(one)
-#
-# two = c & d
-#
-# print(two)
-#
-# three = one & two
-#
-# print(three)
+seven = five >> six
 
+print("\nseven")
+print(seven.formula(FormulaOutput.CNF)[0])
+print(seven.formula(FormulaOutput.DNF)[0])

@@ -5,12 +5,18 @@ from copy import deepcopy
 from enum import Enum, auto
 from typing import Set, Tuple, TYPE_CHECKING, List
 
-from specification import Specification, FormulaType
+from specification import Specification
+from specification.exceptions import NotSatisfiableException
 from tools.strings.logic import LogicTuple
 from typeset import Typeset
 
 if TYPE_CHECKING:
     from specification.atom import Atom
+
+
+class FormulaOutput(Enum):
+    CNF = auto()
+    DNF = auto()
 
 
 class FormulaKind(Enum):
@@ -19,10 +25,6 @@ class FormulaKind(Enum):
     REFINEMENTRULE = auto()
     ADJACENCYRULE = auto()
     UNDEFINED = auto()
-
-
-class NotSatisfiableException(Exception):
-    pass
 
 
 class Formula(Specification):
@@ -48,9 +50,6 @@ class Formula(Specification):
         else:
             raise Exception("Wrong parameters LTL construction")
 
-        if not self.is_satisfiable():
-            raise NotSatisfiableException
-
     @property
     def kind(self) -> FormulaKind:
         return self.__kind
@@ -75,21 +74,18 @@ class Formula(Specification):
     def dnf(self, value: List[Set[Atom]]):
         self.__dnf = value
 
-    def __hash__(self):
-        return hash(self.formula()[0])
-
     def __str__(self):
         return self.formula()[0]
 
-    def formula(self, formulatype: FormulaType = FormulaType.CNF) -> Tuple[str, Typeset]:
+    def formula(self, formulatype: FormulaOutput = FormulaOutput.CNF) -> Tuple[str, Typeset]:
         """Generate the formula"""
 
-        if formulatype == FormulaType.CNF:
+        if formulatype == FormulaOutput.CNF:
             return LogicTuple.and_(
                 [LogicTuple.or_([a.formula() for a in atoms], brakets=True) for atoms in self.cnf],
                 brackets=False)
 
-        if formulatype == FormulaType.DNF:
+        if formulatype == FormulaOutput.DNF:
             return LogicTuple.or_(
                 [LogicTuple.and_([a.formula() for a in atoms], brackets=True) for atoms in self.dnf],
                 brakets=False)
@@ -111,7 +107,7 @@ class Formula(Specification):
                 new_ltl.cnf.append(other_elem)
 
         if not new_ltl.is_satisfiable():
-            raise NotSatisfiableException
+            raise NotSatisfiableException(self, other)
 
         return new_ltl
 
@@ -131,8 +127,8 @@ class Formula(Specification):
             if other_elem not in new_ltl.dnf:
                 new_ltl.dnf.append(other_elem)
 
-        if not new_ltl.is_satisfiable():
-            raise NotSatisfiableException
+        # if not new_ltl.is_satisfiable():
+        #     raise NotSatisfiableException(self, other)
 
         return new_ltl
 
@@ -187,7 +183,7 @@ class Formula(Specification):
                 self.cnf.append(other_elem)
 
         if not self.is_satisfiable():
-            raise NotSatisfiableException
+            raise NotSatisfiableException(self, other)
 
         return self
 
@@ -206,6 +202,6 @@ class Formula(Specification):
                 self.dnf.append(other_elem)
 
         if not self.is_satisfiable():
-            raise NotSatisfiableException
+            raise NotSatisfiableException(self, other)
 
         return self

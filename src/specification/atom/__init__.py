@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from typing import Union, Tuple
 from enum import Enum, auto
-from specification import Specification, FormulaType
+from specification import Specification
+from specification.exceptions import NotSatisfiableException
 from specification.formula import Formula
 from tools.strings.logic import Logic
 from typeset import Typeset
@@ -38,7 +39,10 @@ class Atom(Specification):
         else:
             self.__base_formula: Tuple[str, Typeset] = formula
 
-    def formula(self, formulatype: FormulaType = None) -> (str, Typeset):
+        if not self.is_satisfiable():
+            raise NotSatisfiableException
+
+    def formula(self) -> (str, Typeset):
         expression, typset = self.__base_formula
         if self.negated:
             return Logic.not_(expression), typset

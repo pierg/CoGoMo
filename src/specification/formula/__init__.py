@@ -28,7 +28,9 @@ class FormulaKind(Enum):
 
 
 class Formula(Specification):
-    def __init__(self, atom: Atom = None, kind: FormulaKind = None):
+    def __init__(self,
+                 atom: Atom = None,
+                 kind: FormulaKind = None):
 
         if kind is None:
             self.__kind = FormulaKind.UNDEFINED

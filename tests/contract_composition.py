@@ -1,5 +1,4 @@
-from specification.contract import Contract
-from specification.formula import FormulaOutput
+from contract import Contract
 from specification.atom import Atom
 from specification.formula import Formula
 from type import MutexType

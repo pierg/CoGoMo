@@ -1,6 +1,6 @@
 import os
 
-from specification.contract import PContract
+from contract import PContract
 from old_src.goals.cgtgoal import *
 
 

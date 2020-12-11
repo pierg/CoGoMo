@@ -1,21 +1,19 @@
 from __future__ import annotations
 
-import itertools
-from abc import ABC
 from copy import deepcopy
-from typing import Set, Tuple
+from typing import Tuple, Set
 
+from contract.exceptions import *
 from specification import Specification
-from specification.contract.exceptions import *
 from specification.exceptions import NotSatisfiableException
-from specification.formula import Formula
+from specification.formula import Specification
 from typeset import Typeset
 
 
-class Contract(Specification, ABC):
+class Contract:
     def __init__(self,
-                 assumptions: Formula = None,
-                 guarantees: Formula = None):
+                 assumptions: Specification = None,
+                 guarantees: Specification = None):
         self.__assumptions = None
         self.__guarantees = None
 
@@ -37,15 +35,15 @@ class Contract(Specification, ABC):
         return (self.assumptions >> self.guarantees).formula()
 
     @property
-    def assumptions(self) -> Formula:
+    def assumptions(self) -> Specification:
         return self.__assumptions
 
     @assumptions.setter
-    def assumptions(self, value: Formula):
+    def assumptions(self, value: Specification):
         if value is None:
-            self.__assumptions = Formula()
+            self.__assumptions = Specification()
         else:
-            if not isinstance(value, Formula):
+            if not isinstance(value, Specification):
                 raise AttributeError
             """Every contracts assigns a **copy** of A and G, so each contract has its saturated G"""
             self.__assumptions = deepcopy(value)
@@ -54,16 +52,16 @@ class Contract(Specification, ABC):
             raise UnfeasibleContracts(self.assumptions, self.guarantees)
 
     @property
-    def guarantees(self) -> Formula:
+    def guarantees(self) -> Specification:
         """Returning saturated guarantees"""
         return self.__guarantees
 
     @guarantees.setter
-    def guarantees(self, value: Formula):
+    def guarantees(self, value: Specification):
         if value is None:
-            self.__guarantees = Formula()
+            self.__guarantees = Specification()
         else:
-            if not isinstance(value, Formula):
+            if not isinstance(value, Specification):
                 raise AttributeError
             """Every contracts assigns a **copy** of A and G, so each contract has its saturated G"""
             self.__guarantees = deepcopy(value)
@@ -74,6 +72,55 @@ class Contract(Specification, ABC):
 
     @staticmethod
     def composition(contracts: Set[Contract]) -> Contract:
+        if len(contracts) == 1:
+            return next(iter(contracts))
+        if len(contracts) == 0:
+            raise Exception("No contract specified in the composition")
+
+        contracts_list = list(contracts)
+
+        new_contract: Contract = contracts_list[0]
+
+        """Populate the data structure while checking for compatibility and consistency"""
+        for contract in contracts_list[1:]:
+
+            try:
+                new_contract.assumptions &= contract.assumptions
+            except NotSatisfiableException as e:
+                print("Contracts inconsistent")
+                print(e.conj_a)
+                print("unsatisfiable with")
+                print(e.conj_b)
+                raise IncompatibleContracts(e.conj_a, e.conj_b)
+
+            try:
+                new_contract.guarantees &= contract.guarantees
+            except NotSatisfiableException as e:
+                print("Contracts incompatible")
+                print(e.conj_a)
+                print("unsatisfiable with")
+                print(e.conj_b)
+                raise InconsistentContracts(e.conj_a, e.conj_b)
+
+            try:
+                new_contract.assumptions &= new_contract.guarantees
+            except NotSatisfiableException as e:
+                print("Contracts unfeasible")
+                print(e.conj_a)
+                print("unsatisfiable with")
+                print(e.conj_b)
+                raise UnfeasibleContracts(e.conj_a, e.conj_b)
+
+        print("The composition is compatible, consistent and feasible")
+
+        """Assumption relaxation"""
+        new_contract.__assumptions |= ~ new_contract.__guarantees
+
+        new_contract.composed_by = contracts
+        return new_contract
+
+    @staticmethod
+    def conjunction(contracts: Set[Contract]) -> Contract:
         if len(contracts) == 1:
             return next(iter(contracts))
         if len(contracts) == 0:

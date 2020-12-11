@@ -1,9 +1,9 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from specification.formula import Formula
+    from specification import Specification
     from typing import TypeVar
-    Formula_types = TypeVar('Formula_types', bound=Formula)
+    Formula_types = TypeVar('Formula_types', bound=Specification)
 
 
 class IncompatibleContracts(Exception):

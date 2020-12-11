@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from specification.contract.exceptions import IncompatibleContracts, InconsistentContracts
+from contract import IncompatibleContracts, InconsistentContracts
 from specification.formula import NotSatisfiableException
 
 if TYPE_CHECKING:
-    from specification.contract import Contract
+    from contract import Contract
 
 
 def __iand__(self: Contract, other: Contract):

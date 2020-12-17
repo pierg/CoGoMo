@@ -5,8 +5,8 @@ from old_src.goals.cgtgoal import *
 
 
 def get_inputs():
-    """The designer specifies a mission using the predefined catalogue of dywer
-       In addition to the dywer to use the designer specifies also in which context each goal can be active"""
+    """The designer specifies a mission using the predefined catalogue of specification
+       In addition to the specification to use the designer specifies also in which context each goal can be active"""
 
     print("CUSTOM SPEC 5 complete")
     print(os.path.dirname(os.path.abspath(__file__)))

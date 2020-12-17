@@ -9,8 +9,8 @@ if TYPE_CHECKING:
 def __str__(self: Contract):
     """Override the print behavior"""
     ret = "\n\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
-    ret += '\n  assumptions:\t' + str(self.assumptions) + "\n"
-    ret += '  guarantees:\t' + str(self.guarantees) + "\n"
+    ret += '\n  assumption:\t' + str(self.assumptions) + "\n"
+    ret += '  guarantee:\t' + str(self.guarantees) + "\n"
     ret += "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
 
     return ret

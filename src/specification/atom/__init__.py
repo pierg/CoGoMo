@@ -42,6 +42,9 @@ class Atom(Specification):
         if not self.is_satisfiable():
             raise NotSatisfiableException
 
+        """Used for linking guarantees to assumptions"""
+        self.__saturation: Formula = Formula()
+
     def formula(self) -> (str, Typeset):
         expression, typset = self.__base_formula
         if self.negated:
@@ -58,6 +61,14 @@ class Atom(Specification):
     @kind.setter
     def kind(self, value: AtomKind):
         self.__kind = value
+
+    @property
+    def saturation(self) -> Formula:
+        return self.__saturation
+
+    @saturation.setter
+    def saturation(self, value: Formula):
+        self.__saturation = value
 
     @property
     def negated(self) -> bool:

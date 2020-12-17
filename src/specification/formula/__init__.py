@@ -76,6 +76,42 @@ class Formula(Specification):
     def dnf(self, value: List[Set[Atom]]):
         self.__dnf = value
 
+    def relax_by(self, formula: Formula):
+        """
+        Given the assumption as set of conjunctive clauses connected by the disjunction operator (DNF),
+        we can simplify any conjunct a_i in a clause x if exists a guarantee (a_j -> g_j) such that:
+        1) a_j is part of x
+        2) g_j -> a_i is a valid formula
+
+        DNF = (a & b) | (c & d)
+        CNF = (a | c) & (a | d) & (b | c) & (b | d)
+
+        simplify a =>
+        DNF = (b) | (c & d)
+        CNF = (b | c) & (b | d)
+
+        """
+        for guarantee in formula.cnf:
+            if len(guarantee) == 1:
+                g = list(guarantee)[0]
+            else:
+                raise Exception
+            atoms_to_remove = set()
+            for clause in self.dnf:
+                if g.saturation in clause:
+                    for conjunct in clause:
+                        if (g >> conjunct).is_valid():
+                            atoms_to_remove |= conjunct
+                clause -= atoms_to_remove
+
+            clause_cnf_to_remove = set()
+            for clause in self.cnf:
+                """Remove clause if contains atoms to be removed"""
+                if clause & atoms_to_remove:
+                    clause_cnf_to_remove |= clause
+            """Filter out clauses"""
+            self.cnf = filter(lambda clause: clause in clause_cnf_to_remove, self.cnf)
+
     def __str__(self):
         return self.formula()[0]
 

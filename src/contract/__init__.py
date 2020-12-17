@@ -4,9 +4,9 @@ from copy import deepcopy
 from typing import Tuple, Set
 
 from contract.exceptions import *
-from specification import Specification
+from specification.atom import Atom
 from specification.exceptions import NotSatisfiableException
-from specification.formula import Specification
+from specification.formula import Specification, Formula
 from typeset import Typeset
 
 
@@ -14,12 +14,43 @@ class Contract:
     def __init__(self,
                  assumptions: Specification = None,
                  guarantees: Specification = None):
+
         self.__assumptions = None
         self.__guarantees = None
 
-        """Properties"""
-        self.guarantees = guarantees
-        self.assumptions = assumptions
+        """Setting Assumptions"""
+        if assumptions is None:
+            self.__assumptions = Formula()
+        else:
+            if not isinstance(assumptions, Specification):
+                raise AttributeError
+            """Every contracts assigns a **copy** of A and G"""
+            self.__assumptions = deepcopy(assumptions)
+
+        """Setting Guarantees"""
+        if guarantees is None:
+            self.__guarantees = Formula()
+        else:
+            if not isinstance(assumptions, Specification):
+                raise AttributeError
+            """Every contracts assigns a **copy** of A and G"""
+            self.__guarantees = deepcopy(guarantees)
+
+            """Saturating the guarantees
+            a -> ((g1 | g2) & (g3 | g4)) === (((a ->g1) | (a ->g2)) & ((a ->g3) | (a ->g4)))
+            """
+            if isinstance(self.__guarantees, Atom):
+                self.__guarantees.saturation = self.__assumptions
+            elif isinstance(self.__guarantees, Formula):
+                for clause in self.__guarantees.cnf:
+                    for g in clause:
+                        g.saturation = self.__assumptions
+
+        """Check Feasibility"""
+        try:
+            self.__assumptions & self.__guarantees
+        except NotSatisfiableException:
+            raise UnfeasibleContracts(self.assumptions, self.guarantees)
 
         self.composed_by = {self}
         self.conjoined_by = {self}
@@ -53,7 +84,7 @@ class Contract:
 
     @property
     def guarantees(self) -> Specification:
-        """Returning saturated guarantees"""
+        """Returning saturated guarantee"""
         return self.__guarantees
 
     @guarantees.setter
@@ -103,7 +134,7 @@ class Contract:
                 raise InconsistentContracts(e.conj_a, e.conj_b)
 
             try:
-                new_contract.assumptions &= new_contract.guarantees
+                new_contract.assumptions & new_contract.guarantees
             except NotSatisfiableException as e:
                 print("Contracts unfeasible")
                 print(e.conj_a)
@@ -114,6 +145,8 @@ class Contract:
         print("The composition is compatible, consistent and feasible")
 
         """Assumption relaxation"""
+        cnf = new_contract.assumptions.cnf
+        dnf = new_contract.assumptions.dnf
         new_contract.__assumptions |= ~ new_contract.__guarantees
 
         new_contract.composed_by = contracts
@@ -152,7 +185,7 @@ class Contract:
                 raise InconsistentContracts(e.conj_a, e.conj_b)
 
             try:
-                new_contract.assumptions &= new_contract.guarantees
+                new_contract.assumptions & new_contract.guarantees
             except NotSatisfiableException as e:
                 print("Contracts unfeasible")
                 print(e.conj_a)

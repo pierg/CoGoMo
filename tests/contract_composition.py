@@ -6,6 +6,9 @@ from type.subtypes.locations import ReachLocation
 from typeset import Typeset
 
 
+
+"""BASIC CASE: 4 MUTEX PROPOSITIONS"""
+
 class MutexLocation(MutexType):
     pass
 
@@ -51,3 +54,7 @@ c2 = Contract(assumptions=c, guarantees=d)
 c12 = Contract.composition({c1, c2})
 
 print(str(c12))
+
+
+"""BASIC CASE: 4 MUTEX PROPOSITIONS"""
+

@@ -87,7 +87,7 @@ class Goal:
                 new_goal = conjunction(goals)
                 self.update_with(new_goal)
             else:
-                """Add context to guarantees as G(context -> guarantee)"""
+                """Add context to guarantee as G(context -> guarantee)"""
                 self.specification.context = value
 
     @property

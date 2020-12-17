@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 
 def __iand__(self: Contract, other: Contract):
-    """self &= other. And of assumptions and guarantees"""
+    """self &= other. And of assumption and guarantee"""
     """ A = a1 & a2
         G = (a1 & a2) -> ((a1 -> g1) & (a2 -> g2)) = (a1 & a2 ) -> (g1 & g2)"""
 
@@ -28,7 +28,7 @@ def __iand__(self: Contract, other: Contract):
 
 
 def __ior__(self: Contract, other: Contract):
-    """self |= other. Or of assumptions and  And of (saturated) guarantees"""
+    """self |= other. Or of assumption and  And of (saturated) guarantee"""
     try:
         self.assumptions |= other.assumptions
     except NotSatisfiableException as e:

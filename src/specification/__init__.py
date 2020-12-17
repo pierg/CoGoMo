@@ -5,7 +5,6 @@ from tools.nuxmv import Nuxmv
 from typeset import Typeset
 
 
-
 class Specification(ABC):
 
     def formula(self) -> (str, Typeset):

@@ -12,8 +12,8 @@ from typeset import Typeset
 
 class Contract:
     def __init__(self,
-                 assumptions: Union[Formula, Atom] = None,
-                 guarantees: Union[Formula, Atom] = None,
+                 assumptions: Specification = None,
+                 guarantees: Specification = None,
                  saturate: bool = True):
 
         self.__assumptions = None
@@ -26,25 +26,9 @@ class Contract:
         self.composed_by = {self}
         self.conjoined_by = {self}
 
-    def __str__(self: Contract):
-        """Override the print behavior"""
-        ret = "\n\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
-        if isinstance(self.assumptions, Formula):
-            ret += '  assumption'
-            ret += '\n  DNF:\t' + self.assumptions.print(FormulaOutput.DNF) + ""
-            ret += '\n  CNF:\t' + self.assumptions.print(FormulaOutput.CNF) + "\n"
-        else:
-            ret += '\n  ATM:\t' + str(self.assumptions) + "\n"
+    from ._copying import __deepcopy__
+    from ._printing import __str__
 
-        if isinstance(self.guarantees, Formula):
-            ret += '\n  guarantees'
-            ret += '\n  DNF:\t' + self.guarantees.print(FormulaOutput.DNF) + ""
-            ret += '\n  CNF:\t' + self.guarantees.print(FormulaOutput.CNF) + "\n"
-        else:
-            ret += '\n  ATM:\t' + str(self.guarantees) + "\n"
-        ret += "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
-
-        return ret
 
     def formula(self) -> Tuple[str, Typeset]:
         """Generate the contract formula A->G"""

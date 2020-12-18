@@ -7,11 +7,11 @@ from typing import Set, Tuple, TYPE_CHECKING, List
 
 from specification import Specification
 from specification.exceptions import NotSatisfiableException
-from tools.strings.logic import LogicTuple
+from tools.logic import LogicTuple
 from typeset import Typeset
 
 if TYPE_CHECKING:
-    from specification.atom import Atom, FormulaType
+    from specification.atom import Atom
 
 
 class FormulaOutput(Enum):
@@ -51,6 +51,9 @@ class Formula(Specification):
 
         else:
             raise Exception("Wrong parameters LTL construction")
+
+    from ._copying import __deepcopy__
+    from ._printing import pretty_print
 
     @property
     def kind(self) -> FormulaKind:
@@ -128,12 +131,6 @@ class Formula(Specification):
                     atom.saturate(value)
         """Atoms are shared between CNF and DNF"""
 
-    def __str__(self):
-        return self.formula()[0]
-
-    def print(self, formulatype: FormulaOutput):
-        return self.formula(formulatype)[0]
-
     def formula(self, formulatype: FormulaOutput = FormulaOutput.CNF) -> Tuple[str, Typeset]:
         """Generate the formula"""
 
@@ -156,7 +153,7 @@ class Formula(Specification):
         new_ltl = deepcopy(self)
 
         """Cartesian product between the two dnf"""
-        new_ltl.__dnf = [a | b for a, b in itertools.product(new_ltl.dnf, other.dnf)]
+        new_ltl.__dnf = [a | b for a, b in itertools.product(self.dnf, other.dnf)]
 
         """Append to list if not already there"""
         for other_elem in other.cnf:
@@ -177,7 +174,7 @@ class Formula(Specification):
         new_ltl = deepcopy(self)
 
         """Cartesian product between the two dnf"""
-        new_ltl.__cnf = [a | b for a, b in itertools.product(new_ltl.cnf, other.cnf)]
+        new_ltl.__cnf = [a | b for a, b in itertools.product(self.cnf, other.cnf)]
 
         """Append to list if not already there"""
         for other_elem in other.dnf:

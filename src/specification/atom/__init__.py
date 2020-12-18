@@ -5,7 +5,7 @@ from enum import Enum, auto
 from specification import Specification
 from specification.exceptions import NotSatisfiableException
 from specification.formula import Formula
-from tools.strings.logic import Logic, LogicTuple
+from tools.logic import Logic, LogicTuple
 from typeset import Typeset
 
 

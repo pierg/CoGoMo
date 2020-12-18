@@ -2,7 +2,7 @@ from __future__ import annotations
 from abc import ABC
 
 from tools.nuxmv import Nuxmv
-from tools.strings.logic import LogicTuple
+from tools.logic import LogicTuple
 from typeset import Typeset
 
 

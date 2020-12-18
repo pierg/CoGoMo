@@ -1,7 +1,7 @@
 import subprocess
-from typing import List, Union, Tuple
+from typing import List, Tuple
 
-from tools.strings.logic import Logic
+from tools.logic import Logic
 from type import Boolean, BoundedInteger
 from typeset import Typeset
 

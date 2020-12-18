@@ -1,14 +1,16 @@
 from __future__ import annotations
+
+from typing import Union, Set
+
+from contract import Contract
 from specification import Specification
-from specification.atom import Propositional
-
-
+from tools.strings import StringMng
 
 
 class Event(list):
-  def __call__(self, *args, **kwargs):
-    for item in self:
-      item(*args, **kwargs)
+    def __call__(self, *args, **kwargs):
+        for item in self:
+            item(*args, **kwargs)
 
 
 class ContractChangedObservable:
@@ -21,8 +23,8 @@ class Goal:
     def __init__(self,
                  name: str = None,
                  description: str = None,
-                 specification: Specification = None,
-                 context: Propositional = None):
+                 specification: Union[Specification, Contract] = None,
+                 context: Specification = None):
 
         """Read only properties"""
         self.__realizable = None
@@ -32,8 +34,10 @@ class Goal:
         """Properties defined on first instantiation"""
         self.name: str = name
         self.description: str = description
-        self.specification: Specification = specification
-        self.context: Atomic = context
+        self.specification: Contract = specification
+        self.context: Specification = context
+
+    from ._printing import __str__
 
     @property
     def name(self) -> str:
@@ -41,7 +45,7 @@ class Goal:
 
     @name.setter
     def name(self, value: str):
-        self.__name, self.__id = get_name_and_id(value)
+        self.__name, self.__id = StringMng.get_name_and_id(value)
 
     @property
     def description(self) -> str:
@@ -59,63 +63,19 @@ class Goal:
         return self.__specification
 
     @specification.setter
-    def specification(self, value: Union[Contract, LTL_types]):
+    def specification(self, value: Union[Contract, Specification]):
         if isinstance(value, Contract):
             self.__specification: Contract = value
-        elif isinstance(value, LTL):
+        elif isinstance(value, Specification):
             self.__specification: Contract = Contract(guarantees=value)
 
     @property
-    def context(self) -> LTL:
-        return self.specification.context
+    def context(self) -> Specification:
+        return self.__context
 
     @context.setter
-    def context(self, value: Union[LTL, List[LTL]]):
-        if value is not None:
-            if isinstance(value, list):
-                """If we have a list of context we connect the current goal to a conjunction of goals, each goal is 
-                instantiated in a context in the list """
-                goals = set()
-                for ctx in value:
-                    goals.add(Goal(
-                        name=self.name + " & " + ctx.formula(),
-                        description=self.description + " in " + ctx.formula(),
-                        specification=deepcopy(self.specification),
-                        context=ctx
-                    ))
-                from goal.operations import conjunction
-                new_goal = conjunction(goals)
-                self.update_with(new_goal)
-            else:
-                """Add context to guarantee as G(context -> guarantee)"""
-                self.specification.context = value
-
-    @property
-    def parents(self) -> Dict[Link, Set[Goal]]:
-        return self.__parents
-
-    @property
-    def children(self) -> Dict[Link, Set[Goal]]:
-        return self.__children
-
-    def add_parents(self, link: Link, goals: Set[Goal]):
-        if link in self.__parents.keys():
-            self.__parents[link] |= goals
-        else:
-            self.__parents[link] = goals
-
-    def add_children(self, link: Link, goals: Set[Goal]):
-        if link == Link.COMPOSITION or link == Link.CONJUNCTION:
-            if link in self.__children.keys():
-                raise Exception("A composition/conjunction children link already exists!")
-            self.__children[link] = goals
-        else:
-            if link in self.__children.keys():
-                self.__children[link] |= goals
-            else:
-                self.__children[link] = goals
-        for goal in self.__children[link]:
-            goal.add_parents(link=link, goals={self})
+    def context(self, value: Specification):
+        self.__context = value
 
     @property
     def realizable(self) -> bool:
@@ -129,40 +89,46 @@ class Goal:
     def time_synthesis(self) -> int:
         return round(self.__time_synthesis, 2)
 
-    def consolidate_bottom_up(self: Goal):
-        """It recursivly re-perfom composition and conjunction and refinement operations up to the rood node"""
+    @staticmethod
+    def composition(goals: Set[Goal], name: str = None, description: str = None) -> Goal:
+        if name is None:
+            names = []
+            for goal in goals:
+                names.append(goal.name)
+            names.sort()
+            conj_name = ""
+            for name in names:
+                conj_name += name + "||"
+            name = conj_name[:-2]
 
-        from .operations import conjunction, composition
-        if len(self.parents) > 0:
-            for link_1, parents in self.parents.items():
-                for parent in parents:
-                    for link_2, children in parent.children:
-                        if link_2 == Link.CONJUNCTION:
-                            new_goal = conjunction(children)
-                            parent.update_with(new_goal, consolidate=False)
+        set_of_contracts = set()
+        for g in goals:
+            set_of_contracts.add(g.specification)
 
-                        if link_2 == Link.COMPOSITION:
-                            new_goal = composition(children)
-                            parent.update_with(new_goal, consolidate=False)
+        new_goal = Goal(name=name,
+                        description=description,
+                        specification=Contract.composition(set_of_contracts))
 
-                        if link_2 == Link.REFINEMENT:
-                            parent.refine_by(children, consolidate=False)
-                    parent.consolidate_bottom_up()
-        else:
-            return
+        return new_goal
 
-    def update_with(self: Goal, other: Goal, consolidate=True):
-        """Update the current node of the CGT with a new goal that has not parent"""
+    @staticmethod
+    def conjunction(goals: Set[Goal], name: str = None, description: str = None) -> Goal:
+        if name is None:
+            names = []
+            for goal in goals:
+                names.append(goal.name)
+            names.sort()
+            conj_name = ""
+            for name in names:
+                conj_name += name + "^^"
+            name = conj_name[:-2]
 
-        if len(other.parents) > 0:
-            raise Exception("Cannot update with goal belonging to other CGT")
+        set_of_contracts = set()
+        for g in goals:
+            set_of_contracts.add(g.specification)
 
-        """Updating fields"""
-        self.name = other.name
-        self.description = other.description
-        self.specification = other.specification
-        for link, children in other.children.items():
-            self.add_children(link, children)
+        new_goal = Goal(name=name,
+                        description=description,
+                        specification=Contract.conjunction(set_of_contracts))
 
-        if consolidate:
-            self.consolidate_bottom_up()
+        return new_goal

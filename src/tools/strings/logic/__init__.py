@@ -14,7 +14,7 @@ class LogicTuple:
 
     @staticmethod
     def and_(formulae: List[Tuple[str, Typeset]], brackets: bool = False) -> Tuple[str, Typeset]:
-        """Returns an str formula representing the logical AND of list_propoositions"""
+        """Returns an Tuple[str, Typeset] formula representing the logical AND of list_propoositions"""
         if len(formulae) > 1:
 
             propositions = [formula[0] for formula in formulae]
@@ -43,13 +43,16 @@ class LogicTuple:
             raise Exception("List of propositions is empty")
 
     @staticmethod
-    def implies_(prop_1: str, prop_2: str) -> str:
-        """Returns an str formula representing the logical IMPLIES of prop_1 and prop_2"""
-        return f"(({prop_1}) -> ({prop_2}))"
+    def implies_(prop_1: Tuple[str, Typeset], prop_2: Tuple[str, Typeset], brackets: bool = False) -> Tuple[str, Typeset]:
+        """Returns an Tuple[str, Typeset] formula representing the logical IMPLIES of prop_1 and prop_2"""
+        if brackets:
+            return f"(({prop_1[0]}) -> ({prop_2[0]}))", prop_1[1] | prop_2[1]
+        else:
+            return f"({prop_1[0]} -> {prop_2[0]})", prop_1[1] | prop_2[1]
 
     @staticmethod
-    def not_(prop: str) -> str:
-        """Returns an str formula representing the logical NOT of prop"""
+    def not_(prop: Tuple[str, Typeset]) -> str:
+        """Returns an Tuple[str, Typeset] formula representing the logical NOT of prop"""
         match_operators = bool(re.search(operators, prop))
         match_temporal = bool(re.search(temporal_ops, prop))
         if match_operators or match_temporal:

@@ -11,7 +11,7 @@ from tools.strings.logic import LogicTuple
 from typeset import Typeset
 
 if TYPE_CHECKING:
-    from specification.atom import Atom
+    from specification.atom import Atom, FormulaType
 
 
 class FormulaOutput(Enum):
@@ -42,12 +42,12 @@ class Formula(Specification):
         self.__saturation = None
 
         if atom is None:
-            self.cnf: List[Set[Atom]] = [{Atom("TRUE")}]
-            self.dnf: List[Set[Atom]] = [{Atom("TRUE")}]
+            self.__cnf: List[Set[Atom]] = [{Atom("TRUE")}]
+            self.__dnf: List[Set[Atom]] = [{Atom("TRUE")}]
 
         elif atom is not None:
-            self.cnf: List[Set[Atom]] = [{atom}]
-            self.dnf: List[Set[Atom]] = [{atom}]
+            self.__cnf: List[Set[Atom]] = [{atom}]
+            self.__dnf: List[Set[Atom]] = [{atom}]
 
         else:
             raise Exception("Wrong parameters LTL construction")
@@ -64,17 +64,9 @@ class Formula(Specification):
     def cnf(self) -> List[Set[Atom]]:
         return self.__cnf
 
-    @cnf.setter
-    def cnf(self, value: List[Set[Atom]]):
-        self.__cnf = value
-
     @property
     def dnf(self) -> List[Set[Atom]]:
         return self.__dnf
-
-    @dnf.setter
-    def dnf(self, value: List[Set[Atom]]):
-        self.__dnf = value
 
     def relax_by(self, formula: Formula):
         """
@@ -98,22 +90,48 @@ class Formula(Specification):
                 raise Exception
             atoms_to_remove = set()
             for clause in self.dnf:
-                if g.saturation in clause:
+                if g.saturation is not None:
+                    if g.saturation in clause:
+                        for conjunct in clause:
+                            if (g.unsaturated >> conjunct).is_valid():
+                                print(f"{str(g)} relaxes {str(conjunct)}")
+                                atoms_to_remove.add(conjunct)
+                else:
                     for conjunct in clause:
-                        if (g >> conjunct).is_valid():
-                            atoms_to_remove |= conjunct
-                clause -= atoms_to_remove
+                        if (g.unsaturated >> conjunct).is_valid():
+                            print(f"{str(g)} relaxes {str(conjunct)}")
+                            atoms_to_remove.add(conjunct)
+                    clause -= atoms_to_remove
 
             clause_cnf_to_remove = set()
             for clause in self.cnf:
                 """Remove clause if contains atoms to be removed"""
                 if clause & atoms_to_remove:
                     clause_cnf_to_remove |= clause
+
             """Filter out clauses"""
-            self.cnf = filter(lambda clause: clause in clause_cnf_to_remove, self.cnf)
+            for clause in list(self.cnf):
+                if clause in clause_cnf_to_remove:
+                    self.cnf.remove(clause)
+
+
+    def saturate(self, value: Specification):
+        """
+        Saturate each atom of the formula, CNF and DNF
+        x->((a | b) & (c | d)) === ((x->a) | (x->b)) & ((x->c) | (x->d))
+        x->((a & b) | (c & d)) === ((x->a) & (x->b)) | ((x->c) & (x->d))
+        """
+        if not value.is_valid():
+            for clause in self.cnf:
+                for atom in clause:
+                    atom.saturate(value)
+        """Atoms are shared between CNF and DNF"""
 
     def __str__(self):
         return self.formula()[0]
+
+    def print(self, formulatype: FormulaOutput):
+        return self.formula(formulatype)[0]
 
     def formula(self, formulatype: FormulaOutput = FormulaOutput.CNF) -> Tuple[str, Typeset]:
         """Generate the formula"""
@@ -137,7 +155,7 @@ class Formula(Specification):
         new_ltl = deepcopy(self)
 
         """Cartesian product between the two dnf"""
-        new_ltl.dnf = [a | b for a, b in itertools.product(new_ltl.dnf, other.dnf)]
+        new_ltl.__dnf = [a | b for a, b in itertools.product(new_ltl.dnf, other.dnf)]
 
         """Append to list if not already there"""
         for other_elem in other.cnf:
@@ -158,7 +176,7 @@ class Formula(Specification):
         new_ltl = deepcopy(self)
 
         """Cartesian product between the two dnf"""
-        new_ltl.cnf = [a | b for a, b in itertools.product(new_ltl.cnf, other.cnf)]
+        new_ltl.__cnf = [a | b for a, b in itertools.product(new_ltl.cnf, other.cnf)]
 
         """Append to list if not already there"""
         for other_elem in other.dnf:
@@ -180,7 +198,7 @@ class Formula(Specification):
                 atom.negate()
 
         """Swap CNF with DNF"""
-        new_ltl.cnf, new_ltl.dnf = new_ltl.dnf, new_ltl.cnf
+        new_ltl.__cnf, new_ltl.__dnf = new_ltl.dnf, new_ltl.cnf
 
         return new_ltl
 
@@ -213,7 +231,7 @@ class Formula(Specification):
             raise AttributeError
 
         """Cartesian product between the two dnf"""
-        self.dnf = [a | b for a, b in itertools.product(self.dnf, other.dnf)]
+        self.__dnf = [a | b for a, b in itertools.product(self.dnf, other.dnf)]
 
         """Append to list if not already there"""
         for other_elem in other.cnf:
@@ -232,7 +250,7 @@ class Formula(Specification):
             raise AttributeError
 
         """Cartesian product between the two dnf"""
-        self.cnf = [a | b for a, b in itertools.product(self.cnf, other.cnf)]
+        self.__cnf = [a | b for a, b in itertools.product(self.cnf, other.cnf)]
 
         """Append to list if not already there"""
         for other_elem in other.dnf:

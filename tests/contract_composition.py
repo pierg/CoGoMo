@@ -49,11 +49,14 @@ c = Formula(Atom((c.name, Typeset({c}))))
 d = Formula(Atom((d.name, Typeset({d}))))
 
 c1 = Contract(assumptions=a, guarantees=b)
-c2 = Contract(assumptions=c, guarantees=d)
+print(c1)
+
+c2 = Contract(assumptions=c, guarantees=a)
+print(c2)
+
 
 c12 = Contract.composition({c1, c2})
-
-print(str(c12))
+print(c12)
 
 
 """BASIC CASE: 4 MUTEX PROPOSITIONS"""

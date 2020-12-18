@@ -5,7 +5,7 @@ from enum import Enum, auto
 from specification import Specification
 from specification.exceptions import NotSatisfiableException
 from specification.formula import Formula
-from tools.strings.logic import Logic
+from tools.strings.logic import Logic, LogicTuple
 from typeset import Typeset
 
 
@@ -17,6 +17,10 @@ class AtomKind(Enum):
     IDENTITY = auto()
     UNDEFINED = auto()
 
+
+class FormulaType(Enum):
+    SATURATED = auto()
+    UNSATURATED = auto()
 
 class Atom(Specification):
 
@@ -31,6 +35,9 @@ class Atom(Specification):
         """Indicates if the formula is negated"""
         self.__negation: bool = False
 
+        """Used for linking guarantees to assumptions"""
+        self.__saturation = None
+
         if formula is None:
             raise AttributeError
         if isinstance(formula, str):
@@ -42,17 +49,23 @@ class Atom(Specification):
         if not self.is_satisfiable():
             raise NotSatisfiableException
 
-        """Used for linking guarantees to assumptions"""
-        self.__saturation: Formula = Formula()
-
-    def formula(self) -> (str, Typeset):
+    def formula(self, type: FormulaType = FormulaType.SATURATED) -> (str, Typeset):
         expression, typset = self.__base_formula
+        if type == FormulaType.SATURATED:
+            if self.__saturation is None:
+                expression, typset = self.__base_formula
+            else:
+                expression, typset = LogicTuple.implies_(self.__saturation.formula(), self.__base_formula)
         if self.negated:
             return Logic.not_(expression), typset
-        return self.__base_formula
+        return expression, typset
 
     def negate(self):
         self.__negation = not self.negated
+
+    @property
+    def unsaturated(self):
+        return Atom(self.formula(FormulaType.UNSATURATED), self.kind)
 
     @property
     def kind(self) -> AtomKind:
@@ -63,11 +76,10 @@ class Atom(Specification):
         self.__kind = value
 
     @property
-    def saturation(self) -> Formula:
+    def saturation(self):
         return self.__saturation
 
-    @saturation.setter
-    def saturation(self, value: Formula):
+    def saturate(self, value: Specification):
         self.__saturation = value
 
     @property
@@ -75,7 +87,7 @@ class Atom(Specification):
         return self.__negation
 
     def __str__(self):
-        return self.formula()
+        return self.formula()[0]
 
     def __hash__(self):
         return hash(self.__base_formula[0])

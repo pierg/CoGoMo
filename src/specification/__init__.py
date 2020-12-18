@@ -19,6 +19,9 @@ class Specification(ABC):
     def is_realizable(self) -> bool:
         pass
 
+    def saturate(self, spec: Specification):
+        pass
+
     def __hash__(self):
         return hash(self.formula()[0])
 

@@ -157,15 +157,15 @@ class Contract:
         if len(contracts) == 0:
             raise Exception("No contract specified in the composition")
 
-        contracts_list = list(contracts)
-
-        new_contract: Contract = contracts_list[0]
+        contract_list = list(contracts)
+        new_assumptions = deepcopy(contract_list[0].assumptions)
+        new_guarantees = deepcopy(contract_list[0].guarantees)
 
         """Populate the data structure while checking for compatibility and consistency"""
-        for contract in contracts_list[1:]:
+        for contract in contract_list[1:]:
 
             try:
-                new_contract.assumptions &= contract.assumptions
+                new_assumptions |= contract.assumptions
             except NotSatisfiableException as e:
                 print("Contracts inconsistent")
                 print(e.conj_a)
@@ -174,7 +174,7 @@ class Contract:
                 raise IncompatibleContracts(e.conj_a, e.conj_b)
 
             try:
-                new_contract.guarantees &= contract.guarantees
+                new_guarantees &= contract.guarantees
             except NotSatisfiableException as e:
                 print("Contracts incompatible")
                 print(e.conj_a)
@@ -182,19 +182,11 @@ class Contract:
                 print(e.conj_b)
                 raise InconsistentContracts(e.conj_a, e.conj_b)
 
-            try:
-                new_contract.assumptions & new_contract.guarantees
-            except NotSatisfiableException as e:
-                print("Contracts unfeasible")
-                print(e.conj_a)
-                print("unsatisfiable with")
-                print(e.conj_b)
-                raise UnfeasibleContracts(e.conj_a, e.conj_b)
+        print("The composition is compatible and consistent")
 
-        print("The composition is compatible, consistent and feasible")
+        """New contracts without saturation cause it was already saturated"""
+        new_contract = Contract(assumptions=new_assumptions, guarantees=new_guarantees, saturate=False)
 
-        """Assumption relaxation"""
-        new_contract.__assumptions |= ~ new_contract.__guarantees
+        new_contract.conjoined_by = contracts
 
-        new_contract.composed_by = contracts
         return new_contract

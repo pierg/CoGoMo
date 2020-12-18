@@ -56,9 +56,27 @@ class Node(Goal):
             goal.add_parents(link=link, nodes={self})
 
     @staticmethod
-    def composition(goals: Set[Goal], name: str = None, description: str = None) -> Goal:
-        pass
+    def composition(goals: Set[Node], name: str = None, description: str = None) -> Goal:
+        if name is None:
+            names = []
+            for goal in goals:
+                names.append(goal.name)
+            names.sort()
+            conj_name = ""
+            for name in names:
+                conj_name += name + "||"
+            name = conj_name[:-2]
+
+        set_of_contracts = set()
+        for g in goals:
+            set_of_contracts.add(g.specification)
+
+        new_node = Node(name=name,
+                        description=description,
+                        specification=Contract.composition(set_of_contracts))
+
+
 
     @staticmethod
-    def conjunction(goals: Set[Goal], name: str = None, description: str = None) -> Goal:
+    def conjunction(goals: Set[Node], name: str = None, description: str = None) -> Goal:
         pass

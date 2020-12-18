@@ -2,6 +2,7 @@ from __future__ import annotations
 from abc import ABC
 
 from tools.nuxmv import Nuxmv
+from tools.strings.logic import LogicTuple
 from typeset import Typeset
 
 
@@ -34,9 +35,8 @@ class Specification(ABC):
         if other.is_valid():
             return True
 
-        implication = self >> other
         """Check if self -> other is valid"""
-        return Nuxmv.check_validity(implication.formula())
+        return Nuxmv.check_validity(LogicTuple.implies_(self.formula(), other.formula(), brackets=True))
 
     def __gt__(self, other: Specification):
         """self > other. True if self is an abstraction but not equal to other"""
@@ -47,16 +47,15 @@ class Specification(ABC):
         if self.is_valid():
             return True
 
-        implication = other >> self
         """Check if self -> other is valid"""
-        return Nuxmv.check_validity(implication.formula())
+        return Nuxmv.check_validity(LogicTuple.implies_(other.formula(), self.formula(), brackets=True))
 
     def __eq__(self, other: Specification):
         """Check if self -> other and other -> self"""
         if self.formula()[0] == other.formula()[0]:
             return True
         else:
-            return self.__le__(other) and self.__ne__(other)
+            return self.__le__(other) and self.__ge__(other)
 
     def __ne__(self, other: Specification):
         """Check if self -> other and other -> self"""

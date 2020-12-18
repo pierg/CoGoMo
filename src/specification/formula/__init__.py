@@ -101,7 +101,8 @@ class Formula(Specification):
                         if (g.unsaturated >> conjunct).is_valid():
                             print(f"{str(g)} relaxes {str(conjunct)}")
                             atoms_to_remove.add(conjunct)
-                    clause -= atoms_to_remove
+
+                clause -= atoms_to_remove
 
             clause_cnf_to_remove = set()
             for clause in self.cnf:
@@ -111,7 +112,7 @@ class Formula(Specification):
 
             """Filter out clauses"""
             for clause in list(self.cnf):
-                if clause in clause_cnf_to_remove:
+                if len(clause & clause_cnf_to_remove) > 0:
                     self.cnf.remove(clause)
 
 
@@ -182,9 +183,6 @@ class Formula(Specification):
         for other_elem in other.dnf:
             if other_elem not in new_ltl.dnf:
                 new_ltl.dnf.append(other_elem)
-
-        # if not new_ltl.is_satisfiable():
-        #     raise NotSatisfiableException(self, other)
 
         return new_ltl
 

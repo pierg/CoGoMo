@@ -94,15 +94,13 @@ class Goal:
 
     @staticmethod
     def pretty_print_goal(goal: Goal, level=0):
-        ret =  "\t" * level + "+++++++++++++++++++++++++++++++++++++\n"
-        ret += "\t" * level + "|\tGOAL\t" + repr(goal.name) + "\n"
+        ret = "\t" * level + "|---GOAL\t" + repr(goal.name) + "\n"
         if goal.context is not None:
             ret += "\t" * level + "|\tCONTEXT:\t" + str(goal.context) + "\n"
         ret += "\t" * level + "|\tASSUMPTIONS:\n"
         ret += "\t" * level + "|\t" + goal.specification.assumptions.pretty_print(FormulaOutput.DNF) + "\n"
         ret += "\t" * level + "|\tGUARANTEES:\n"
         ret += "\t" * level + "|\t" + goal.specification.guarantees.pretty_print(FormulaOutput.CNF) + "\n"
-        ret += "\t" * level + "+++++++++++++++++++++++++++++++++++++\n"
         return ret
 
     @staticmethod

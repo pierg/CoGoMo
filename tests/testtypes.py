@@ -47,12 +47,20 @@ class GoF(ReachLocation, MutexLocation):
         super().__init__(name, adjacent_to={"GoX", "GoC"})
 
 
+class GoG(ReachLocation, MutexLocation):
+
+    def __init__(self, name: str = "g"):
+        super().__init__(name, adjacent_to={"GoX", "GoC"})
+
+
 a = GoA()
 b = GoB()
 c = GoC()
 d = GoD()
 e = GoE()
 f = GoF()
+g = GoG()
+
 
 a = Formula(Atom((a.name, Typeset({a}))))
 b = Formula(Atom((b.name, Typeset({b}))))
@@ -63,6 +71,7 @@ d = Formula(Atom((d.name, Typeset({d}))))
 e = Formula(Atom((e.name, Typeset({e}))))
 f = Formula(Atom((f.name, Typeset({f}))))
 
+g = Formula(Atom((g.name, Typeset({g}))))
 
 
 

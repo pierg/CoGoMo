@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from typing import Union, Set
 
-from contract import Contract
+from contract import Contract, IncompatibleContracts, InconsistentContracts, UnfeasibleContracts
+from goal.exceptions import GoalFailException, FailOperations, FailMotivations
 from specification import Specification
+from specification.formula import FormulaOutput
 from tools.strings import StringMng
 
 
@@ -37,7 +39,8 @@ class Goal:
         self.specification: Contract = specification
         self.context: Specification = context
 
-    from ._printing import __str__
+    def __str__(self):
+        Goal.pretty_print_goal(self)
 
     @property
     def name(self) -> str:
@@ -90,6 +93,19 @@ class Goal:
         return round(self.__time_synthesis, 2)
 
     @staticmethod
+    def pretty_print_goal(goal: Goal, level=0):
+        ret =  "\t" * level + "+++++++++++++++++++++++++++++++++++++\n"
+        ret += "\t" * level + "|\tGOAL\t" + repr(goal.name) + "\n"
+        if goal.context is not None:
+            ret += "\t" * level + "|\tCONTEXT:\t" + str(goal.context) + "\n"
+        ret += "\t" * level + "|\tASSUMPTIONS:\n"
+        ret += "\t" * level + "|\t" + goal.specification.assumptions.pretty_print(FormulaOutput.DNF) + "\n"
+        ret += "\t" * level + "|\tGUARANTEES:\n"
+        ret += "\t" * level + "|\t" + goal.specification.guarantees.pretty_print(FormulaOutput.CNF) + "\n"
+        ret += "\t" * level + "+++++++++++++++++++++++++++++++++++++\n"
+        return ret
+
+    @staticmethod
     def composition(goals: Set[Goal], name: str = None, description: str = None) -> Goal:
         if name is None:
             names = []
@@ -105,9 +121,55 @@ class Goal:
         for g in goals:
             set_of_contracts.add(g.specification)
 
+        try:
+            new_contract = Contract.composition(set_of_contracts)
+
+        except IncompatibleContracts as e:
+            goals_involved = []
+            goals_failed = []
+            for goal in goals:
+                for contract in goal.specification.conjoined_by:
+                    if e.assumptions_1 <= contract.assumptions:
+                        goals_involved.append(goal)
+                    if e.assumptions_2 <= contract.assumptions:
+                        goals_failed.append(goal)
+            raise GoalFailException(failed_operation=FailOperations.composition,
+                                    faild_motivation=FailMotivations.incompatible,
+                                    goals_involved_a=goals_involved,
+                                    goals_involved_b=goals_failed)
+
+        except InconsistentContracts as e:
+            goals_involved = []
+            goals_failed = []
+            for goal in goals:
+                for contract in goal.specification.conjoined_by:
+                    if e.guarantee_1 <= contract.guarantees:
+                        goals_involved.append(goal)
+                    if e.guarantee_2 >= contract.guarantees:
+                        goals_failed.append(goal)
+            raise GoalFailException(failed_operation=FailOperations.composition,
+                                    faild_motivation=FailMotivations.inconsistent,
+                                    goals_involved_a=goals_involved,
+                                    goals_involved_b=goals_failed)
+
+        except UnfeasibleContracts as e:
+
+            goals_involved = []
+            goals_failed = []
+            for goal in goals:
+                for contract in goal.specification.conjoined_by:
+                    if e.assumptions <= contract.assumptions:
+                        goals_involved.append(goal)
+                    if e.guarantees <= contract.assumptions:
+                        goals_failed.append(goal)
+            raise GoalFailException(failed_operation=FailOperations.composition,
+                                    faild_motivation=FailMotivations.unfeasible,
+                                    goals_involved_a=goals_involved,
+                                    goals_involved_b=goals_failed)
+
         new_goal = Goal(name=name,
                         description=description,
-                        specification=Contract.composition(set_of_contracts))
+                        specification=new_contract)
 
         return new_goal
 
@@ -127,8 +189,25 @@ class Goal:
         for g in goals:
             set_of_contracts.add(g.specification)
 
+        try:
+            new_contract = Contract.conjunction(set_of_contracts)
+
+        except InconsistentContracts as e:
+            goals_involved = []
+            goals_failed = []
+            for goal in goals:
+                for contract in goal.specification.conjoined_by:
+                    if e.guarantee_1 <= contract.guarantees:
+                        goals_involved.append(goal)
+                    if e.guarantee_2 >= contract.guarantees:
+                        goals_failed.append(goal)
+            raise GoalFailException(failed_operation=FailOperations.conjunction,
+                                    faild_motivation=FailMotivations.inconsistent,
+                                    goals_involved_a=goals_involved,
+                                    goals_involved_b=goals_failed)
+
         new_goal = Goal(name=name,
                         description=description,
-                        specification=Contract.conjunction(set_of_contracts))
+                        specification=new_contract)
 
         return new_goal

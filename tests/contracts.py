@@ -1,5 +1,5 @@
 from contract import Contract
-from tests.types import *
+from tests.testtypes import *
 
 
 c1 = Contract(assumptions=a, guarantees=b)

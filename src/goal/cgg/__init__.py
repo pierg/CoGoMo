@@ -19,14 +19,24 @@ class Node(Goal):
                  name: str = None,
                  description: str = None,
                  specification: Union[Specification, Contract] = None,
-                 context: Specification = None):
+                 context: Specification = None,
+                 goal: Goal = None):
         """Graph properties"""
 
-        super().__init__(name, description, specification, context)
+        if goal is None:
+            super().__init__(name, description, specification, context)
+        elif goal is not None and name is None and description is None and specification is None and context is None:
+            super().__init__(goal.name, goal.description, goal.specification, goal.context)
+        else:
+            raise AttributeError
 
+        """Dictionary Link -> Set[Node]"""
         self.__parents = {}
+
+        """Dictionary Link -> Set[Node]"""
         self.__children = {}
 
+    from ._printing import __str__
 
     @property
     def parents(self) -> Dict[Link, Set[Node]]:
@@ -48,6 +58,7 @@ class Node(Goal):
                 raise Exception("A composition/conjunction children link already exists!")
             self.__children[link] = nodes
         else:
+            """Link.REFINEMENT"""
             if link in self.__children.keys():
                 self.__children[link] |= nodes
             else:
@@ -56,27 +67,23 @@ class Node(Goal):
             goal.add_parents(link=link, nodes={self})
 
     @staticmethod
-    def composition(goals: Set[Node], name: str = None, description: str = None) -> Goal:
-        if name is None:
-            names = []
-            for goal in goals:
-                names.append(goal.name)
-            names.sort()
-            conj_name = ""
-            for name in names:
-                conj_name += name + "||"
-            name = conj_name[:-2]
+    def composition(nodes: Set[Node], name: str = None, description: str = None) -> Node:
 
-        set_of_contracts = set()
-        for g in goals:
-            set_of_contracts.add(g.specification)
+        new_goal = Goal.composition(nodes, name, description)
 
-        new_node = Node(name=name,
-                        description=description,
-                        specification=Contract.composition(set_of_contracts))
+        new_node = Node(goal=new_goal)
 
+        new_node.add_children(link=Link.COMPOSITION, nodes=set(nodes))
 
+        return new_node
 
     @staticmethod
-    def conjunction(goals: Set[Node], name: str = None, description: str = None) -> Goal:
-        pass
+    def conjunction(nodes: Set[Node], name: str = None, description: str = None) -> Node:
+
+        new_goal = Goal.conjunction(nodes, name, description)
+
+        new_node = Node(goal=new_goal)
+
+        new_node.add_children(link=Link.CONJUNCTION, nodes=nodes)
+
+        return new_node

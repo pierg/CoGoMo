@@ -52,7 +52,6 @@ class Formula(Specification):
         else:
             raise Exception("Wrong parameters LTL construction")
 
-    from ._copying import __deepcopy__
     from ._printing import pretty_print
 
     @property

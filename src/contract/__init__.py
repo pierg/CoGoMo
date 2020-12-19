@@ -63,7 +63,7 @@ class Contract:
                 raise AttributeError
             """Every contracts assigns a **copy** of A and G"""
             if isinstance(value, Atom):
-                self.__assumptions = Formula(value)
+                self.__assumptions = Formula(deepcopy(value))
             elif isinstance(value, Formula):
                 self.__assumptions = deepcopy(value)
 
@@ -75,7 +75,7 @@ class Contract:
                 raise AttributeError
             """Every contracts assigns a **copy** of A and G"""
             if isinstance(value, Atom):
-                self.__guarantees = Formula(value)
+                self.__guarantees = Formula(deepcopy(value))
             elif isinstance(value, Formula):
                 self.__guarantees = deepcopy(value)
         """Saturate the guarantees"""
@@ -148,14 +148,7 @@ class Contract:
         """Populate the data structure while checking for compatibility and consistency"""
         for contract in contract_list[1:]:
 
-            try:
-                new_assumptions |= contract.assumptions
-            except NotSatisfiableException as e:
-                print("Contracts inconsistent")
-                print(e.conj_a)
-                print("unsatisfiable with")
-                print(e.conj_b)
-                raise IncompatibleContracts(e.conj_a, e.conj_b)
+            new_assumptions |= contract.assumptions
 
             try:
                 new_guarantees &= contract.guarantees

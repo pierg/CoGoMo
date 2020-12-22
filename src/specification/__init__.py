@@ -23,6 +23,14 @@ class Specification(ABC):
     def saturate(self, spec: Specification):
         pass
 
+    @property
+    def typeset(self) -> Typeset:
+        return self.formula()[1]
+
+    @property
+    def string(self) -> str:
+        return self.formula()[0]
+
     def __hash__(self):
         return hash(self.formula()[0])
 

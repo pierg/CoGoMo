@@ -4,9 +4,8 @@ from type import MutexType
 from type.subtypes.locations import ReachLocation
 from typeset import Typeset
 
-
-
 """BASIC CASE: 4 MUTEX PROPOSITIONS"""
+
 
 class MutexLocation(MutexType):
     pass
@@ -35,6 +34,7 @@ class GoD(ReachLocation, MutexLocation):
     def __init__(self, name: str = "d"):
         super().__init__(name, adjacent_to={"GoX", "GoC"})
 
+
 class GoE(ReachLocation, MutexLocation):
 
     def __init__(self, name: str = "e"):
@@ -61,7 +61,6 @@ e = GoE()
 f = GoF()
 g = GoG()
 
-
 a = Formula(Atom((a.name, Typeset({a}))))
 b = Formula(Atom((b.name, Typeset({b}))))
 
@@ -72,6 +71,3 @@ e = Formula(Atom((e.name, Typeset({e}))))
 f = Formula(Atom((f.name, Typeset({f}))))
 
 g = Formula(Atom((g.name, Typeset({g}))))
-
-
-

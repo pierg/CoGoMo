@@ -12,7 +12,7 @@
 //             },
 //             {
 //                 element: '#load_examples',
-//                 intro: 'Load an example',
+//                 intro: 'Load an examples',
 //                 position: 'top'
 //             },
 //             {

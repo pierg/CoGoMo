@@ -40,7 +40,7 @@ class Goal:
         self.context: Specification = context
 
     def __str__(self):
-        Goal.pretty_print_goal(self)
+        return Goal.pretty_print_goal(self)
 
     @property
     def name(self) -> str:
@@ -97,8 +97,9 @@ class Goal:
         ret = "\t" * level + "|---GOAL\t" + repr(goal.name) + "\n"
         if goal.context is not None:
             ret += "\t" * level + "|\tCONTEXT:\t" + str(goal.context) + "\n"
-        ret += "\t" * level + "|\tASSUMPTIONS:\n"
-        ret += "\t" * level + "|\t" + goal.specification.assumptions.pretty_print(FormulaOutput.DNF) + "\n"
+        if not goal.specification.assumptions.is_valid():
+            ret += "\t" * level + "|\tASSUMPTIONS:\n"
+            ret += "\t" * level + "|\t" + goal.specification.assumptions.pretty_print(FormulaOutput.DNF) + "\n"
         ret += "\t" * level + "|\tGUARANTEES:\n"
         ret += "\t" * level + "|\t" + goal.specification.guarantees.pretty_print(FormulaOutput.CNF) + "\n"
         return ret

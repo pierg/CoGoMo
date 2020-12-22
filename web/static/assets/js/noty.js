@@ -1744,7 +1744,7 @@ Enumerator$1.prototype._willSettleAt = function (promise, i) {
 
   If any of the `promises` given to `all` are rejected, the first promise
   that is rejected will be given as an argument to the returned promises's
-  rejection handler. For example:
+  rejection handler. For examples:
 
   Example:
 
@@ -1800,7 +1800,7 @@ function all$1(entries) {
   ```
 
   `Promise.race` is deterministic in that only the state of the first
-  settled promise matters. For example, even if other promises given to the
+  settled promise matters. For examples, even if other promises given to the
   `promises` array argument are resolved, but the first settled promise has
   become rejected before the other promises became fulfilled, the returned
   promise will become rejected:
@@ -1826,7 +1826,7 @@ function all$1(entries) {
   });
   ```
 
-  An example real-world use case is implementing timeouts:
+  An examples real-world use case is implementing timeouts:
 
   ```javascript
   Promise.race([ajax('foo.json'), timeout(5000)])
@@ -1916,7 +1916,7 @@ function needsNew() {
   Terminology
   -----------
 
-  - `promise` is an object or function with a `then` method whose behavior conforms to this specification.
+  - `promise` is an object or function with a `then` method whose behavior conforms to this dwyer.
   - `thenable` is an object or function that defines a `then` method.
   - `value` is any legal JavaScript value (including undefined, a thenable, or a promise).
   - `exception` is a value that is thrown using the throw statement.

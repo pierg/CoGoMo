@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import Tuple, Set, Union
+from typing import Set
 
 from contract.exceptions import *
 from specification.atom import Atom
 from specification.exceptions import NotSatisfiableException
-from specification.formula import Specification, Formula, FormulaOutput
-from typeset import Typeset
+from specification.formula import Specification, Formula
 
 
 class Contract:
@@ -28,12 +27,6 @@ class Contract:
 
     from ._copying import __deepcopy__
     from ._printing import __str__
-
-
-    def formula(self) -> Tuple[str, Typeset]:
-        """Generate the contract formula A->G"""
-
-        return (self.assumptions >> self.guarantees).formula()
 
     @property
     def assumptions(self) -> Formula:

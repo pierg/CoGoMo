@@ -16,6 +16,8 @@ class AtomKind(Enum):
     TIME = auto()
     IDENTITY = auto()
     UNDEFINED = auto()
+    PATTERN = auto()
+    ROBOTICPATTERN = auto()
 
 
 class FormulaType(Enum):

@@ -47,7 +47,6 @@ class Types(ABC):
             return True
         return False
 
-
     def __hash__(self):
         return hash(self.name + type(self).__name__)
 
@@ -56,6 +55,11 @@ class Boolean(Types):
 
     def __init__(self, name: str):
         super().__init__(name)
+
+    def to_atom(self):
+        from specification.atom import Atom
+        from typeset import Typeset
+        return Atom(formula=(self.name, Typeset({self})))
 
 
 class BoundedInteger(Types):

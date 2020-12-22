@@ -409,7 +409,7 @@ $(document).ready(function () {
     socket.on('connect', function () {
         c_notify("Connected", "connected to the backend", "success");
 
-        c_notify("Loading example");
+        c_notify("Loading examples");
 
         socket.emit('cgt_example');
 

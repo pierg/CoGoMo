@@ -124,7 +124,7 @@ class Recurrence_P_after_Q_until_R_fixed(Scope):
         super().__init__(formula, p.variables | q.variables | r.variables)
 
 
-"""Other specification defined"""
+"""Other dwyer defined"""
 
 
 class P_until_R(Scope):

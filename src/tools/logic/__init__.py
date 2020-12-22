@@ -57,7 +57,7 @@ class LogicTuple:
         match_temporal = bool(re.search(temporal_ops, prop))
         if match_operators or match_temporal:
             return f"!({prop})"
-        return "!" + prop
+        return f"!{prop}"
 
     @staticmethod
     def or_(formulae: List[Tuple[str, Typeset]], brakets: bool = True) -> Tuple[str, Typeset]:
@@ -123,11 +123,41 @@ class Logic:
     @staticmethod
     def not_(prop: str) -> str:
         """Returns an str formula representing the logical NOT of prop"""
-        match_operators = bool(re.search(operators, prop))
-        match_temporal = bool(re.search(temporal_ops, prop))
-        if match_operators or match_temporal:
-            return f"!({prop})"
-        return "!" + prop
+        # match_operators = bool(re.search(operators, prop))
+        # match_temporal = bool(re.search(temporal_ops, prop))
+        # if match_operators or match_temporal:
+        #     return f"!({prop})"
+        return f"!{prop}"
+
+    @staticmethod
+    def x_(prop: str) -> str:
+        """Next"""
+        return f"X({prop})"
+
+    @staticmethod
+    def f_(prop: str) -> str:
+        """Eventually"""
+        return f"F({prop})"
+
+    @staticmethod
+    def g_(prop: str) -> str:
+        """Globally"""
+        return f"G({prop})"
+
+    @staticmethod
+    def gf_(prop: str) -> str:
+        """Globally Eventually"""
+        return f"GF({prop})"
+
+    @staticmethod
+    def u_(pre: str, post: str) -> str:
+        """Until"""
+        return f"({pre} U {post})"
+
+    @staticmethod
+    def w_(pre: str, post: str) -> str:
+        """Weak Until"""
+        return Logic.or_([Logic.u_(pre, post), Logic.g_(pre)])
 
     @staticmethod
     def or_(propositions: List[str]) -> str:

@@ -42,6 +42,7 @@ class Formula(Specification):
         self.__saturation = None
 
         if atom is None:
+            from specification.atom import Atom
             self.__cnf: List[Set[Atom]] = [{Atom("TRUE")}]
             self.__dnf: List[Set[Atom]] = [{Atom("TRUE")}]
 
@@ -69,6 +70,25 @@ class Formula(Specification):
     @property
     def dnf(self) -> List[Set[Atom]]:
         return self.__dnf
+
+    def _remove_atoms(self, atoms_to_remove: Set[Atom]):
+        """Remove Atoms from Formula"""
+
+        """Remove from CNF"""
+        for clause in self.__dnf:
+            clause -= atoms_to_remove
+
+        """Remove from CNF"""
+        clause_cnf_to_remove = set()
+        for clause in self.__cnf:
+            """Remove clause if contains atoms to be removed"""
+            if clause & atoms_to_remove:
+                clause_cnf_to_remove |= clause
+
+        """Filter out clauses"""
+        for clause in list(self.cnf):
+            if len(clause & clause_cnf_to_remove) > 0:
+                self.__cnf.remove(clause)
 
     def relax_by(self, formula: Formula):
         """
@@ -104,19 +124,7 @@ class Formula(Specification):
                             print(f"{str(g)} relaxes {str(conjunct)}")
                             atoms_to_remove.add(conjunct)
 
-                clause -= atoms_to_remove
-
-            clause_cnf_to_remove = set()
-            for clause in self.cnf:
-                """Remove clause if contains atoms to be removed"""
-                if clause & atoms_to_remove:
-                    clause_cnf_to_remove |= clause
-
-            """Filter out clauses"""
-            for clause in list(self.cnf):
-                if len(clause & clause_cnf_to_remove) > 0:
-                    self.cnf.remove(clause)
-
+            self._remove_atoms(atoms_to_remove)
 
     def saturate(self, value: Specification):
         """
@@ -202,6 +210,9 @@ class Formula(Specification):
         NOT self OR other"""
         if not isinstance(other, Formula):
             raise AttributeError
+
+        if self.is_valid():
+            return other
 
         new_ltl = ~ self
 

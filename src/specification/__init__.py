@@ -1,38 +1,94 @@
 from __future__ import annotations
-from abc import ABC
-
+from abc import ABC, abstractmethod
+from specification.enums import *
 from tools.nuxmv import Nuxmv
-from tools.logic import LogicTuple
 from typeset import Typeset
 
 
 class Specification(ABC):
 
-    def formula(self) -> (str, Typeset):
-        pass
-
-    def is_satisfiable(self) -> bool:
-        return Nuxmv.check_satisfiability(self.formula())
-
-    def is_valid(self) -> bool:
-        return Nuxmv.check_validity(self.formula())
-
-    def is_realizable(self) -> bool:
-        pass
-
-    def saturate(self, spec: Specification):
-        pass
+    @property
+    def string(self) -> str:
+        return self.formula()[0]
 
     @property
     def typeset(self) -> Typeset:
         return self.formula()[1]
 
-    @property
-    def string(self) -> str:
-        return self.formula()[0]
-
     def __hash__(self):
-        return hash(self.formula()[0])
+        return hash(self.string)
+
+    """Abstract Operators, must be implemented can be conly confronted with equal subtypes"""
+
+    @abstractmethod
+    def formula(self) -> (str, Typeset):
+        pass
+
+    @property
+    @abstractmethod
+    def spec_kind(self) -> SpecKind:
+        pass
+
+    @abstractmethod
+    def __and__(self, other: Specification) -> Specification:
+        """self & other
+        Returns a new Specification with the conjunction with other"""
+        pass
+
+    @abstractmethod
+    def __or__(self, other: Specification) -> Specification:
+        """self | other
+        Returns a new Specification with the disjunction with other"""
+        pass
+
+    @abstractmethod
+    def __invert__(self: Specification) -> Specification:
+        """Returns a new Specification with the negation of self"""
+        pass
+
+    @abstractmethod
+    def __rshift__(self, other: Specification) -> Specification:
+        """>>
+        Returns a new Specification that is the result of self -> other (implies)"""
+        pass
+
+    @abstractmethod
+    def __lshift__(self, other: Specification) -> Specification:
+        """<<
+        Returns a new Specification that is the result of other -> self (implies)"""
+        pass
+
+    @abstractmethod
+    def __iand__(self, other: Specification) -> Specification:
+        """self &= other
+        Modifies self with the conjunction with other"""
+        pass
+
+    @abstractmethod
+    def __ior__(self, other: Specification) -> Specification:
+        """self |= other
+        Modifies self with the disjunction with other"""
+        pass
+
+    @abstractmethod
+    def contains_rule(self, other: AtomKind) -> bool:
+        pass
+
+    """"Comparing Specifications"""
+
+    def is_satisfiable(self) -> bool:
+        from specification.formula import Formula
+        sat_check_formula = self
+        if not (self.contains_rule(AtomKind.MUTEX_RULE) or self.is_valid()):
+            mutex_rules = Formula.extract_mutex_rules(self.typeset)
+            try:
+                sat_check_formula = self & mutex_rules
+            except Exception:
+                print("caisco")
+        return Nuxmv.check_satisfiability(sat_check_formula.formula())
+
+    def is_valid(self) -> bool:
+        return Nuxmv.check_validity(self.formula())
 
     def __lt__(self, other: Specification):
         """self < other. True if self is a refinement but not equal to other"""
@@ -43,8 +99,13 @@ class Specification(ABC):
         if other.is_valid():
             return True
 
-        """Check if self -> other is valid"""
-        return Nuxmv.check_validity(LogicTuple.implies_(self.formula(), other.formula(), brackets=True))
+        """Check if self -> other is valid, considering the refinement rules r"""
+        """((r & s1) -> s2) === r -> (s1 -> s2)"""
+        from specification.formula import Formula
+        refinement_rules = Formula.extract_refinement_rules(self.typeset | other.typeset)
+        ref_check_formula = (self.formula() & refinement_rules) >> other.formula()
+
+        return Nuxmv.check_validity(ref_check_formula)
 
     def __gt__(self, other: Specification):
         """self > other. True if self is an abstraction but not equal to other"""
@@ -55,12 +116,18 @@ class Specification(ABC):
         if self.is_valid():
             return True
 
-        """Check if self -> other is valid"""
-        return Nuxmv.check_validity(LogicTuple.implies_(other.formula(), self.formula(), brackets=True))
+        """Check if other -> self is valid, considering the refinement rules r"""
+        """((r & s1) -> s2) === r -> (s1 -> s2)"""
+        from specification.formula import Formula
+        refinement_rules = Formula.extract_refinement_rules(self.typeset | other.typeset)
+        # refinement_rules = RefinementRulesAdapter(self.typeset | other.typeset)
+        ref_check_formula = (other.formula() & refinement_rules) >> self.formula()
+
+        return Nuxmv.check_validity(ref_check_formula)
 
     def __eq__(self, other: Specification):
         """Check if self -> other and other -> self"""
-        if self.formula()[0] == other.formula()[0]:
+        if self.string == other.string:
             return True
         else:
             return self.__le__(other) and self.__ge__(other)
@@ -68,39 +135,3 @@ class Specification(ABC):
     def __ne__(self, other: Specification):
         """Check if self -> other and other -> self"""
         return not self.__eq__(other)
-
-    """Abstract Operators, must be implemented can be conly confronted with equal subtypes"""
-
-    def __and__(self, other: Specification) -> Specification:
-        """self & other
-        Returns a new Specification with the conjunction with other"""
-        raise NotImplementedError
-
-    def __or__(self, other: Specification) -> Specification:
-        """self | other
-        Returns a new Specification with the disjunction with other"""
-        raise NotImplementedError
-
-    def __invert__(self: Specification) -> Specification:
-        """Returns a new Specification with the negation of self"""
-        raise NotImplementedError
-
-    def __rshift__(self, other: Specification) -> Specification:
-        """>>
-        Returns a new Specification that is the result of self -> other (implies)"""
-        raise NotImplementedError
-
-    def __lshift__(self, other: Specification) -> Specification:
-        """<<
-        Returns a new Specification that is the result of other -> self (implies)"""
-        raise NotImplementedError
-
-    def __iand__(self, other: Specification) -> Specification:
-        """self &= other
-        Modifies self with the conjunction with other"""
-        raise NotImplementedError
-
-    def __ior__(self, other: Specification) -> Specification:
-        """self |= other
-        Modifies self with the disjunction with other"""
-        raise NotImplementedError

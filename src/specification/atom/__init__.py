@@ -3,26 +3,12 @@ from __future__ import annotations
 from typing import Union, Tuple
 from enum import Enum, auto
 from specification import Specification
+from specification.enums import *
 from specification.exceptions import NotSatisfiableException
 from specification.formula import Formula
 from tools.logic import Logic, LogicTuple
 from typeset import Typeset
 
-
-class AtomKind(Enum):
-    SENSOR = auto()
-    LOCATION = auto()
-    ACTION = auto()
-    TIME = auto()
-    IDENTITY = auto()
-    UNDEFINED = auto()
-    PATTERN = auto()
-    ROBOTICPATTERN = auto()
-
-
-class FormulaType(Enum):
-    SATURATED = auto()
-    UNSATURATED = auto()
 
 class Atom(Specification):
 
@@ -33,6 +19,14 @@ class Atom(Specification):
 
         if kind is None:
             self.__kind = AtomKind.UNDEFINED
+        self.__kind = kind
+
+        if self.__kind == AtomKind.REFINEMENT_RULE or \
+                self.__kind == AtomKind.ADJACENCY_RULE or \
+                self.__kind == AtomKind.MUTEX_RULE:
+            self.__spec_kind = SpecKind.RULE
+        else:
+            self.__spec_kind = SpecKind.UNDEFINED
 
         """Indicates if the formula is negated"""
         self.__negation: bool = False
@@ -65,6 +59,12 @@ class Atom(Specification):
     def negate(self):
         self.__negation = not self.negated
 
+    def contains_rule(self, rule: AtomKind):
+        if rule is None:
+            return (self.kind == AtomKind.MUTEX_RULE or self.kind == AtomKind.REFINEMENT_RULE or self.kind == AtomKind.ADJACENCY_RULE)
+        else:
+            return self.kind == rule
+
     @property
     def unsaturated(self):
         return Atom(self.formula(FormulaType.UNSATURATED), self.kind)
@@ -76,6 +76,14 @@ class Atom(Specification):
     @kind.setter
     def kind(self, value: AtomKind):
         self.__kind = value
+
+    @property
+    def spec_kind(self) -> SpecKind:
+        return self.__spec_kind
+
+    @spec_kind.setter
+    def spec_kind(self, value: SpecKind):
+        self.__spec_kind = value
 
     @property
     def saturation(self):

@@ -6,25 +6,14 @@ from enum import Enum, auto
 from typing import Set, Tuple, TYPE_CHECKING, List
 
 from specification import Specification
+from specification.enums import *
 from specification.exceptions import NotSatisfiableException
-from tools.logic import LogicTuple
+from tools.logic import LogicTuple, Logic
+from type import Boolean
 from typeset import Typeset
 
 if TYPE_CHECKING:
-    from specification.atom import Atom
-
-
-class FormulaOutput(Enum):
-    CNF = auto()
-    DNF = auto()
-
-
-class FormulaKind(Enum):
-    OBJECTIVE = auto()
-    MUTEXRULE = auto()
-    REFINEMENTRULE = auto()
-    ADJACENCYRULE = auto()
-    UNDEFINED = auto()
+    from specification.atom import Atom, AtomKind
 
 
 class Formula(Specification):
@@ -34,6 +23,14 @@ class Formula(Specification):
 
         if kind is None:
             self.__kind = FormulaKind.UNDEFINED
+        self.__kind = kind
+
+        if self.__kind == FormulaKind.REFINEMENT_RULES or \
+                self.__kind == FormulaKind.ADJACENCY_RULES or \
+                self.__kind == FormulaKind.MUTEX_RULES:
+            self.__spec_kind = SpecKind.RULE
+        else:
+            self.__spec_kind = SpecKind.UNDEFINED
 
         self.__refinement_rules = None
         self.__mutex_rules = None
@@ -64,6 +61,14 @@ class Formula(Specification):
         self.__kind = value
 
     @property
+    def spec_kind(self) -> SpecKind:
+        return self.__spec_kind
+
+    @spec_kind.setter
+    def spec_kind(self, value: SpecKind):
+        self.__spec_kind = value
+
+    @property
     def cnf(self) -> List[Set[Atom]]:
         return self.__cnf
 
@@ -89,6 +94,74 @@ class Formula(Specification):
         for clause in list(self.cnf):
             if len(clause & clause_cnf_to_remove) > 0:
                 self.__cnf.remove(clause)
+
+    @staticmethod
+    def extract_refinement_rules(typeset: Typeset) -> Formula:
+        """Extract Refinement rules from the Formula"""
+
+        refinement_rules = Formula()
+
+        for key_type, set_super_types in typeset.super_types.items():
+            if isinstance(key_type, Boolean):
+                for super_type in set_super_types:
+                    f = Logic.g_(Logic.implies_(key_type.name, super_type.name))
+                    t = Typeset({key_type, super_type})
+                    new_atom = Atom(formula=(f, t), kind=AtomKind.REFINEMENT_RULE)
+                    new_formula = Formula(atom=new_atom, kind=FormulaKind.REFINEMENT_RULES)
+                    if refinement_rules is None:
+                        refinement_rules = new_formula
+                    else:
+                        refinement_rules &= new_formula
+
+        return refinement_rules
+
+    @staticmethod
+    def extract_mutex_rules(typeset: Typeset) -> Formula:
+        """Extract Mutex rules from the Formula"""
+
+        mutex_rules = None
+
+        for mutex_group in typeset.mutex_types:
+            or_elements = []
+            for mutex_type in mutex_group:
+                neg_group = mutex_group.symmetric_difference({mutex_type})
+                and_elements = [mutex_type.name]
+                for elem in neg_group:
+                    and_elements.append(Logic.not_(elem.name))
+                or_elements.append(Logic.and_(and_elements))
+            f = Logic.g_(Logic.or_(or_elements))
+            t = Typeset(mutex_group)
+            from specification.atom import Atom
+            new_atom = Atom(formula=(f, t), kind=AtomKind.MUTEX_RULE)
+            new_formula = Formula(atom=new_atom, kind=FormulaKind.MUTEX_RULES)
+            if mutex_rules is None:
+                mutex_rules = new_formula
+            else:
+                mutex_rules &= new_formula
+
+        if mutex_rules is None:
+            return Formula()
+        return mutex_rules
+
+    @staticmethod
+    def extract_adjacency_rules(typeset: Typeset) -> Formula:
+        """Extract Adjacency rules from the Formula"""
+
+        adjacency_rules = None
+
+        for key_type, set_adjacent_types in typeset.adjacent_types.items():
+            if isinstance(key_type, Boolean):
+                """G(a -> X(b | c | d))"""
+                f = Logic.g_(Logic.implies_(key_type.name, Logic.x_(Logic.or_([e.name for e in set_adjacent_types]))))
+                t = Typeset({key_type, set_adjacent_types})
+                new_atom = Atom(formula=(f, t), kind=AtomKind.ADJACENCY_RULE)
+                new_formula = Formula(atom=new_atom, kind=FormulaKind.ADJACENCY_RULES)
+                if adjacency_rules is None:
+                    adjacency_rules = new_formula
+                else:
+                    adjacency_rules &= new_formula
+
+        return adjacency_rules
 
     def relax_by(self, formula: Formula):
         """
@@ -126,6 +199,18 @@ class Formula(Specification):
 
             self._remove_atoms(atoms_to_remove)
 
+
+    def all_atoms(self) -> Set[Atom]:
+        new_set = set()
+        for group in self.cnf:
+            new_set |= group
+        return new_set
+
+    def contains_rule(self, rule: AtomKind = None):
+        return any([e.contains_rule(rule) for e in self.all_atoms()])
+
+
+
     def saturate(self, value: Specification):
         """
         Saturate each atom of the formula, CNF and DNF
@@ -159,13 +244,16 @@ class Formula(Specification):
 
         new_ltl = deepcopy(self)
 
-        """Cartesian product between the two dnf"""
-        new_ltl.__dnf = [a | b for a, b in itertools.product(self.dnf, other.dnf)]
+        if other.is_valid():
+            return new_ltl
 
         """Append to list if not already there"""
         for other_elem in other.cnf:
             if other_elem not in new_ltl.cnf:
                 new_ltl.cnf.append(other_elem)
+
+        """Cartesian product between the two dnf"""
+        new_ltl.__dnf = [a | b for a, b in itertools.product(self.dnf, other.dnf)]
 
         if not new_ltl.is_satisfiable():
             raise NotSatisfiableException(self, other)
@@ -177,6 +265,9 @@ class Formula(Specification):
         Returns a new Specification with the disjunction with other"""
         if not isinstance(other, Formula):
             raise AttributeError
+
+        if other.is_valid():
+            return Formula()
 
         new_ltl = deepcopy(self)
 

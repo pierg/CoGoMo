@@ -12,12 +12,6 @@ class TypeKinds(Enum):
     IDENTITY = auto()
 
 
-class MutexType:
-
-    @property
-    def mutex(self) -> bool:
-        return True
-
 
 class Types(ABC):
 
@@ -60,6 +54,11 @@ class Boolean(Types):
         from specification.atom import Atom
         from typeset import Typeset
         return Atom(formula=(self.name, Typeset({self})))
+
+    @property
+    def mutex_group(self) -> str:
+        pass
+
 
 
 class BoundedInteger(Types):

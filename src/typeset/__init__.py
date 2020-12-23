@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from copy import copy, deepcopy
 from itertools import combinations
-from typing import Set, Dict, Union, TypeVar
+from typing import Set, Dict, Union, TypeVar, List
 
 from type import Types
 
@@ -108,23 +108,17 @@ class Typeset(dict):
 
     def update_mutextypes(self):
         if len(self.values()) > 1:
-            mutex_classes_checked = set()
             self.__mutex_types = set()
+            mutex_vars_dict: Dict[str, Set[Types]] = {}
             for variable in self.values():
-                base_classes = variable.__class__.__bases__
-                mutex = False
-                mutex_class = None
-                for base in base_classes:
-                    if hasattr(base, "mutex") and base.mutex:
-                        mutex = True
-                        mutex_class = base
-                if mutex and mutex_class not in mutex_classes_checked:
-                    mutex_types = set()
-                    for variable in self.values():
-                        if mutex_class in variable.__class__.__bases__:
-                            mutex_types.add(variable)
-                    self.__mutex_types.add(frozenset(mutex_types))
-                    mutex_classes_checked.add(mutex_class)
+                if hasattr(variable, "mutex_group"):
+                    if variable.mutex_group in mutex_vars_dict:
+                        mutex_vars_dict[variable.mutex_group].add(variable)
+                    else:
+                        mutex_vars_dict[variable.mutex_group] = set()
+                        mutex_vars_dict[variable.mutex_group].add(variable)
+            for vars in mutex_vars_dict.values():
+                self.__mutex_types.add(frozenset(vars))
 
     def update_adjacenttypes(self):
         if len(self.values()) > 1:

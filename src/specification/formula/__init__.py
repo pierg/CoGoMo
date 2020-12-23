@@ -3,7 +3,7 @@ from __future__ import annotations
 import itertools
 from copy import deepcopy
 from enum import Enum, auto
-from typing import Set, Tuple, TYPE_CHECKING, List
+from typing import Set, Tuple, TYPE_CHECKING, List, Union
 
 from specification import Specification
 from specification.enums import *
@@ -99,19 +99,23 @@ class Formula(Specification):
     def extract_refinement_rules(typeset: Typeset) -> Formula:
         """Extract Refinement rules from the Formula"""
 
-        refinement_rules = Formula()
+        refinement_rules = None
 
         for key_type, set_super_types in typeset.super_types.items():
             if isinstance(key_type, Boolean):
                 for super_type in set_super_types:
                     f = Logic.g_(Logic.implies_(key_type.name, super_type.name))
                     t = Typeset({key_type, super_type})
+                    from specification.atom import Atom
                     new_atom = Atom(formula=(f, t), kind=AtomKind.REFINEMENT_RULE)
                     new_formula = Formula(atom=new_atom, kind=FormulaKind.REFINEMENT_RULES)
                     if refinement_rules is None:
                         refinement_rules = new_formula
                     else:
                         refinement_rules &= new_formula
+
+        if refinement_rules is None:
+            return Formula()
 
         return refinement_rules
 
@@ -199,17 +203,15 @@ class Formula(Specification):
 
             self._remove_atoms(atoms_to_remove)
 
-
-    def all_atoms(self) -> Set[Atom]:
+    @property
+    def atoms(self) -> Set[Atom]:
         new_set = set()
         for group in self.cnf:
             new_set |= group
         return new_set
 
     def contains_rule(self, rule: AtomKind = None):
-        return any([e.contains_rule(rule) for e in self.all_atoms()])
-
-
+        return any([e.contains_rule(rule) for e in self.atoms])
 
     def saturate(self, value: Specification):
         """
@@ -253,7 +255,8 @@ class Formula(Specification):
                 new_ltl.cnf.append(other_elem)
 
         """Cartesian product between the two dnf"""
-        new_ltl.__dnf = [a | b for a, b in itertools.product(self.dnf, other.dnf)]
+        for a, b in itertools.product(new_ltl.dnf, other.dnf):
+            a.update(b)
 
         if not new_ltl.is_satisfiable():
             raise NotSatisfiableException(self, other)
@@ -271,8 +274,9 @@ class Formula(Specification):
 
         new_ltl = deepcopy(self)
 
-        """Cartesian product between the two dnf"""
-        new_ltl.__cnf = [a | b for a, b in itertools.product(self.cnf, other.cnf)]
+        """Cartesian product between the two cnf"""
+        for a, b in itertools.product(new_ltl.cnf, other.cnf):
+            a.update(b)
 
         """Append to list if not already there"""
         for other_elem in other.dnf:
@@ -286,21 +290,22 @@ class Formula(Specification):
 
         new_ltl = deepcopy(self)
 
-        for atoms in new_ltl.cnf:
-            for atom in atoms:
-                atom.negate()
+        """Negate all atoms"""
+        for atom in new_ltl.atoms:
+            atom.negate()
 
         """Swap CNF with DNF"""
         new_ltl.__cnf, new_ltl.__dnf = new_ltl.dnf, new_ltl.cnf
 
         return new_ltl
 
-    def __rshift__(self, other: Formula) -> Formula:
+    def __rshift__(self, other: Union[Formula, Atom]) -> Formula:
         """>>
         Returns a new Specification that is the result of self -> other (implies)
         NOT self OR other"""
-        if not isinstance(other, Formula):
-            raise AttributeError
+        from specification.atom import Atom
+        if isinstance(other, Atom):
+            other = Formula(other)
 
         if self.is_valid():
             return other
@@ -309,25 +314,28 @@ class Formula(Specification):
 
         return new_ltl | other
 
-    def __lshift__(self, other: Formula) -> Formula:
+    def __lshift__(self, other: Union[Formula, Atom]) -> Formula:
         """<<
         Returns a new Specification that is the result of other -> self (implies)
         NOT other OR self"""
-        if not isinstance(other, Formula):
-            raise AttributeError
+        from specification.atom import Atom
+        if isinstance(other, Atom):
+            other = Formula(other)
 
         new_ltl = ~ other
 
         return new_ltl | self
 
-    def __iand__(self, other: Formula) -> Formula:
+    def __iand__(self, other: Union[Formula, Atom]) -> Formula:
         """self &= other
         Modifies self with the conjunction with other"""
-        if not isinstance(other, Formula):
-            raise AttributeError
+        from specification.atom import Atom
+        if isinstance(other, Atom):
+            other = Formula(other)
 
         """Cartesian product between the two dnf"""
-        self.__dnf = [a | b for a, b in itertools.product(self.dnf, other.dnf)]
+        for a, b in itertools.product(self.__dnf, other.dnf):
+            a.update(b)
 
         """Append to list if not already there"""
         for other_elem in other.cnf:
@@ -339,14 +347,16 @@ class Formula(Specification):
 
         return self
 
-    def __ior__(self, other: Formula) -> Formula:
+    def __ior__(self, other: Union[Formula, Atom]) -> Formula:
         """self |= other
         Modifies self with the disjunction with other"""
-        if not isinstance(other, Formula):
-            raise AttributeError
+        from specification.atom import Atom
+        if isinstance(other, Atom):
+            other = Formula(other)
 
-        """Cartesian product between the two dnf"""
-        self.__cnf = [a | b for a, b in itertools.product(self.cnf, other.cnf)]
+        """Cartesian product between the two cnf"""
+        for a, b in itertools.product(self.__cnf, other.cnf):
+            a.update(b)
 
         """Append to list if not already there"""
         for other_elem in other.dnf:

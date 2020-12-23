@@ -5,6 +5,19 @@ from tools.logic import Logic
 from type import Boolean
 
 
+class Patrolling(CoreMovement):
+    """Keep visiting a set of locations, but not in a particular order."""
+
+    def __init__(self, ls: Union[List[Atom], List[Boolean]] = None):
+
+        new_typeset, loc = CoreMovement.process_input(ls)
+        f = []
+        for l in loc:
+            f.append(Logic.gf_(l))
+
+        super().__init__(formula=(Logic.and_(f), new_typeset))
+
+
 class OrderedPatrolling(CoreMovement):
     """This pattern requires a robot to keep visiting a set of locations, in some specified order,
     similarly to sequenced patrolling.
@@ -20,10 +33,15 @@ class OrderedPatrolling(CoreMovement):
 
         f1 = Logic.f_(lor[0])
 
+        if len(ls) == 1:
+            super().__init__(formula=(Logic.g_(f1), new_typeset))
+            return
+
         """GF(l1 & F(l2 & ... F(ln))))"""
         for l in lor[1:]:
             f2 = Logic.and_([l, f1])
             f1 = Logic.f_(f2)
+        f1 = Logic.g_(f1)
 
         f2 = []
         """1..n-1   !l_{i+1} U l_{i}"""

@@ -59,7 +59,7 @@ class Atom(Specification):
     def negate(self):
         self.__negation = not self.negated
 
-    def contains_rule(self, rule: AtomKind):
+    def contains_rule(self, rule: AtomKind = None):
         if rule is None:
             return (self.kind == AtomKind.MUTEX_RULE or self.kind == AtomKind.REFINEMENT_RULE or self.kind == AtomKind.ADJACENCY_RULE)
         else:

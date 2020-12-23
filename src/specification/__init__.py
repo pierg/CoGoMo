@@ -1,6 +1,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from specification.enums import *
+from specification.exceptions import NotSatisfiableException
 from tools.nuxmv import Nuxmv
 from typeset import Typeset
 
@@ -71,20 +72,25 @@ class Specification(ABC):
         pass
 
     @abstractmethod
-    def contains_rule(self, other: AtomKind) -> bool:
+    def contains_rule(self, other: AtomKind = None) -> bool:
         pass
 
     """"Comparing Specifications"""
 
     def is_satisfiable(self) -> bool:
-        from specification.formula import Formula
+        if self.is_valid():
+            return True
+
         sat_check_formula = self
-        if not (self.contains_rule(AtomKind.MUTEX_RULE) or self.is_valid()):
+
+        if not (self.contains_rule()):
+            from specification.formula import Formula
             mutex_rules = Formula.extract_mutex_rules(self.typeset)
             try:
-                sat_check_formula = self & mutex_rules
-            except Exception:
-                print("caisco")
+                self & mutex_rules
+                return True
+            except NotSatisfiableException:
+                return False
         return Nuxmv.check_satisfiability(sat_check_formula.formula())
 
     def is_valid(self) -> bool:
@@ -103,9 +109,8 @@ class Specification(ABC):
         """((r & s1) -> s2) === r -> (s1 -> s2)"""
         from specification.formula import Formula
         refinement_rules = Formula.extract_refinement_rules(self.typeset | other.typeset)
-        ref_check_formula = (self.formula() & refinement_rules) >> other.formula()
-
-        return Nuxmv.check_validity(ref_check_formula)
+        ref_check_formula = (self & refinement_rules) >> other
+        return Nuxmv.check_validity(ref_check_formula.formula())
 
     def __gt__(self, other: Specification):
         """self > other. True if self is an abstraction but not equal to other"""
@@ -120,10 +125,8 @@ class Specification(ABC):
         """((r & s1) -> s2) === r -> (s1 -> s2)"""
         from specification.formula import Formula
         refinement_rules = Formula.extract_refinement_rules(self.typeset | other.typeset)
-        # refinement_rules = RefinementRulesAdapter(self.typeset | other.typeset)
-        ref_check_formula = (other.formula() & refinement_rules) >> self.formula()
-
-        return Nuxmv.check_validity(ref_check_formula)
+        ref_check_formula = (other & refinement_rules) << self
+        return Nuxmv.check_validity(ref_check_formula.formula())
 
     def __eq__(self, other: Specification):
         """Check if self -> other and other -> self"""

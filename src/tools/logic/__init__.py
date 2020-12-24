@@ -127,7 +127,7 @@ class Logic:
         # match_temporal = bool(re.search(temporal_ops, prop))
         # if match_operators or match_temporal:
         #     return f"!({prop})"
-        return f"!{prop}"
+        return f"!({prop})"
 
     @staticmethod
     def x_(prop: str) -> str:

@@ -19,6 +19,9 @@ class Specification(ABC):
     def __hash__(self):
         return hash(self.string)
 
+    def __str__(self):
+        return self.string
+
     """Abstract Operators, must be implemented can be conly confronted with equal subtypes"""
 
     @abstractmethod
@@ -84,11 +87,12 @@ class Specification(ABC):
         if not (self.contains_rule()):
             from specification.formula import Formula
             mutex_rules = Formula.extract_mutex_rules(self.typeset)
-            try:
-                self & mutex_rules
-                return True
-            except NotSatisfiableException:
-                return False
+            if mutex_rules is not None:
+                try:
+                    self & mutex_rules
+                    return True
+                except NotSatisfiableException:
+                    return False
 
         return Nuxmv.check_satisfiability(sat_check_formula.formula())
 

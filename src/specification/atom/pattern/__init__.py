@@ -14,7 +14,7 @@ class Pattern(Atom):
                  kind: AtomKind = None):
         if kind is None:
             kind = AtomKind.PATTERN
-
         super().__init__(
             formula=formula,
             kind=kind)
+

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from typing import Union, Tuple
-from enum import Enum, auto
 from specification import Specification
 from specification.enums import *
 from specification.exceptions import NotSatisfiableException
@@ -61,7 +60,8 @@ class Atom(Specification):
 
     def contains_rule(self, rule: AtomKind = None):
         if rule is None:
-            return (self.kind == AtomKind.MUTEX_RULE or self.kind == AtomKind.REFINEMENT_RULE or self.kind == AtomKind.ADJACENCY_RULE)
+            return (
+                    self.kind == AtomKind.MUTEX_RULE or self.kind == AtomKind.REFINEMENT_RULE or self.kind == AtomKind.ADJACENCY_RULE)
         else:
             return self.kind == rule
 
@@ -95,9 +95,6 @@ class Atom(Specification):
     @property
     def negated(self) -> bool:
         return self.__negation
-
-    def __str__(self):
-        return self.formula()[0]
 
     def __hash__(self):
         return hash(self.__base_formula[0])

@@ -114,9 +114,6 @@ class Formula(Specification):
                     else:
                         refinement_rules &= new_formula
 
-        if refinement_rules is None:
-            return Formula()
-
         return refinement_rules
 
     @staticmethod
@@ -143,8 +140,6 @@ class Formula(Specification):
             else:
                 mutex_rules &= new_formula
 
-        if mutex_rules is None:
-            return Formula()
         return mutex_rules
 
     @staticmethod

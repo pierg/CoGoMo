@@ -6,8 +6,6 @@ from type import Boolean
 
 
 class Patrolling(CoreMovement):
-    """Keep visiting a set of locations, but not in a particular order."""
-
     def __init__(self, ls: Union[List[Atom], List[Boolean]] = None):
 
         new_typeset, loc = CoreMovement.process_input(ls)
@@ -16,6 +14,8 @@ class Patrolling(CoreMovement):
             f.append(Logic.gf_(l))
 
         super().__init__(formula=(Logic.and_(f), new_typeset))
+
+    """Keep visiting a set of locations, but not in a particular order."""
 
 
 class OrderedPatrolling(CoreMovement):

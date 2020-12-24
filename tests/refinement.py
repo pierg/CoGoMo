@@ -104,6 +104,10 @@ c = GoC()
 d = GoD()
 
 """Let us create some specifications"""
-patrol_ab = Patrolling([a])
+patrol_ab = Patrolling([a, b])
+print(patrol_ab)
 patrol_living_room = Patrolling([living_room])
-print(patrol_ab <= patrol_living_room)
+print(patrol_living_room)
+
+ref_check = patrol_ab <= patrol_living_room
+print(ref_check)

@@ -59,10 +59,10 @@ class Nuxmv:
             for line in output:
                 if line[:16] == '-- specification':
                     if 'is false' in line:
-                        print("\t\t\tSAT:\t" + str(expression))
+                        print("\t\t\tSAT-YES:\t" + str(expression))
                         return True
                     elif 'is true' in line:
-                        print("\t\t\tNSAT:\t" + str(expression))
+                        print("\t\t\tSAT-NO :\t" + str(expression))
                         return False
 
         except Exception as e:
@@ -106,10 +106,10 @@ class Nuxmv:
             for line in output:
                 if line[:16] == '-- specification':
                     if 'is false' in line:
-                        print("\t\t\tNVALID:\t" + expression)
+                        print("\t\t\tVAL-NO :\t" + expression)
                         return False
                     elif 'is true' in line:
-                        print("\t\t\tVALID:\t" + expression)
+                        print("\t\t\tVAL-YES:\t" + expression)
                         return True
 
         except Exception as e:

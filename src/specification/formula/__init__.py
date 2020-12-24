@@ -219,7 +219,7 @@ class Formula(Specification):
         x->((a | b) & (c | d)) === ((x->a) | (x->b)) & ((x->c) | (x->d))
         x->((a & b) | (c & d)) === ((x->a) & (x->b)) | ((x->c) & (x->d))
         """
-        if not value.is_valid():
+        if not value.is_true():
             for clause in self.cnf:
                 for atom in clause:
                     atom.saturate(value)
@@ -246,7 +246,7 @@ class Formula(Specification):
 
         new_ltl = deepcopy(self)
 
-        if other.is_valid():
+        if other.is_true():
             return new_ltl
 
         """Append to list if not already there"""
@@ -269,7 +269,7 @@ class Formula(Specification):
         if not isinstance(other, Formula):
             raise AttributeError
 
-        if other.is_valid():
+        if other.is_true():
             return Formula()
 
         new_ltl = deepcopy(self)
@@ -307,7 +307,7 @@ class Formula(Specification):
         if isinstance(other, Atom):
             other = Formula(other)
 
-        if self.is_valid():
+        if self.is_true():
             return other
 
         new_ltl = ~ self

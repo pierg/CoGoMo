@@ -78,8 +78,6 @@ class Specification(ABC):
     """"Comparing Specifications"""
 
     def is_satisfiable(self) -> bool:
-        if self.is_valid():
-            return True
 
         sat_check_formula = self
 
@@ -91,9 +89,15 @@ class Specification(ABC):
                 return True
             except NotSatisfiableException:
                 return False
+
         return Nuxmv.check_satisfiability(sat_check_formula.formula())
 
+    def is_true(self) -> bool:
+
+        return self.string == "TRUE"
+
     def is_valid(self) -> bool:
+
         return Nuxmv.check_validity(self.formula())
 
     def __lt__(self, other: Specification):
@@ -102,7 +106,7 @@ class Specification(ABC):
 
     def __le__(self: Specification, other: Specification):
         """self <= other. True if self is a refinement of other"""
-        if other.is_valid():
+        if other.is_true():
             return True
 
         """Check if self -> other is valid, considering the refinement rules r"""
@@ -118,7 +122,7 @@ class Specification(ABC):
 
     def __ge__(self, other: Specification):
         """self >= other. True if self is an abstraction of other"""
-        if self.is_valid():
+        if self.is_true():
             return True
 
         """Check if other -> self is valid, considering the refinement rules r"""

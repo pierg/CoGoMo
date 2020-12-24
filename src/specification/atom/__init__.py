@@ -42,8 +42,8 @@ class Atom(Specification):
         else:
             self.__base_formula: Tuple[str, Typeset] = formula
 
-        if not self.is_satisfiable():
-            raise NotSatisfiableException
+            if not self.is_satisfiable():
+                raise NotSatisfiableException
 
     def formula(self, type: FormulaType = FormulaType.SATURATED) -> (str, Typeset):
         expression, typset = self.__base_formula

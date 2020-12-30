@@ -291,7 +291,7 @@ class Formula(Specification):
             new_set = a | b
 
             from specification.atom import Atom
-            atom = Atom(LogicTuple.or_([f.formula() for f in new_set]))
+            atom = Atom(LogicTuple.or_([f.formula() for f in new_set]), check=False)
             if not atom.is_valid():
                 new_ltl.cnf.append(new_set)
 

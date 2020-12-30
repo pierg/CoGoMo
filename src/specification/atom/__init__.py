@@ -14,7 +14,8 @@ class Atom(Specification):
 
     def __init__(self,
                  formula: Union[str, Tuple[str, Typeset]] = None,
-                 kind: AtomKind = None):
+                 kind: AtomKind = None,
+                 check: bool = True):
         """Atomic Specification (can be an AP, but also an LTL formula that cannot be broken down, e.g. a Pattern)"""
 
         if kind is None:
@@ -42,8 +43,9 @@ class Atom(Specification):
         else:
             self.__base_formula: Tuple[str, Typeset] = formula
 
-            if not self.is_satisfiable():
-                raise AtomNotSatisfiableException(formula=self.__base_formula)
+            if check:
+                if not self.is_satisfiable():
+                    raise AtomNotSatisfiableException(formula=self.__base_formula)
 
     def formula(self, type: FormulaType = FormulaType.SATURATED) -> (str, Typeset):
         expression, typset = self.__base_formula

@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 class Formula(Specification):
     def __init__(self,
-                 atom: Atom = None,
+                 atom: Union[Atom, str] = None,
                  kind: FormulaKind = None):
 
         if kind is None:
@@ -38,10 +38,17 @@ class Formula(Specification):
 
         self.__saturation = None
 
-        if atom is None:
+        if isinstance(atom, str) and atom == "TRUE":
             from specification.atom import Atom
-            self.__cnf: List[Set[Atom]] = [{Atom("TRUE")}]
-            self.__dnf: List[Set[Atom]] = [{Atom("TRUE")}]
+            new_atom = Atom("TRUE")
+            self.__cnf: List[Set[Atom]] = [{new_atom}]
+            self.__dnf: List[Set[Atom]] = [{new_atom}]
+
+        elif isinstance(atom, str) and atom == "FALSE":
+            from specification.atom import Atom
+            new_atom = Atom("FALSE")
+            self.__cnf: List[Set[Atom]] = [{new_atom}]
+            self.__dnf: List[Set[Atom]] = [{new_atom}]
 
         elif atom is not None:
             self.__cnf: List[Set[Atom]] = [{atom}]
@@ -239,6 +246,9 @@ class Formula(Specification):
         if not isinstance(other, Formula):
             raise AttributeError
 
+        if other.is_false():
+            return Formula("FALSE")
+
         new_ltl = deepcopy(self)
 
         if other.is_true():
@@ -259,8 +269,8 @@ class Formula(Specification):
                 pass
 
         if len(new_ltl.dnf) == 0:
-            """Result is TRUE"""
-            return Formula()
+            """Result is FALSE"""
+            return Formula("FALSE")
 
         """Append to list if not already there"""
         for other_elem in other.cnf:
@@ -280,9 +290,12 @@ class Formula(Specification):
             raise AttributeError
 
         if other.is_true():
-            return Formula()
+            return Formula("TRUE")
 
         new_ltl = deepcopy(self)
+
+        if other.is_false():
+            return new_ltl
 
         """Cartesian product between the two cnf"""
         new_ltl.__cnf = []
@@ -297,8 +310,7 @@ class Formula(Specification):
 
         if len(new_ltl.cnf) == 0:
             """Result is TRUE"""
-            return Formula()
-
+            return Formula("TRUE")
 
         """Append to list if not already there"""
         for other_elem in other.dnf:

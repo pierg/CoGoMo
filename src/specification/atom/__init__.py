@@ -40,6 +40,8 @@ class Atom(Specification):
         if isinstance(formula, str):
             if formula == "TRUE":
                 self.__base_formula: Tuple[str, Typeset] = "TRUE", Typeset()
+            elif formula == "FALSE":
+                self.__base_formula: Tuple[str, Typeset] = "FALSE", Typeset()
         else:
             self.__base_formula: Tuple[str, Typeset] = formula
 

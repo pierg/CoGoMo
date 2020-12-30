@@ -127,6 +127,10 @@ class Logic:
         # match_temporal = bool(re.search(temporal_ops, prop))
         # if match_operators or match_temporal:
         #     return f"!({prop})"
+        if prop == "TRUE":
+            return "FALSE"
+        if prop == "FALSE":
+            return "TRUE"
         return f"!({prop})"
 
     @staticmethod

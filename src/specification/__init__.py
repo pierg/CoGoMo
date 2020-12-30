@@ -2,6 +2,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from specification.enums import *
 from specification.exceptions import NotSatisfiableException
+from tools.logic import LogicTuple
 from tools.nuxmv import Nuxmv
 from typeset import Typeset
 
@@ -82,23 +83,23 @@ class Specification(ABC):
 
     def is_satisfiable(self) -> bool:
 
-        sat_check_formula = self
+        sat_check_formula = self.formula()
 
         if not (self.contains_rule()):
             from specification.formula import Formula
             mutex_rules = Formula.extract_mutex_rules(self.typeset)
             if mutex_rules is not None:
-                try:
-                    self & mutex_rules
-                    return True
-                except NotSatisfiableException:
-                    return False
+                sat_check_formula = LogicTuple.and_([self.formula(), mutex_rules.formula()])
 
-        return Nuxmv.check_satisfiability(sat_check_formula.formula())
+        return Nuxmv.check_satisfiability(sat_check_formula)
 
     def is_true(self) -> bool:
 
         return self.string == "TRUE"
+
+    def is_false(self) -> bool:
+
+        return self.string == "FALSE"
 
     def is_valid(self) -> bool:
 

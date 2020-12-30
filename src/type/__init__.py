@@ -57,7 +57,7 @@ class Boolean(Types):
 
     @property
     def mutex_group(self) -> str:
-        pass
+        return ""
 
 
 

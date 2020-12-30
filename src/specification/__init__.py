@@ -117,7 +117,10 @@ class Specification(ABC):
         """((r & s1) -> s2) === r -> (s1 -> s2)"""
         from specification.formula import Formula
         refinement_rules = Formula.extract_refinement_rules(self.typeset | other.typeset)
-        ref_check_formula = (self & refinement_rules) >> other
+        if refinement_rules is not None:
+            ref_check_formula = (self & refinement_rules) >> other
+        else:
+            ref_check_formula = self >> other
         return Nuxmv.check_validity(ref_check_formula.formula())
 
     def __gt__(self, other: Specification):
@@ -133,7 +136,10 @@ class Specification(ABC):
         """((r & s1) -> s2) === r -> (s1 -> s2)"""
         from specification.formula import Formula
         refinement_rules = Formula.extract_refinement_rules(self.typeset | other.typeset)
-        ref_check_formula = (other & refinement_rules) << self
+        if refinement_rules is not None:
+            ref_check_formula = (other & refinement_rules) << self
+        else:
+            ref_check_formula = other << self
         return Nuxmv.check_validity(ref_check_formula.formula())
 
     def __eq__(self, other: Specification):

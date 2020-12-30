@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import deepcopy
 from typing import Union, Tuple
 from specification import Specification
 from specification.enums import *
@@ -123,8 +124,9 @@ class Atom(Specification):
 
     def __invert__(self) -> Atom:
         """Returns a new Specification with the negation of self"""
-        self.__negation = not self.__negation
-        return self
+        new_formula = deepcopy(self)
+        new_formula.__negation = not new_formula.__negation
+        return new_formula
 
     def __rshift__(self, other: Union[Atom, Formula]) -> Formula:
         """>>

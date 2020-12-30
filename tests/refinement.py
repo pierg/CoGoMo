@@ -1,6 +1,5 @@
 from typing import Set
 
-from specification.atom.pattern.robotics.coremovement.coverage import Visit
 from specification.atom.pattern.robotics.coremovement.surveillance import OrderedPatrolling, Patrolling
 from type.subtypes.locations import ReachLocation
 
@@ -104,10 +103,9 @@ c = GoC()
 d = GoD()
 
 """Let us create some specifications"""
-patrol_ab = Patrolling([a, b])
+patrol_ab = OrderedPatrolling([a, b])
 print(patrol_ab)
 patrol_living_room = Patrolling([living_room])
 print(patrol_living_room)
-
 ref_check = patrol_ab <= patrol_living_room
 print(ref_check)

@@ -14,6 +14,6 @@ class ReachLocation(Boolean):
     def kind(self):
         return TypeKinds.LOCATION
 
-    @abstractmethod
+    @property
     def adjacency_set(self) -> Set[str]:
-        pass
+        return set()

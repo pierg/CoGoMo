@@ -111,7 +111,7 @@ class Typeset(dict):
             self.__mutex_types = set()
             mutex_vars_dict: Dict[str, Set[Types]] = {}
             for variable in self.values():
-                if hasattr(variable, "mutex_group"):
+                if variable.mutex_group != "":
                     if variable.mutex_group in mutex_vars_dict:
                         mutex_vars_dict[variable.mutex_group].add(variable)
                     else:
@@ -124,14 +124,13 @@ class Typeset(dict):
         if len(self.values()) > 1:
             self.__adjacent_types = dict()
             for variable in self.values():
-                if hasattr(variable, "adjacency_set"):
-                    for adjacent_class in variable.adjacency_set:
-                        for variable_candidate in self.values():
-                            if variable_candidate.__class__.__name__ == adjacent_class:
-                                if variable in self.__adjacent_types:
-                                    self.__adjacent_types[variable].add(variable_candidate)
-                                else:
-                                    self.__adjacent_types[variable] = {variable_candidate}
+                for adjacent_class in variable.adjacency_set:
+                    for variable_candidate in self.values():
+                        if variable_candidate.__class__.__name__ == adjacent_class:
+                            if variable in self.__adjacent_types:
+                                self.__adjacent_types[variable].add(variable_candidate)
+                            else:
+                                self.__adjacent_types[variable] = {variable_candidate}
 
     def __setitem__(self, name, elem):
         self.add_elements({elem})

@@ -7,7 +7,7 @@ from typing import Set, Tuple, TYPE_CHECKING, List, Union
 
 from specification import Specification
 from specification.enums import *
-from specification.exceptions import NotSatisfiableException
+from specification.exceptions import NotSatisfiableException, AtomNotSatisfiableException
 from tools.logic import LogicTuple, Logic
 from type import Boolean
 from typeset import Typeset
@@ -244,14 +244,28 @@ class Formula(Specification):
         if other.is_true():
             return new_ltl
 
+        """Cartesian product between the two dnf"""
+        new_ltl.__dnf = []
+        for a, b in itertools.product(self.dnf, other.dnf):
+
+            new_set = a | b
+
+            try:
+                from specification.atom import Atom
+                Atom(LogicTuple.and_([f.formula() for f in new_set], brackets=True))
+                new_ltl.dnf.append(new_set)
+            except AtomNotSatisfiableException:
+                """Do not append if its unsatisfiable"""
+                pass
+
+        if len(new_ltl.dnf) == 0:
+            """Result is TRUE"""
+            return Formula()
+
         """Append to list if not already there"""
         for other_elem in other.cnf:
             if other_elem not in new_ltl.cnf:
                 new_ltl.cnf.append(other_elem)
-
-        """Cartesian product between the two dnf"""
-        for a, b in itertools.product(new_ltl.dnf, other.dnf):
-            a.update(b)
 
         if not new_ltl.is_satisfiable():
             raise NotSatisfiableException(self, other)
@@ -261,6 +275,7 @@ class Formula(Specification):
     def __or__(self, other: Formula) -> Formula:
         """self | other
         Returns a new Specification with the disjunction with other"""
+        global Atom
         if not isinstance(other, Formula):
             raise AttributeError
 
@@ -270,8 +285,20 @@ class Formula(Specification):
         new_ltl = deepcopy(self)
 
         """Cartesian product between the two cnf"""
-        for a, b in itertools.product(new_ltl.cnf, other.cnf):
-            a.update(b)
+        new_ltl.__cnf = []
+        for a, b in itertools.product(self.cnf, other.cnf):
+
+            new_set = a | b
+
+            from specification.atom import Atom
+            atom = Atom(LogicTuple.or_([f.formula() for f in new_set]))
+            if not atom.is_valid():
+                new_ltl.cnf.append(new_set)
+
+        if len(new_ltl.cnf) == 0:
+            """Result is TRUE"""
+            return Formula()
+
 
         """Append to list if not already there"""
         for other_elem in other.dnf:

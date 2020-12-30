@@ -6,7 +6,6 @@ from type.subtypes.locations import ReachLocation
 from typeset import Typeset
 
 
-
 class GoA(ReachLocation):
 
     def __init__(self, name: str = "a"):
@@ -47,7 +46,6 @@ test = a >> ~ a
 print(test.formula(FormulaOutput.CNF)[0])
 print(test.formula(FormulaOutput.DNF)[0])
 
-
 one = a & b
 
 print("\none")
@@ -66,20 +64,19 @@ print("\nNOT NOT one")
 print(one.formula(FormulaOutput.CNF)[0])
 print(one.formula(FormulaOutput.DNF)[0])
 
-
 two = c | d
-
-three = one & one & two
-four = one | two
 
 print("\ntwo")
 print(two.formula(FormulaOutput.CNF)[0])
 print(two.formula(FormulaOutput.DNF)[0])
 
+three = one & two
 
 print("\nthree")
 print(three.formula(FormulaOutput.CNF)[0])
 print(three.formula(FormulaOutput.DNF)[0])
+
+four = one | two
 
 three = ~three
 
@@ -97,18 +94,20 @@ print("\nfour")
 print(four.formula(FormulaOutput.CNF)[0])
 print(four.formula(FormulaOutput.DNF)[0])
 
-
 five = three & four
-six = three | four
 
 print("\nfive")
 print(five.formula(FormulaOutput.CNF)[0])
 print(five.formula(FormulaOutput.DNF)[0])
 
+print(three.formula(FormulaOutput.CNF)[0])
+print(four.formula(FormulaOutput.CNF)[0])
+
+six = three | four
+
 print("\nsix")
 print(six.formula(FormulaOutput.CNF)[0])
 print(six.formula(FormulaOutput.DNF)[0])
-
 
 seven = five >> six
 

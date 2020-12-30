@@ -146,6 +146,8 @@ class Specification(ABC):
         """Check if self -> other and other -> self"""
         if self.string == other.string:
             return True
+        elif ~self == other:
+            return False
         else:
             return self.__le__(other) and self.__ge__(other)
 

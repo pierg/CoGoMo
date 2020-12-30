@@ -4,7 +4,7 @@ from copy import deepcopy
 from typing import Union, Tuple
 from specification import Specification
 from specification.enums import *
-from specification.exceptions import NotSatisfiableException
+from specification.exceptions import NotSatisfiableException, AtomNotSatisfiableException
 from specification.formula import Formula
 from tools.logic import Logic, LogicTuple
 from typeset import Typeset
@@ -43,7 +43,7 @@ class Atom(Specification):
             self.__base_formula: Tuple[str, Typeset] = formula
 
             if not self.is_satisfiable():
-                raise NotSatisfiableException
+                raise AtomNotSatisfiableException(formula=self.__base_formula)
 
     def formula(self, type: FormulaType = FormulaType.SATURATED) -> (str, Typeset):
         expression, typset = self.__base_formula

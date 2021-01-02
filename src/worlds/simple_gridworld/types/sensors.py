@@ -1,36 +1,51 @@
-from type import MutexType
 from type.subtypes.sensors import *
 
 
-class MutexSensor(MutexType):
-    pass
-
-
-class SeA(BooleanSensor, MutexSensor):
+class SeA(BooleanSensor):
 
     def __init__(self, name: str = "se_a"):
         super().__init__(name)
 
+    @property
+    def mutex_group(self) -> str:
+        return "sensor_locations"
 
-class SeB(BooleanSensor, MutexSensor):
+
+class SeB(BooleanSensor):
 
     def __init__(self, name: str = "se_b"):
         super().__init__(name)
 
+    @property
+    def mutex_group(self) -> str:
+        return "sensor_locations"
 
-class SeC(BooleanSensor, MutexSensor):
+
+class SeC(BooleanSensor):
 
     def __init__(self, name: str = "se_c"):
         super().__init__(name)
 
+    @property
+    def mutex_group(self) -> str:
+        return "sensor_locations"
 
-class SeD(BooleanSensor, MutexSensor):
+
+class SeD(BooleanSensor):
 
     def __init__(self, name: str = "se_d"):
         super().__init__(name)
 
+    @property
+    def mutex_group(self) -> str:
+        return "sensor_locations"
 
-class SeX(BooleanSensor, MutexSensor):
+
+class SeX(BooleanSensor):
 
     def __init__(self, name: str = "se_x"):
         super().__init__(name)
+
+    @property
+    def mutex_group(self) -> str:
+        return "sensor_locations"

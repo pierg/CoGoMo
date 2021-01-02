@@ -70,6 +70,9 @@ class Typeset(dict):
         for key, value in element.items():
             if key in self:
                 if value is not self[key]:
+                    print(f"Trying to add an element with key '{key}' and value of type '{type(value).__name__}'")
+                    print(f"ERROR:\n"
+                          f"There is already en element with key '{key}' and value of type '{type(self[key]).__name__}'")
                     raise Exception("Type Mismatch")
             if key not in self:
                 self.add_elements({value})
@@ -124,13 +127,14 @@ class Typeset(dict):
         if len(self.values()) > 1:
             self.__adjacent_types = dict()
             for variable in self.values():
-                for adjacent_class in variable.adjacency_set:
-                    for variable_candidate in self.values():
-                        if variable_candidate.__class__.__name__ == adjacent_class:
-                            if variable in self.__adjacent_types:
-                                self.__adjacent_types[variable].add(variable_candidate)
-                            else:
-                                self.__adjacent_types[variable] = {variable_candidate}
+                if hasattr(variable, "adjacency_set"):
+                    for adjacent_class in variable.adjacency_set:
+                        for variable_candidate in self.values():
+                            if variable_candidate.__class__.__name__ == adjacent_class:
+                                if variable in self.__adjacent_types:
+                                    self.__adjacent_types[variable].add(variable_candidate)
+                                else:
+                                    self.__adjacent_types[variable] = {variable_candidate}
 
     def __setitem__(self, name, elem):
         self.add_elements({elem})

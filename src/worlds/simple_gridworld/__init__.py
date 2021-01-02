@@ -1,3 +1,6 @@
+from typing import Dict
+
+from specification.atom import Atom
 from typeset import Typeset
 from worlds import World
 from worlds.simple_gridworld.types.locations import *
@@ -24,5 +27,5 @@ class SimpleGridWorld(World):
         self.__typset |= GoX()
 
     @property
-    def typeset(self) -> (str, Typeset):
+    def typeset(self) -> Typeset:
         return self.__typset

@@ -1,36 +1,73 @@
-from type import MutexType
 from type.subtypes.locations import *
 
 
-class MutexLocation(MutexType):
-    pass
+
+class GoA(ReachLocation):
+
+    def __init__(self, name: str = "a"):
+        super().__init__(name)
+
+    @property
+    def adjacency_set(self) -> Set[str]:
+        return {"GoX", "GoB"}
+
+    @property
+    def mutex_group(self) -> str:
+        return "locations"
 
 
-class GoA(ReachLocation, MutexLocation):
+class GoB(ReachLocation):
 
-    def __init__(self, name: str = "go_a"):
-        super().__init__(name, adjacent_to={"GoX", "GoB"})
+    def __init__(self, name: str = "b"):
+        super().__init__(name)
 
+    @property
+    def adjacency_set(self) -> Set[str]:
+        return {"GoX", "GoA"}
 
-class GoB(ReachLocation, MutexLocation):
-
-    def __init__(self, name: str = "go_b"):
-        super().__init__(name, adjacent_to={"GoX", "GoA"})
-
-
-class GoC(ReachLocation, MutexLocation):
-
-    def __init__(self, name: str = "go_c"):
-        super().__init__(name, adjacent_to={"GoX", "GoD"})
+    @property
+    def mutex_group(self) -> str:
+        return "locations"
 
 
-class GoD(ReachLocation, MutexLocation):
+class GoC(ReachLocation):
 
-    def __init__(self, name: str = "go_d"):
-        super().__init__(name, adjacent_to={"GoX", "GoC"})
+    def __init__(self, name: str = "c"):
+        super().__init__(name)
+
+    @property
+    def adjacency_set(self) -> Set[str]:
+        return {"GoX", "GoD"}
+
+    @property
+    def mutex_group(self) -> str:
+        return "locations"
 
 
-class GoX(ReachLocation, MutexLocation):
+class GoD(ReachLocation):
 
-    def __init__(self, name: str = "go_x"):
-        super().__init__(name, adjacent_to={"GoA", "GoB", "GoC", "GoD"})
+    def __init__(self, name: str = "d"):
+        super().__init__(name)
+
+    @property
+    def adjacency_set(self) -> Set[str]:
+        return {"GoX", "GoC"}
+
+    @property
+    def mutex_group(self) -> str:
+        return "locations"
+
+
+class GoX(ReachLocation):
+
+    def __init__(self, name: str = "x"):
+        super().__init__(name)
+
+    @property
+    def adjacency_set(self) -> Set[str]:
+        return {"GoA", "GoB", "GoC", "GoD"}
+
+    @property
+    def mutex_group(self) -> str:
+        return "locations"
+

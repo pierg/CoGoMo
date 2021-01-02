@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 
 from typeset import Typeset
 
@@ -6,5 +6,6 @@ from typeset import Typeset
 class World(ABC):
 
     @property
-    def typeset(self) -> (str, Typeset):
+    @abstractmethod
+    def typeset(self) -> Typeset:
         pass

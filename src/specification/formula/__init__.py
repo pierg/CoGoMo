@@ -81,6 +81,9 @@ class Formula(Specification):
     def _remove_atoms(self, atoms_to_remove: Set[Atom]):
         """Remove Atoms from Formula"""
 
+        if len(atoms_to_remove) == 1 and list(atoms_to_remove)[0].is_true():
+            return
+
         """Remove from CNF"""
         for clause in self.__dnf:
             clause -= atoms_to_remove
@@ -96,6 +99,12 @@ class Formula(Specification):
         for clause in list(self.cnf):
             if len(clause & clause_cnf_to_remove) > 0:
                 self.__cnf.remove(clause)
+
+        if len(self.atoms) == 0:
+            new_atom = Atom("TRUE")
+            self.__cnf: List[Set[Atom]] = [{new_atom}]
+            self.__dnf: List[Set[Atom]] = [{new_atom}]
+
 
     def relax_by(self, formula: Formula):
         """
@@ -122,14 +131,16 @@ class Formula(Specification):
                 if g.saturation is not None:
                     if g.saturation in clause:
                         for conjunct in clause:
+                            if not conjunct.is_true():
+                                if (g.unsaturated >> conjunct).is_valid():
+                                    print(f"{str(g)} relaxes {str(conjunct)}")
+                                    atoms_to_remove.add(conjunct)
+                else:
+                    for conjunct in clause:
+                        if not conjunct.is_true():
                             if (g.unsaturated >> conjunct).is_valid():
                                 print(f"{str(g)} relaxes {str(conjunct)}")
                                 atoms_to_remove.add(conjunct)
-                else:
-                    for conjunct in clause:
-                        if (g.unsaturated >> conjunct).is_valid():
-                            print(f"{str(g)} relaxes {str(conjunct)}")
-                            atoms_to_remove.add(conjunct)
 
             self._remove_atoms(atoms_to_remove)
 

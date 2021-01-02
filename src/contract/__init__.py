@@ -138,11 +138,8 @@ class Contract:
             try:
                 new_guarantees &= contract.guarantees
             except NotSatisfiableException as e:
-                print("Contracts incompatible")
-                print(e.conj_a)
-                print("unsatisfiable with")
-                print(e.conj_b)
-                raise InconsistentContracts(e.conj_a, e.conj_b)
+                raise InconsistentContracts(contract, e)
+
 
         print("The conjunction is compatible and consistent")
 

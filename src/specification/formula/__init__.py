@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import itertools
-from copy import deepcopy
+from copy import deepcopy, copy
 from enum import Enum, auto
 from typing import Set, Tuple, TYPE_CHECKING, List, Union
 
@@ -9,6 +9,7 @@ from specification import Specification
 from specification.enums import *
 from specification.exceptions import NotSatisfiableException, AtomNotSatisfiableException
 from tools.logic import LogicTuple, Logic
+from tools.nuxmv import Nuxmv
 from type import Boolean
 from typeset import Typeset
 
@@ -31,12 +32,6 @@ class Formula(Specification):
             self.__spec_kind = SpecKind.RULE
         else:
             self.__spec_kind = SpecKind.UNDEFINED
-
-        self.__refinement_rules = None
-        self.__mutex_rules = None
-        self.__adjacency_rules = None
-
-        self.__saturation = None
 
         if isinstance(atom, str) and atom == "TRUE":
             from specification.atom import Atom
@@ -101,73 +96,6 @@ class Formula(Specification):
         for clause in list(self.cnf):
             if len(clause & clause_cnf_to_remove) > 0:
                 self.__cnf.remove(clause)
-
-    @staticmethod
-    def extract_refinement_rules(typeset: Typeset) -> Formula:
-        """Extract Refinement rules from the Formula"""
-
-        refinement_rules = None
-
-        for key_type, set_super_types in typeset.super_types.items():
-            if isinstance(key_type, Boolean):
-                for super_type in set_super_types:
-                    f = Logic.g_(Logic.implies_(key_type.name, super_type.name))
-                    t = Typeset({key_type, super_type})
-                    from specification.atom import Atom
-                    new_atom = Atom(formula=(f, t), kind=AtomKind.REFINEMENT_RULE)
-                    new_formula = Formula(atom=new_atom, kind=FormulaKind.REFINEMENT_RULES)
-                    if refinement_rules is None:
-                        refinement_rules = new_formula
-                    else:
-                        refinement_rules &= new_formula
-
-        return refinement_rules
-
-    @staticmethod
-    def extract_mutex_rules(typeset: Typeset) -> Formula:
-        """Extract Mutex rules from the Formula"""
-
-        mutex_rules = None
-
-        for mutex_group in typeset.mutex_types:
-            or_elements = []
-            for mutex_type in mutex_group:
-                neg_group = mutex_group.symmetric_difference({mutex_type})
-                and_elements = [mutex_type.name]
-                for elem in neg_group:
-                    and_elements.append(Logic.not_(elem.name))
-                or_elements.append(Logic.and_(and_elements))
-            f = Logic.g_(Logic.or_(or_elements))
-            t = Typeset(mutex_group)
-            from specification.atom import Atom
-            new_atom = Atom(formula=(f, t), kind=AtomKind.MUTEX_RULE)
-            new_formula = Formula(atom=new_atom, kind=FormulaKind.MUTEX_RULES)
-            if mutex_rules is None:
-                mutex_rules = new_formula
-            else:
-                mutex_rules &= new_formula
-
-        return mutex_rules
-
-    @staticmethod
-    def extract_adjacency_rules(typeset: Typeset) -> Formula:
-        """Extract Adjacency rules from the Formula"""
-
-        adjacency_rules = None
-
-        for key_type, set_adjacent_types in typeset.adjacent_types.items():
-            if isinstance(key_type, Boolean):
-                """G(a -> X(b | c | d))"""
-                f = Logic.g_(Logic.implies_(key_type.name, Logic.x_(Logic.or_([e.name for e in set_adjacent_types]))))
-                t = Typeset({key_type, set_adjacent_types})
-                new_atom = Atom(formula=(f, t), kind=AtomKind.ADJACENCY_RULE)
-                new_formula = Formula(atom=new_atom, kind=FormulaKind.ADJACENCY_RULES)
-                if adjacency_rules is None:
-                    adjacency_rules = new_formula
-                else:
-                    adjacency_rules &= new_formula
-
-        return adjacency_rules
 
     def relax_by(self, formula: Formula):
         """
@@ -243,80 +171,15 @@ class Formula(Specification):
     def __and__(self, other: Formula) -> Formula:
         """self & other
         Returns a new Specification with the conjunction with other"""
-        if not isinstance(other, Formula):
-            raise AttributeError
-
-        if other.is_false():
-            return Formula("FALSE")
-
         new_ltl = deepcopy(self)
-
-        if other.is_true():
-            return new_ltl
-
-        """Cartesian product between the two dnf"""
-        new_ltl.__dnf = []
-        for a, b in itertools.product(self.dnf, other.dnf):
-
-            new_set = a | b
-
-            try:
-                from specification.atom import Atom
-                Atom(LogicTuple.and_([f.formula() for f in new_set], brackets=True))
-                new_ltl.dnf.append(new_set)
-            except AtomNotSatisfiableException:
-                """Do not append if its unsatisfiable"""
-                pass
-
-        if len(new_ltl.dnf) == 0:
-            """Result is FALSE"""
-            return Formula("FALSE")
-
-        """Append to list if not already there"""
-        for other_elem in other.cnf:
-            if other_elem not in new_ltl.cnf:
-                new_ltl.cnf.append(other_elem)
-
-        if not new_ltl.is_satisfiable():
-            raise NotSatisfiableException(self, other)
-
+        new_ltl &= other
         return new_ltl
 
     def __or__(self, other: Formula) -> Formula:
         """self | other
         Returns a new Specification with the disjunction with other"""
-        global Atom
-        if not isinstance(other, Formula):
-            raise AttributeError
-
-        if other.is_true():
-            return Formula("TRUE")
-
         new_ltl = deepcopy(self)
-
-        if other.is_false():
-            return new_ltl
-
-        """Cartesian product between the two cnf"""
-        new_ltl.__cnf = []
-        for a, b in itertools.product(self.cnf, other.cnf):
-
-            new_set = a | b
-
-            from specification.atom import Atom
-            atom = Atom(LogicTuple.or_([f.formula() for f in new_set]), check=False)
-            if not atom.is_valid():
-                new_ltl.cnf.append(new_set)
-
-        if len(new_ltl.cnf) == 0:
-            """Result is TRUE"""
-            return Formula("TRUE")
-
-        """Append to list if not already there"""
-        for other_elem in other.dnf:
-            if other_elem not in new_ltl.dnf:
-                new_ltl.dnf.append(other_elem)
-
+        new_ltl |= other
         return new_ltl
 
     def __invert__(self) -> Formula:
@@ -367,17 +230,44 @@ class Formula(Specification):
         if isinstance(other, Atom):
             other = Formula(other)
 
+        if other.is_false():
+            new_atom = Atom("FALSE")
+            self.__cnf: List[Set[Atom]] = [{new_atom}]
+            self.__dnf: List[Set[Atom]] = [{new_atom}]
+            return self
+
+        if other.is_true() or self.is_true():
+            return self
+
+        new_other = deepcopy(other)
+
+        """Mutex Rules necessary for Satisfiability Check"""
+        mutex_rules = Atom.extract_mutex_rules(self.typeset | other.typeset)
+
         """Cartesian product between the two dnf"""
-        for a, b in itertools.product(self.__dnf, other.dnf):
-            a.update(b)
+        temp_dnf = []
+        for a, b in itertools.product(self.dnf, new_other.dnf):
+
+            new_set = a | b
+
+            check_formula = LogicTuple.and_([f.formula() for f in new_set])
+
+            """Adding Rules"""
+            if mutex_rules is not None:
+                check_formula = LogicTuple.and_([check_formula, mutex_rules.formula()])
+
+            if Nuxmv.check_satisfiability(check_formula):
+                temp_dnf.append(new_set)
+
+        if len(temp_dnf) == 0:
+            raise NotSatisfiableException(self, other, mutex_rules)
+        else:
+            self.__dnf = temp_dnf
 
         """Append to list if not already there"""
-        for other_elem in other.cnf:
+        for other_elem in new_other.cnf:
             if other_elem not in self.cnf:
-                self.cnf.append(other_elem)
-
-        if not self.is_satisfiable():
-            raise NotSatisfiableException(self, other)
+                self.__cnf.append(other_elem)
 
         return self
 
@@ -388,16 +278,41 @@ class Formula(Specification):
         if isinstance(other, Atom):
             other = Formula(other)
 
+        if other.is_true() or self.is_true():
+            new_atom = Atom("TRUE")
+            self.__cnf: List[Set[Atom]] = [{new_atom}]
+            self.__dnf: List[Set[Atom]] = [{new_atom}]
+            return self
+
+        if other.is_false():
+            return self
+
+        new_other = deepcopy(other)
+
         """Cartesian product between the two cnf"""
-        for a, b in itertools.product(self.__cnf, other.cnf):
-            a.update(b)
+        temp_cnf = []
+        for a, b in itertools.product(self.cnf, new_other.cnf):
+
+            new_set = a | b
+
+            check_formula = LogicTuple.or_([f.formula() for f in new_set])
+            if not Nuxmv.check_validity(check_formula):
+                temp_cnf.append(new_set)
+            else:
+                pass
+
+        if len(temp_cnf) == 0:
+            """Result is TRUE"""
+            new_atom = Atom("TRUE")
+            self.__cnf: List[Set[Atom]] = [{new_atom}]
+            self.__dnf: List[Set[Atom]] = [{new_atom}]
+            return self
+        else:
+            self.__cnf = temp_cnf
 
         """Append to list if not already there"""
-        for other_elem in other.dnf:
+        for other_elem in new_other.dnf:
             if other_elem not in self.dnf:
-                self.dnf.append(other_elem)
-
-        if not self.is_satisfiable():
-            raise NotSatisfiableException(self, other)
+                self.__dnf.append(other_elem)
 
         return self

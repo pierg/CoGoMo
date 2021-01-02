@@ -164,7 +164,7 @@ class Logic:
         return Logic.or_([Logic.u_(pre, post), Logic.g_(pre)])
 
     @staticmethod
-    def or_(propositions: List[str]) -> str:
+    def or_(propositions: List[str], brackets=True) -> str:
         """Returns an formula formula representing the logical OR of list_propoositions"""
         if len(propositions) > 1:
             if "TRUE" in propositions:
@@ -173,7 +173,10 @@ class Logic:
             propositions = list(filter("FALSE".__ne__, propositions))
 
             res = " | ".join(propositions)
-            return f"({res})"
+            if brackets:
+                return f"({res})"
+            else:
+                return f"{res}"
         elif len(propositions) == 1:
             return propositions[0]
         else:

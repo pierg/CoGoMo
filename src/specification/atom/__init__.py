@@ -7,6 +7,7 @@ from specification.enums import *
 from specification.exceptions import NotSatisfiableException, AtomNotSatisfiableException
 from specification.formula import Formula
 from tools.logic import Logic, LogicTuple
+from type import Boolean
 from typeset import Typeset
 
 
@@ -45,7 +46,7 @@ class Atom(Specification):
         else:
             self.__base_formula: Tuple[str, Typeset] = formula
 
-            if check:
+            if check and kind != AtomKind.ADJACENCY_RULE and kind != AtomKind.MUTEX_RULE and kind != AtomKind.REFINEMENT_RULE:
                 if not self.is_satisfiable():
                     raise AtomNotSatisfiableException(formula=self.__base_formula)
 
@@ -100,6 +101,69 @@ class Atom(Specification):
     @property
     def negated(self) -> bool:
         return self.__negation
+
+    @staticmethod
+    def extract_refinement_rules(typeset: Typeset) -> Atom:
+        """Extract Refinement rules from the Formula"""
+
+        rules_str = []
+        rules_typeset = Typeset()
+
+        for key_type, set_super_types in typeset.super_types.items():
+            if isinstance(key_type, Boolean):
+                for super_type in set_super_types:
+                    rules_str.append(Logic.g_(Logic.implies_(key_type.name, super_type.name)))
+                    rules_typeset |= key_type
+                    rules_typeset |= set_super_types
+
+        if len(rules_str) == 0:
+            return None
+
+        return Atom(formula=(Logic.and_(rules_str, brackets=True), rules_typeset), kind=AtomKind.MUTEX_RULE)
+
+    @staticmethod
+    def extract_mutex_rules(typeset: Typeset) -> Atom:
+        """Extract Mutex rules from the Formula"""
+
+        rules_str = []
+        rules_typeset = Typeset()
+
+        for mutex_group in typeset.mutex_types:
+            or_elements = []
+            if len(mutex_group) > 1:
+                for mutex_type in mutex_group:
+                    neg_group = mutex_group.symmetric_difference({mutex_type})
+                    and_elements = [mutex_type.name]
+                    for elem in neg_group:
+                        and_elements.append(Logic.not_(elem.name))
+                    or_elements.append(Logic.and_(and_elements, brackets=True))
+                rules_str.append(Logic.g_(Logic.or_(or_elements, brackets=False)))
+                rules_typeset |= Typeset(mutex_group)
+
+        if len(rules_str) == 0:
+            return None
+
+        return Atom(formula=(Logic.and_(rules_str, brackets=True), rules_typeset), kind=AtomKind.MUTEX_RULE)
+
+    @staticmethod
+    def extract_adjacency_rules(typeset: Typeset) -> Atom:
+        """Extract Adjacency rules from the Formula"""
+
+        rules_str = []
+        rules_typeset = Typeset()
+
+        for key_type, set_adjacent_types in typeset.adjacent_types.items():
+            if isinstance(key_type, Boolean):
+                """G(a -> X(b | c | d))"""
+                rules_str.append(
+                    Logic.g_(Logic.implies_(key_type.name, Logic.x_(Logic.or_([e.name for e in set_adjacent_types])))))
+                rules_typeset |= key_type
+                rules_typeset |= set_adjacent_types
+
+        if len(rules_str) == 0:
+            return None
+
+        return Atom(formula=(Logic.and_(rules_str, brackets=True), rules_typeset), kind=AtomKind.ADJACENCY_RULE)
 
     def __hash__(self):
         return hash(self.__base_formula[0])

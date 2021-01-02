@@ -2,7 +2,6 @@ from typing import Union
 from specification.atom import Specification
 from specification.atom.pattern import Pattern
 from type import Boolean
-from typeset import Typeset
 
 
 class Init(Pattern):

@@ -1,39 +1,33 @@
 from contract import Contract
 from goal import Goal
-from tests.testtypes import *
+from goal.exceptions import GoalException
+from specification.atom.pattern.basic import Init
+from specification.atom.pattern.robotics.coremovement.surveillance import Patrolling
+from worlds.simple_gridworld import SimpleGridWorld
 
-c1 = Contract(assumptions=a, guarantees=b)
-print(c1)
+"""Let us instantiate a world"""
+sw = SimpleGridWorld()
+t = sw.typeset
 
-c2 = Contract(assumptions=c, guarantees=d)
-print(c2)
 
-c3 = Contract(assumptions=e, guarantees=f)
-print(c2)
+"""Definition of a goals"""
 
-c4 = Contract(assumptions=g, guarantees=e)
-print(c2)
+g1 = Goal(name="patrol_a_b",
+          description="Patrolling of locations a and b, beginning from location a",
+          specification=Patrolling([t["a"], t["b"]]) & Init(t["a"]))
 
-g1 = Goal(name="g1",
-          description="test_goal 1",
-          specification=c1)
+g2 = Goal(name="patrol_c_d",
+          description="Patrolling of locations c and d, beginning from location c",
+          specification=Patrolling([t["c"], t["d"]]) & Init(t["c"]))
 
-g2 = Goal(name="g2",
-          description="test_goal 2",
-          specification=c2)
 
-print(g1)
-print(g2)
+try:
+    print(g1.specification)
+    print(g2.specification)
 
-g12 = Goal.composition({g1, g2})
+    g12 = Goal.composition({g1, g2})
+    print(g12)
+except GoalException as e:
+    print("Initial location is both 'a' and 'c'")
 
-print(g12)
-
-g3 = Goal(name="g4",
-          description="test_goal 1",
-          specification=c3)
-
-g4 = Goal(name="g3",
-          description="test_goal 2",
-          specification=c4)
 

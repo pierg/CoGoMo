@@ -1,10 +1,13 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
+from contract import ContractException
+
 if TYPE_CHECKING:
     from goal import Goal
-    from typing import List
 
 from enum import Enum
+
 
 class FailOperations(Enum):
     composition = 0
@@ -21,27 +24,18 @@ class FailMotivations(Enum):
     wrong_refinement = 4
 
 
-class GoalFailException(Exception):
-    def __init__(self,
-                 failed_operation: FailOperations,
-                 faild_motivation: FailMotivations,
-                 goals_involved_a: List[Goal],
-                 goals_involved_b: List[Goal]):
-        self.failed_operation = failed_operation
-        self.faild_motivation = faild_motivation
-        self.goals_involved_a = goals_involved_a
-        self.goals_involved_b = goals_involved_b
-
-
 class GoalException(Exception):
-    def __init__(self,
-                 failed_operation: FailOperations,
-                 faild_motivation: FailMotivations,
-                 goal_involved: Goal):
-        self.failed_operation = failed_operation
-        self.faild_motivation = faild_motivation
-        self.goal_involved = goal_involved
+    def __init__(self, message: str):
+        self.message = f"\n******GOAL_EXCEPTION******\n{message}\n"
+        print(self.message)
 
 
-class NoGoalFoundException(Exception):
-    pass
+class GoalOperationFail(GoalException):
+    def __init__(self, goals: Set[Goal], operation: FailOperations, contr_ex: ContractException):
+        self.goals = goals
+        self.operation = operation
+        self.contr_ex = contr_ex
+        message = f"A failure has occurred while performing '{self.operation.name}' on goals:\n" \
+                  f"{', '.join(g.name for g in self.goals)}"
+        super().__init__(message=message)
+

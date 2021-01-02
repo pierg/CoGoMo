@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Union, Set
 
 from contract import Contract, IncompatibleContracts, InconsistentContracts, UnfeasibleContracts
-from goal.exceptions import GoalFailException, FailOperations, FailMotivations
+from goal.exceptions import FailOperations, FailMotivations, GoalOperationFail
 from specification import Specification
 from specification.formula import FormulaOutput
 from tools.strings import StringMng
@@ -124,47 +124,16 @@ class Goal:
             new_contract = Contract.composition(set_of_contracts)
 
         except IncompatibleContracts as e:
-            goals_involved = []
-            goals_failed = []
-            for goal in goals:
-                for contract in goal.specification.conjoined_by:
-                    if e.assumptions_1 <= contract.assumptions:
-                        goals_involved.append(goal)
-                    if e.assumptions_2 <= contract.assumptions:
-                        goals_failed.append(goal)
-            raise GoalFailException(failed_operation=FailOperations.composition,
-                                    faild_motivation=FailMotivations.incompatible,
-                                    goals_involved_a=goals_involved,
-                                    goals_involved_b=goals_failed)
+
+            raise GoalOperationFail(goals=goals, operation=FailOperations.composition, contr_ex=e)
 
         except InconsistentContracts as e:
-            goals_involved = []
-            goals_failed = []
-            for goal in goals:
-                for contract in goal.specification.conjoined_by:
-                    if e.guarantee_1 <= contract.guarantees:
-                        goals_involved.append(goal)
-                    if e.guarantee_2 >= contract.guarantees:
-                        goals_failed.append(goal)
-            raise GoalFailException(failed_operation=FailOperations.composition,
-                                    faild_motivation=FailMotivations.inconsistent,
-                                    goals_involved_a=goals_involved,
-                                    goals_involved_b=goals_failed)
+
+            raise GoalOperationFail(goals=goals, operation=FailOperations.composition, contr_ex=e)
 
         except UnfeasibleContracts as e:
 
-            goals_involved = []
-            goals_failed = []
-            for goal in goals:
-                for contract in goal.specification.conjoined_by:
-                    if e.assumptions <= contract.assumptions:
-                        goals_involved.append(goal)
-                    if e.guarantees <= contract.assumptions:
-                        goals_failed.append(goal)
-            raise GoalFailException(failed_operation=FailOperations.composition,
-                                    faild_motivation=FailMotivations.unfeasible,
-                                    goals_involved_a=goals_involved,
-                                    goals_involved_b=goals_failed)
+            raise GoalOperationFail(goals=goals, operation=FailOperations.composition, contr_ex=e)
 
         new_goal = Goal(name=name,
                         description=description,
@@ -192,18 +161,8 @@ class Goal:
             new_contract = Contract.conjunction(set_of_contracts)
 
         except InconsistentContracts as e:
-            goals_involved = []
-            goals_failed = []
-            for goal in goals:
-                for contract in goal.specification.conjoined_by:
-                    if e.guarantee_1 <= contract.guarantees:
-                        goals_involved.append(goal)
-                    if e.guarantee_2 >= contract.guarantees:
-                        goals_failed.append(goal)
-            raise GoalFailException(failed_operation=FailOperations.conjunction,
-                                    faild_motivation=FailMotivations.inconsistent,
-                                    goals_involved_a=goals_involved,
-                                    goals_involved_b=goals_failed)
+
+            raise GoalOperationFail(goals=goals, operation=FailOperations.conjunction, contr_ex=e)
 
         new_goal = Goal(name=name,
                         description=description,

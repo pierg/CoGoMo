@@ -50,7 +50,7 @@ class Contract:
     def __setassumptions(self, value: Specification):
         """Setting Assumptions"""
         if value is None:
-            self.__assumptions = Formula()
+            self.__assumptions = Formula("TRUE")
         else:
             if not isinstance(value, Specification):
                 raise AttributeError
@@ -80,8 +80,8 @@ class Contract:
         if self.assumptions is not None:
             try:
                 self.__assumptions & self.__guarantees
-            except NotSatisfiableException:
-                raise UnfeasibleContracts(self.assumptions, self.guarantees)
+            except NotSatisfiableException as e:
+                raise UnfeasibleContracts(self, e)
 
     @staticmethod
     def composition(contracts: Set[Contract]) -> Contract:
@@ -100,20 +100,12 @@ class Contract:
             try:
                 new_assumptions &= contract.assumptions
             except NotSatisfiableException as e:
-                print("Contracts inconsistent")
-                print(e.conj_a)
-                print("unsatisfiable with")
-                print(e.conj_b)
-                raise IncompatibleContracts(e.conj_a, e.conj_b)
+                raise IncompatibleContracts(contract, e)
 
             try:
                 new_guarantees &= contract.guarantees
             except NotSatisfiableException as e:
-                print("Contracts incompatible")
-                print(e.conj_a)
-                print("unsatisfiable with")
-                print(e.conj_b)
-                raise InconsistentContracts(e.conj_a, e.conj_b)
+                raise InconsistentContracts(contract, e)
 
         print("The composition is compatible and consistent")
 
@@ -152,7 +144,7 @@ class Contract:
                 print(e.conj_b)
                 raise InconsistentContracts(e.conj_a, e.conj_b)
 
-        print("The composition is compatible and consistent")
+        print("The conjunction is compatible and consistent")
 
         """New contracts without saturation cause it was already saturated"""
         new_contract = Contract(assumptions=new_assumptions, guarantees=new_guarantees, saturate=False)

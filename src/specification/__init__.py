@@ -85,11 +85,11 @@ class Specification(ABC):
 
         sat_check_formula = self.formula()
 
-        if not (self.contains_rule()):
-            from specification.formula import Formula
-            mutex_rules = Formula.extract_mutex_rules(self.typeset)
-            if mutex_rules is not None:
-                sat_check_formula = LogicTuple.and_([self.formula(), mutex_rules.formula()])
+        """If does not contain Mutex Rules already, extract them and check the satisfiability"""
+        from specification.atom import Atom
+        mutex_rules = Atom.extract_mutex_rules(self.typeset)
+        if mutex_rules is not None:
+            sat_check_formula = LogicTuple.and_([self.formula(), mutex_rules.formula()])
 
         return Nuxmv.check_satisfiability(sat_check_formula)
 
@@ -116,8 +116,8 @@ class Specification(ABC):
 
         """Check if self -> other is valid, considering the refinement rules r"""
         """((r & s1) -> s2) === r -> (s1 -> s2)"""
-        from specification.formula import Formula
-        refinement_rules = Formula.extract_refinement_rules(self.typeset | other.typeset)
+        from specification.atom import Atom
+        refinement_rules = Atom.extract_refinement_rules(self.typeset | other.typeset)
         if refinement_rules is not None:
             ref_check_formula = (self & refinement_rules) >> other
         else:
@@ -135,8 +135,8 @@ class Specification(ABC):
 
         """Check if other -> self is valid, considering the refinement rules r"""
         """((r & s1) -> s2) === r -> (s1 -> s2)"""
-        from specification.formula import Formula
-        refinement_rules = Formula.extract_refinement_rules(self.typeset | other.typeset)
+        from specification.atom import Atom
+        refinement_rules = Atom.extract_refinement_rules(self.typeset | other.typeset)
         if refinement_rules is not None:
             ref_check_formula = (other & refinement_rules) << self
         else:

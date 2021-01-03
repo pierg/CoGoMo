@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Set
 
 from contract import ContractException
 
@@ -9,14 +9,14 @@ if TYPE_CHECKING:
 from enum import Enum
 
 
-class FailOperations(Enum):
+class GoalFailOperations(Enum):
     composition = 0
     conjunction = 1
     refinement = 2
     search_goal = 3
 
 
-class FailMotivations(Enum):
+class GoalFailMotivations(Enum):
     goal_not_found = 0
     inconsistent = 1
     incompatible = 2
@@ -31,7 +31,7 @@ class GoalException(Exception):
 
 
 class GoalOperationFail(GoalException):
-    def __init__(self, goals: Set[Goal], operation: FailOperations, contr_ex: ContractException):
+    def __init__(self, goals: Set[Goal], operation: GoalFailOperations, contr_ex: ContractException):
         self.goals = goals
         self.operation = operation
         self.contr_ex = contr_ex

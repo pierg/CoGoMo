@@ -113,8 +113,8 @@ class Atom(Specification):
             if isinstance(key_type, Boolean):
                 for super_type in set_super_types:
                     rules_str.append(Logic.g_(Logic.implies_(key_type.name, super_type.name)))
-                    rules_typeset |= key_type
-                    rules_typeset |= set_super_types
+                    rules_typeset |= Typeset({key_type})
+                    rules_typeset |= Typeset(set_super_types)
 
         if len(rules_str) == 0:
             return None
@@ -157,8 +157,8 @@ class Atom(Specification):
                 """G(a -> X(b | c | d))"""
                 rules_str.append(
                     Logic.g_(Logic.implies_(key_type.name, Logic.x_(Logic.or_([e.name for e in set_adjacent_types])))))
-                rules_typeset |= key_type
-                rules_typeset |= set_adjacent_types
+                rules_typeset |= Typeset({key_type})
+                rules_typeset |= Typeset(set_adjacent_types)
 
         if len(rules_str) == 0:
             return None

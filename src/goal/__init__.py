@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Union, Set
 
 from contract import Contract, IncompatibleContracts, InconsistentContracts, UnfeasibleContracts
-from goal.exceptions import FailOperations, FailMotivations, GoalOperationFail
+from goal.exceptions import GoalFailOperations, GoalFailMotivations, GoalOperationFail
 from specification import Specification
 from specification.formula import FormulaOutput
 from tools.strings import StringMng
@@ -125,15 +125,15 @@ class Goal:
 
         except IncompatibleContracts as e:
 
-            raise GoalOperationFail(goals=goals, operation=FailOperations.composition, contr_ex=e)
+            raise GoalOperationFail(goals=goals, operation=GoalFailOperations.composition, contr_ex=e)
 
         except InconsistentContracts as e:
 
-            raise GoalOperationFail(goals=goals, operation=FailOperations.composition, contr_ex=e)
+            raise GoalOperationFail(goals=goals, operation=GoalFailOperations.composition, contr_ex=e)
 
         except UnfeasibleContracts as e:
 
-            raise GoalOperationFail(goals=goals, operation=FailOperations.composition, contr_ex=e)
+            raise GoalOperationFail(goals=goals, operation=GoalFailOperations.composition, contr_ex=e)
 
         new_goal = Goal(name=name,
                         description=description,
@@ -162,7 +162,7 @@ class Goal:
 
         except InconsistentContracts as e:
 
-            raise GoalOperationFail(goals=goals, operation=FailOperations.conjunction, contr_ex=e)
+            raise GoalOperationFail(goals=goals, operation=GoalFailOperations.conjunction, contr_ex=e)
 
         new_goal = Goal(name=name,
                         description=description,

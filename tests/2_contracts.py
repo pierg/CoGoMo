@@ -1,7 +1,6 @@
 from contract import Contract
-from contract.exceptions import *
+from contract.exceptions import ContractException
 from specification.atom.pattern.basic import Init
-from type.subtypes.locations import ReachLocation
 from worlds.simple_gridworld import SimpleGridWorld, SeA, SeB, GoA, GoB
 
 sw = SimpleGridWorld()

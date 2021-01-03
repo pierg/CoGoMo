@@ -5,6 +5,8 @@ from typing import Dict, Set, Union
 
 from contract import Contract, Specification
 from goal import Goal
+from goal.cgg.exceptions import CGGOperationFail, CGGFailOperations
+from goal.exceptions import GoalException
 
 
 class Link(Enum):
@@ -69,7 +71,10 @@ class Node(Goal):
     @staticmethod
     def composition(nodes: Set[Node], name: str = None, description: str = None) -> Node:
 
-        new_goal = Goal.composition(nodes, name, description)
+        try:
+            new_goal = Goal.composition(nodes, name, description)
+        except GoalException as e:
+            raise CGGOperationFail(nodes=nodes, operation=CGGFailOperations.algebra_op, goal_ex=e)
 
         new_node = Node(goal=new_goal)
 
@@ -80,7 +85,10 @@ class Node(Goal):
     @staticmethod
     def conjunction(nodes: Set[Node], name: str = None, description: str = None) -> Node:
 
-        new_goal = Goal.conjunction(nodes, name, description)
+        try:
+            new_goal = Goal.conjunction(nodes, name, description)
+        except GoalException as e:
+            raise CGGOperationFail(nodes=nodes, operation=CGGFailOperations.algebra_op, goal_ex=e)
 
         new_node = Node(goal=new_goal)
 

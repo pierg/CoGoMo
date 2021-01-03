@@ -102,17 +102,17 @@ class Goal:
         try:
             controller_synthesis_input = StringMng.get_controller_synthesis_str(controller_info)
 
-            Store.save_to_file(controller_synthesis_input, self.__folder_path + "/controller_specs.txt")
+            Store.save_to_file(controller_synthesis_input, self.__folder_path, "controller_specs.txt")
 
             realized, dot_mealy, time = Controller.generate_controller(a, g, i, o)
 
             self.__realizable = realized
             self.__time_synthesis = time
 
-            Store.save_to_file(dot_mealy, self.__folder_path + "/controller_dot.txt")
-            source = Source(dot_mealy, directory=self.__folder_path, filename="controller", format="eps")
-            source.render(cleanup=True)
-            print(f"{self.__folder_path}/controller.eps -> mealy machine generated")
+            if realized:
+                source = Store.generate_eps_from_dot(dot_mealy, self.__folder_path, "controller")
+            else:
+                source = Store.generate_eps_from_dot(dot_mealy, self.__folder_path, "controller_inverted")
 
             self.__controller = Controller(source=source)
 

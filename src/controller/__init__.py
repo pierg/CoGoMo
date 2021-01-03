@@ -24,6 +24,7 @@ class Controller:
     def source(self):
         return self.__source
 
+
     @staticmethod
     def generate_controller(assumptions: str, guarantees: str, ins: str, outs: str) -> Tuple[bool, str, float]:
         """It returns:

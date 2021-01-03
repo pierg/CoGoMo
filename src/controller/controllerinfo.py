@@ -1,4 +1,8 @@
-from typing import List
+import itertools
+from typing import List, Tuple
+
+from tools.logic import Logic
+from tools.strings import StringMng
 
 
 class ControllerInfo:
@@ -52,6 +56,27 @@ class ControllerInfo:
     @property
     def outputs(self):
         return self.__outputs
+
+    def get_strix_inputs(self) -> Tuple[str, str, str, str]:
+
+        a = Logic.and_(list(itertools.chain(
+            self.__assumptions,
+            self.__a_mutex,
+            self.__a_liveness
+        )))
+        a = StringMng.strix_syntax_fix(a)
+
+        g = Logic.and_(list(itertools.chain(
+            self.__guarantees,
+            self.__g_mutex,
+            self.__g_adjacency
+        )))
+        g = StringMng.strix_syntax_fix(g)
+
+        i = " ,".join(self.__inputs)
+        o = " ,".join(self.__outputs)
+
+        return a, g, i, o
 
     def save_to_file(path: str):
         pass

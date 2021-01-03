@@ -86,7 +86,7 @@ class Contract:
             except NotSatisfiableException as e:
                 raise UnfeasibleContracts(self, e)
 
-    def extract_controller_info(self) -> ControllerInfo:
+    def get_controller_info(self) -> ControllerInfo:
         """Extract All Info Needed to Build a Controller from the Contract"""
 
         """Assumptions"""

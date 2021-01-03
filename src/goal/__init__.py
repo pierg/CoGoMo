@@ -2,25 +2,16 @@ from __future__ import annotations
 
 from typing import Union, Set
 
+from graphviz import Source
+
 from contract import Contract, IncompatibleContracts, InconsistentContracts, UnfeasibleContracts
 from controller import Controller
-from goal.exceptions import GoalFailOperations, GoalFailMotivations, GoalOperationFail
+from controller.exceptions import ControllerException
+from goal.exceptions import GoalFailOperations, GoalFailMotivations, GoalAlgebraOperationFail, GoalSynthesisFail
 from specification import Specification
-from specification.atom import Atom
 from specification.formula import FormulaOutput
+from tools.storage import Store
 from tools.strings import StringMng
-from typeset import Typeset
-
-
-class Event(list):
-    def __call__(self, *args, **kwargs):
-        for item in self:
-            item(*args, **kwargs)
-
-
-class ContractChangedObservable:
-    def __init__(self):
-        self.property_changed = Event()
 
 
 class Goal:
@@ -42,12 +33,18 @@ class Goal:
         self.specification: Contract = specification
         self.context: Specification = context
 
+        self.__folder_path = f"goals/{self.__id}"
+
     def __str__(self):
         return Goal.pretty_print_goal(self)
 
     @property
     def name(self) -> str:
         return self.__name
+
+    @property
+    def folder_path(self) -> str:
+        return self.__folder_path
 
     @name.setter
     def name(self, value: str):
@@ -98,12 +95,29 @@ class Goal:
     def realize_to_controller(self):
         """Realize the goal into a Controller object"""
 
-        controller_info = self.specification.extract_controller_info()
+        controller_info = self.specification.get_controller_info()
 
+        a, g, i, o = controller_info.get_strix_inputs()
 
+        try:
+            controller_synthesis_input = StringMng.get_controller_synthesis_str(controller_info)
 
+            Store.save_to_file(controller_synthesis_input, self.__folder_path + "/controller_specs.txt")
 
+            realized, dot_mealy, time = Controller.generate_controller(a, g, i, o)
 
+            self.__realizable = realized
+            self.__time_synthesis = time
+
+            Store.save_to_file(dot_mealy, self.__folder_path + "/controller_dot.txt")
+            source = Source(dot_mealy, directory=self.__folder_path, filename="controller", format="eps")
+            source.render(cleanup=True)
+            print(f"{self.__folder_path}/controller.eps -> mealy machine generated")
+
+            self.__controller = Controller(source=source)
+
+        except ControllerException as e:
+            raise GoalSynthesisFail(self, e)
 
     @staticmethod
     def pretty_print_goal(goal: Goal, level=0):
@@ -138,15 +152,15 @@ class Goal:
 
         except IncompatibleContracts as e:
 
-            raise GoalOperationFail(goals=goals, operation=GoalFailOperations.composition, contr_ex=e)
+            raise GoalAlgebraOperationFail(goals=goals, operation=GoalFailOperations.composition, contr_ex=e)
 
         except InconsistentContracts as e:
 
-            raise GoalOperationFail(goals=goals, operation=GoalFailOperations.composition, contr_ex=e)
+            raise GoalAlgebraOperationFail(goals=goals, operation=GoalFailOperations.composition, contr_ex=e)
 
         except UnfeasibleContracts as e:
 
-            raise GoalOperationFail(goals=goals, operation=GoalFailOperations.composition, contr_ex=e)
+            raise GoalAlgebraOperationFail(goals=goals, operation=GoalFailOperations.composition, contr_ex=e)
 
         new_goal = Goal(name=name,
                         description=description,
@@ -175,7 +189,7 @@ class Goal:
 
         except InconsistentContracts as e:
 
-            raise GoalOperationFail(goals=goals, operation=GoalFailOperations.conjunction, contr_ex=e)
+            raise GoalAlgebraOperationFail(goals=goals, operation=GoalFailOperations.conjunction, contr_ex=e)
 
         new_goal = Goal(name=name,
                         description=description,

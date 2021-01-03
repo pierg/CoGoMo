@@ -18,6 +18,7 @@ class AtomKind(Enum):
     ROBOTICPATTERN = auto()
     REFINEMENT_RULE = auto()
     ADJACENCY_RULE = auto()
+    LIVENESS_RULE = auto()
     MUTEX_RULE = auto()
     UNDEFINED = auto()
 
@@ -30,6 +31,7 @@ class FormulaType(Enum):
 class FormulaOutput(Enum):
     CNF = auto()
     DNF = auto()
+    ListCNF = auto()
 
 
 class FormulaKind(Enum):

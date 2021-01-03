@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import Union, Tuple
+from typing import Union, Tuple, List
 from specification import Specification
 from specification.enums import *
 from specification.exceptions import NotSatisfiableException, AtomNotSatisfiableException
@@ -103,7 +103,7 @@ class Atom(Specification):
         return self.__negation
 
     @staticmethod
-    def extract_refinement_rules(typeset: Typeset) -> Atom:
+    def extract_refinement_rules(typeset: Typeset, output=None) -> Union[Atom, Tuple[List[str], Typeset]]:
         """Extract Refinement rules from the Formula"""
 
         rules_str = []
@@ -119,10 +119,13 @@ class Atom(Specification):
         if len(rules_str) == 0:
             return None
 
+        if output is not None and output == FormulaOutput.ListCNF:
+            return rules_str, rules_typeset
+
         return Atom(formula=(Logic.and_(rules_str, brackets=True), rules_typeset), kind=AtomKind.MUTEX_RULE)
 
     @staticmethod
-    def extract_mutex_rules(typeset: Typeset) -> Atom:
+    def extract_mutex_rules(typeset: Typeset, output=None) -> Union[Atom, Tuple[List[str], Typeset]]:
         """Extract Mutex rules from the Formula"""
 
         rules_str = []
@@ -143,10 +146,13 @@ class Atom(Specification):
         if len(rules_str) == 0:
             return None
 
+        if output is not None and output == FormulaOutput.ListCNF:
+            return rules_str, rules_typeset
+
         return Atom(formula=(Logic.and_(rules_str, brackets=True), rules_typeset), kind=AtomKind.MUTEX_RULE)
 
     @staticmethod
-    def extract_adjacency_rules(typeset: Typeset) -> Atom:
+    def extract_adjacency_rules(typeset: Typeset, output=None) -> Union[Atom, Tuple[List[str], Typeset]]:
         """Extract Adjacency rules from the Formula"""
 
         rules_str = []
@@ -163,7 +169,34 @@ class Atom(Specification):
         if len(rules_str) == 0:
             return None
 
+        if output is not None and output == FormulaOutput.ListCNF:
+            return rules_str, rules_typeset
+
         return Atom(formula=(Logic.and_(rules_str, brackets=True), rules_typeset), kind=AtomKind.ADJACENCY_RULE)
+
+
+    @staticmethod
+    def extract_liveness_rules(typeset: Typeset, output=None) -> Union[Atom, Tuple[List[str], Typeset]]:
+        """Extract Liveness rules from the Formula"""
+
+        rules_str = []
+        rules_typeset = Typeset()
+
+        sensors = typeset.extract_inputs()
+
+        for t in sensors:
+            if isinstance(t, Boolean):
+                """G F a"""
+                rules_str.append(Logic.g_(Logic.f_(t.name)))
+                rules_typeset |= Typeset({t})
+
+        if len(rules_str) == 0:
+            return None
+
+        if output is not None and output == FormulaOutput.ListCNF:
+            return rules_str, rules_typeset
+
+        return Atom(formula=(Logic.and_(rules_str, brackets=True), rules_typeset), kind=AtomKind.LIVENESS_RULES)
 
     def __hash__(self):
         return hash(self.__base_formula[0])

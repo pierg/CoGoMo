@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import Set
+from typing import Set, Tuple, List
 
 from contract.exceptions import *
+from controller.controllerinfo import ControllerInfo
+from specification import FormulaOutput
 from specification.atom import Atom
 from specification.exceptions import NotSatisfiableException
 from specification.formula import Specification, Formula
+from typeset import Typeset
 
 
 class Contract:
@@ -83,6 +86,71 @@ class Contract:
             except NotSatisfiableException as e:
                 raise UnfeasibleContracts(self, e)
 
+    def extract_controller_info(self) -> ControllerInfo:
+        """Extract All Info Needed to Build a Controller from the Contract"""
+
+        """Assumptions"""
+        assumptions = []
+        a_mutex = []
+        a_liveness = []
+
+        """Guarantees"""
+        guarantees = []
+        g_mutex = []
+        g_adjacency = []
+
+        a_typeset = Typeset()
+        g_typeset = Typeset()
+
+        list, typeset = self.assumptions.formula(FormulaOutput.ListCNF)
+        assumptions.extend(list)
+        a_typeset |= typeset
+
+        list, typeset = self.guarantees.formula(FormulaOutput.ListCNF)
+        guarantees.extend(list)
+        g_typeset |= typeset
+
+        """Adding Mutex Rules"""
+        ret = Atom.extract_mutex_rules(a_typeset, output=FormulaOutput.ListCNF)
+        if ret is not None:
+            rules, typeset = ret
+            a_mutex.extend(rules)
+            a_typeset |= typeset
+
+        ret = Atom.extract_mutex_rules(g_typeset, output=FormulaOutput.ListCNF)
+        if ret is not None:
+            rules, typeset = ret
+            g_mutex.extend(rules)
+            g_typeset |= typeset
+
+        """Adding Adjacency Rules"""
+        ret = Atom.extract_adjacency_rules(g_typeset, output=FormulaOutput.ListCNF)
+        if ret is not None:
+            rules, typeset = ret
+            g_adjacency.extend(rules)
+            g_typeset |= typeset
+
+        alltypes = a_typeset | g_typeset
+
+        """Adding Liveness To Sensors (input)"""
+        ret = Atom.extract_liveness_rules(alltypes, output=FormulaOutput.ListCNF)
+        if ret is not None:
+            rules, typeset = ret
+            a_liveness.extend(rules)
+
+        """Extract Inputs and Outputs"""
+        inputs = [t.name for t in alltypes.extract_inputs()]
+        outputs = [t.name for t in alltypes.extract_outputs()]
+
+        return ControllerInfo(assumptions=assumptions,
+                              a_liveness=a_liveness,
+                              a_mutex=a_mutex,
+                              guarantees=guarantees,
+                              g_mutex=g_mutex,
+                              g_adjacency=g_adjacency,
+                              inputs=inputs,
+                              outputs=outputs)
+
     @staticmethod
     def composition(contracts: Set[Contract]) -> Contract:
         if len(contracts) == 1:
@@ -139,7 +207,6 @@ class Contract:
                 new_guarantees &= contract.guarantees
             except NotSatisfiableException as e:
                 raise InconsistentContracts(contract, e)
-
 
         print("The conjunction is compatible and consistent")
 

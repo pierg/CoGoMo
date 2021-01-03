@@ -1,4 +1,4 @@
-from specification.atom.pattern.dwyer.scopes import P_global
+0from specification.atom.pattern.dwyer.scopes import P_global
 from tools.spot import Spot
 
 

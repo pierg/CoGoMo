@@ -105,7 +105,6 @@ class Formula(Specification):
             self.__cnf: List[Set[Atom]] = [{new_atom}]
             self.__dnf: List[Set[Atom]] = [{new_atom}]
 
-
     def relax_by(self, formula: Formula):
         """
         Given the assumption as set of conjunctive clauses connected by the disjunction operator (DNF),
@@ -166,17 +165,21 @@ class Formula(Specification):
                     atom.saturate(value)
         """Atoms are shared between CNF and DNF"""
 
-    def formula(self, formulatype: FormulaOutput = FormulaOutput.CNF) -> Tuple[str, Typeset]:
+    def formula(self, formulatype: FormulaOutput = FormulaOutput.CNF) -> Union[
+        Tuple[str, Typeset], Tuple[List[str], Typeset]]:
         """Generate the formula"""
 
         if formulatype == FormulaOutput.CNF:
             return LogicTuple.and_(
-                [LogicTuple.or_([a.formula() for a in atoms], brakets=True) for atoms in self.cnf],
+                [LogicTuple.or_([atom.formula() for atom in clause], brakets=True) for clause in self.cnf],
                 brackets=False)
+
+        if formulatype == FormulaOutput.ListCNF:
+            return [Logic.or_([atom.string for atom in clause]) for clause in self.cnf], self.typeset
 
         if formulatype == FormulaOutput.DNF:
             return LogicTuple.or_(
-                [LogicTuple.and_([a.formula() for a in atoms], brackets=True) for atoms in self.dnf],
+                [LogicTuple.and_([atom.formula() for atom in clause], brackets=True) for clause in self.dnf],
                 brakets=False)
 
     def __and__(self, other: Formula) -> Formula:

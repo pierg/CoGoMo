@@ -86,6 +86,24 @@ class Typeset(dict):
         """ Updates self with self -= element """
         pass
 
+    def extract_inputs(self) -> Set[Types]:
+        """Returns a set of types in the typeset that are not controllable"""
+        ret = set()
+        if len(self.values()) > 1:
+            for t in self.values():
+                if not t.controllable:
+                    ret.add(t)
+        return ret
+
+    def extract_outputs(self) -> Set[Types]:
+        """Returns a set of types in the typeset that are not controllable"""
+        ret = set()
+        if len(self.values()) > 1:
+            for t in self.values():
+                if t.controllable:
+                    ret.add(t)
+        return ret
+
     def add_elements(self, types: Set[AllTypes]):
         if types is not None:
             for elem in types:

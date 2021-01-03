@@ -3,10 +3,13 @@ from __future__ import annotations
 from typing import Union, Set
 
 from contract import Contract, IncompatibleContracts, InconsistentContracts, UnfeasibleContracts
+from controller import Controller
 from goal.exceptions import GoalFailOperations, GoalFailMotivations, GoalOperationFail
 from specification import Specification
+from specification.atom import Atom
 from specification.formula import FormulaOutput
 from tools.strings import StringMng
+from typeset import Typeset
 
 
 class Event(list):
@@ -85,12 +88,22 @@ class Goal:
         return self.__realizable
 
     @property
-    def controller(self) -> str:
+    def controller(self) -> Controller:
         return self.__controller
 
     @property
     def time_synthesis(self) -> int:
         return round(self.__time_synthesis, 2)
+
+    def realize_to_controller(self):
+        """Realize the goal into a Controller object"""
+
+        controller_info = self.specification.extract_controller_info()
+
+
+
+
+
 
     @staticmethod
     def pretty_print_goal(goal: Goal, level=0):

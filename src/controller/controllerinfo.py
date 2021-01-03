@@ -2,7 +2,6 @@ import itertools
 from typing import List, Tuple
 
 from tools.logic import Logic
-from tools.strings import StringMng
 
 
 class ControllerInfo:
@@ -64,6 +63,7 @@ class ControllerInfo:
             self.__a_mutex,
             self.__a_liveness
         )))
+        from tools.strings import StringMng
         a = StringMng.strix_syntax_fix(a)
 
         g = Logic.and_(list(itertools.chain(

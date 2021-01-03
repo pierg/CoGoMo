@@ -31,7 +31,7 @@ class StringMng:
         """Adds a space next to the '!' and converts TRUE to true"""
         try:
             res = re.sub(r'(!)', '! ', text)
-            res.replace("TRUE", "true")
+            res = res.replace("TRUE", "true")
         except Exception as e:
             raise e
         return res

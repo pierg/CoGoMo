@@ -118,6 +118,8 @@ class Logic:
     @staticmethod
     def implies_(prop_1: str, prop_2: str) -> str:
         """Returns an str formula representing the logical IMPLIES of prop_1 and prop_2"""
+        if prop_1 == "TRUE" or prop_1 == "(TRUE)" or prop_1 == "true" or prop_1 == "(true)":
+            return prop_2
         return f"(({prop_1}) -> ({prop_2}))"
 
     @staticmethod

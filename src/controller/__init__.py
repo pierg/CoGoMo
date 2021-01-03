@@ -4,7 +4,6 @@ import os
 import subprocess
 import platform
 import time
-from sys import platform
 from typing import Tuple
 from graphviz import Source
 
@@ -24,7 +23,6 @@ class Controller:
     def source(self):
         return self.__source
 
-
     @staticmethod
     def generate_controller(assumptions: str, guarantees: str, ins: str, outs: str) -> Tuple[bool, str, float]:
         """It returns:
@@ -34,7 +32,10 @@ class Controller:
 
         global command, timeout
         try:
-            strix_specs = Logic.implies_(assumptions, guarantees) + '" --ins="' + ins + '" --outs="' + outs + '"'
+            if ins == "":
+                strix_specs = Logic.implies_(assumptions, guarantees) + '" --outs="' + outs + '"'
+            else:
+                strix_specs = Logic.implies_(assumptions, guarantees) + '" --ins="' + ins + '" --outs="' + outs + '"'
             command = ""
             if platform.system() != "Linux":
                 docker_command = 'docker run lazkany/strix'

@@ -12,7 +12,6 @@ class TypeKinds(Enum):
     IDENTITY = auto()
 
 
-
 class Types(ABC):
 
     def __init__(self, name: str):
@@ -58,7 +57,6 @@ class Boolean(Types):
     @property
     def mutex_group(self) -> str:
         return ""
-
 
 
 class BoundedInteger(Types):

@@ -51,8 +51,8 @@ class Controller:
 
         except subprocess.TimeoutExpired:
             raise SynthesisTimeout(command=command, timeout=timeout)
-        except Exception:
-            raise OutOfMemoryException(command=command)
+        except Exception as e:
+            raise UnknownStrixResponse(command=command, response=e.__str__())
 
         exec_time = time.time() - start_time
         if "REALIZABLE" in result:

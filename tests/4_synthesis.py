@@ -13,6 +13,15 @@ t = sw.typeset
 
 g1 = Goal(name="patrol_a_b",
           description="Patrolling of locations a and b and init a",
+          specification=Patrolling([t["a"], t["b"]]))
+
+try:
+    g1.realize_to_controller()
+except GoalException as e:
+    pass
+
+g1 = Goal(name="patrol_a_b_init_a_and_b",
+          description="Patrolling of locations a and b and init a and b",
           specification=Patrolling([t["a"], t["b"]]) & Init(t["a"]))
 
 try:
@@ -20,30 +29,21 @@ try:
 except GoalException as e:
     raise e
 
+n1 = Node(goal=g1)
 
-g1 = Goal(name="patrol_a_b",
-          description="Patrolling of locations a and b and init a and b",
-          specification=Patrolling([t["a"], t["b"]]) & Init(t["a"]) & Init(t["b"]))
+n2 = Node(name="patrol_c_d",
+          description="Patrolling of locations c and d",
+          specification=Patrolling([t["c"], t["d"]]))
+
 
 try:
-    g1.realize_to_controller()
+    n2.realize_to_controller()
 except GoalException as e:
     raise e
 
-
-
-n1 = Node(goal=g1)
-
-
-n2 = Node(name="patrol_c_d_init_c",
-          description="Patrolling of locations c and d, beginning from location c",
-          specification=Patrolling([t["c"], t["d"]]))
-
-g1.realize_to_controller()
-
-# n1_a = Node(goal=g1_a)
-# n1_b = Node(goal=g1_b)
-#
-#
-#
-# n1_a.realize_to_controller()
+try:
+    cgg = Node.composition({n1, n2})
+    print(cgg)
+    cgg.realize_to_controller()
+except GoalException as e:
+    raise e

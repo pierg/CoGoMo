@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from enum import Enum
+from enum import Enum, auto
 from typing import Dict, Set, Union
 
 from contract import Contract, Specification
@@ -13,6 +13,11 @@ class Link(Enum):
     REFINEMENT = 0
     COMPOSITION = 1
     CONJUNCTION = 2
+
+
+class GraphTraversal(Enum):
+    DFS = auto()
+    BFS = auto()
 
 
 class Node(Goal):
@@ -67,6 +72,39 @@ class Node(Goal):
                 self.__children[link] = nodes
         for goal in self.__children[link]:
             goal.add_parents(link=link, nodes={self})
+
+    def parents_nodes(self) -> Set[Node]:
+        ret = set()
+        if len(self.__parents) > 0:
+            for link, values in self.__parents.items():
+                ret |= values
+        return ret
+
+    def children_nodes(self) -> Set[Node]:
+        ret = set()
+        if len(self.__children) > 0:
+            for link, values in self.__children.items():
+                ret |= values
+        return ret
+
+    def realize_all(self, navigation: GraphTraversal, explored: Set[Node] = None):
+        """Realize all nodes of the CGG"""
+
+        if explored is None:
+            explored = set()
+
+        if navigation == GraphTraversal.DFS:
+            """Dept-First Search"""
+            """Label current node as explored"""
+            explored.add(self)
+            for node in self.children_nodes():
+                if node not in explored:
+                    node.realize_all(navigation, explored)
+
+            self.realize_to_controller()
+
+        if navigation == GraphTraversal.BFS:
+            raise NotImplemented
 
     @staticmethod
     def composition(nodes: Set[Node], name: str = None, description: str = None) -> Node:

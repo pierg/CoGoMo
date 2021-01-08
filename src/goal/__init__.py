@@ -43,6 +43,10 @@ class Goal:
         return self.__name
 
     @property
+    def id(self) -> str:
+        return self.__id
+
+    @property
     def folder_path(self) -> str:
         return self.__folder_path
 
@@ -121,14 +125,19 @@ class Goal:
 
     @staticmethod
     def pretty_print_goal(goal: Goal, level=0):
-        ret = "\t" * level + "|---GOAL\t" + repr(goal.name) + "\n"
+        ret = "\t" * level + f"|---GOAL\t {goal.id} {repr(goal.name)}\n"
         if goal.context is not None:
-            ret += "\t" * level + "|\tCONTEXT:\t" + str(goal.context) + "\n"
+            ret += "\t" * level + f"|\tCONTEXT:\t {str(goal.context)}\n"
         if not goal.specification.assumptions.is_valid():
-            ret += "\t" * level + "|\tASSUMPTIONS:\n"
-            ret += "\t" * level + "|\t" + goal.specification.assumptions.pretty_print(FormulaOutput.DNF) + "\n"
-        ret += "\t" * level + "|\tGUARANTEES:\n"
-        ret += "\t" * level + "|\t" + goal.specification.guarantees.pretty_print(FormulaOutput.CNF) + "\n"
+            ret += "\t" * level + "|\t  ASSUMPTIONS:\n"
+            ret += "\t" * level + f"|\t  {goal.specification.assumptions.pretty_print(FormulaOutput.DNF)} \n"
+        ret += "\t" * level + "|\t  GUARANTEES:\n"
+        ret += "\t" * level + f"|\t  {goal.specification.guarantees.pretty_print(FormulaOutput.CNF)} \n"
+        if goal.realizable is not None:
+            if goal.realizable:
+                ret += "\t" * level + f"|\t  REALIZABLE:\tYES\t{goal.time_synthesis} seconds\n"
+            else:
+                ret += "\t" * level + f"|\t  REALIZABLE:\tNO\n"
         return ret
 
     @staticmethod

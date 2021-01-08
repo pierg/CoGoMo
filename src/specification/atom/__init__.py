@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import Union, Tuple, List
+from typing import Tuple, Union, List, Type
 from specification import Specification
 from specification.enums import *
-from specification.exceptions import NotSatisfiableException, AtomNotSatisfiableException
+from specification.exceptions import AtomNotSatisfiableException
 from specification.formula import Formula
 from tools.logic import Logic, LogicTuple
 from type import Boolean
@@ -174,7 +174,6 @@ class Atom(Specification):
 
         return Atom(formula=(Logic.and_(rules_str, brackets=True), rules_typeset), kind=AtomKind.ADJACENCY_RULE)
 
-
     @staticmethod
     def extract_liveness_rules(typeset: Typeset, output=None) -> Union[Atom, Tuple[List[str], Typeset]]:
         """Extract Liveness rules from the Formula"""
@@ -201,7 +200,7 @@ class Atom(Specification):
     def __hash__(self):
         return hash(self.__base_formula[0])
 
-    def __and__(self, other: Union[Atom, Formula]) -> Formula:
+    def __and__(self, other: Union[Type[Atom], Formula]) -> Formula:
         """self & other
         Returns a new Specification with the conjunction with other"""
         if not (isinstance(other, Atom) or isinstance(other, Formula)):
@@ -212,7 +211,7 @@ class Atom(Specification):
 
         return Formula(atom=self) & other
 
-    def __or__(self, other: Union[Atom, Formula]) -> Formula:
+    def __or__(self, other: Union[Type[Atom], Formula]) -> Formula:
         """self | other
         Returns a new Specification with the disjunction with other"""
         if not (isinstance(other, Atom) or isinstance(other, Formula)):
@@ -229,7 +228,7 @@ class Atom(Specification):
         new_formula.__negation = not new_formula.__negation
         return new_formula
 
-    def __rshift__(self, other: Union[Atom, Formula]) -> Formula:
+    def __rshift__(self, other: Union[Type[Atom], Formula]) -> Formula:
         """>>
         Returns a new Specification that is the result of self -> other (implies)"""
         if not (isinstance(other, Atom) or isinstance(other, Formula)):
@@ -240,7 +239,7 @@ class Atom(Specification):
 
         return Formula(atom=self) >> other
 
-    def __lshift__(self, other: Union[Atom, Formula]) -> Formula:
+    def __lshift__(self, other: Union[Type[Atom], Formula]) -> Formula:
         """<<
         Returns a new Specification that is the result of other -> self (implies)"""
         if not (isinstance(other, Atom) or isinstance(other, Formula)):
@@ -251,13 +250,13 @@ class Atom(Specification):
 
         return Formula(atom=self) << other
 
-    def __iand__(self, other: Union[Atom, Formula]) -> Formula:
+    def __iand__(self, other: Union[Type[Atom], Formula]) -> Formula:
         """self &= other
         Modifies self with the conjunction with other"""
 
         return self & other
 
-    def __ior__(self, other: Union[Atom, Formula]) -> Formula:
+    def __ior__(self, other: Union[Type[Atom], Formula]) -> Formula:
         """self |= other
         Modifies self with the disjunction with other"""
 

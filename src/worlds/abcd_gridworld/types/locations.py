@@ -2,7 +2,6 @@ from type.subtypes.locations import *
 
 """"
     A   B   
-      X
     C   D
 """
 
@@ -13,7 +12,7 @@ class GoA(ReachLocation):
 
     @property
     def adjacency_set(self) -> Set[str]:
-        return {"GoX", "GoB"}
+        return {"GoC", "GoB"}
 
     @property
     def mutex_group(self) -> str:
@@ -27,7 +26,7 @@ class GoB(ReachLocation):
 
     @property
     def adjacency_set(self) -> Set[str]:
-        return {"GoX", "GoA"}
+        return {"GoD", "GoA"}
 
     @property
     def mutex_group(self) -> str:
@@ -41,7 +40,7 @@ class GoC(ReachLocation):
 
     @property
     def adjacency_set(self) -> Set[str]:
-        return {"GoX", "GoD"}
+        return {"GoA", "GoD"}
 
     @property
     def mutex_group(self) -> str:
@@ -55,21 +54,7 @@ class GoD(ReachLocation):
 
     @property
     def adjacency_set(self) -> Set[str]:
-        return {"GoX", "GoC"}
-
-    @property
-    def mutex_group(self) -> str:
-        return "locations"
-
-
-class GoX(ReachLocation):
-
-    def __init__(self, name: str = "x"):
-        super().__init__(name)
-
-    @property
-    def adjacency_set(self) -> Set[str]:
-        return {"GoA", "GoB", "GoC", "GoD"}
+        return {"GoB", "GoC"}
 
     @property
     def mutex_group(self) -> str:

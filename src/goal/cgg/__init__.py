@@ -7,6 +7,7 @@ from contract import Contract, Specification
 from goal import Goal
 from goal.cgg.exceptions import CGGOperationFail, CGGFailOperations
 from goal.exceptions import GoalException
+from tools.storage import Store
 
 
 class Link(Enum):
@@ -42,6 +43,8 @@ class Node(Goal):
 
         """Dictionary Link -> Set[Node]"""
         self.__children = {}
+
+        self.__folder_path = f"cgg_root_{self.id}"
 
     from ._printing import __str__
 
@@ -87,8 +90,11 @@ class Node(Goal):
                 ret |= values
         return ret
 
-    def realize_all(self, navigation: GraphTraversal, explored: Set[Node] = None):
+    def realize_all(self, navigation: GraphTraversal, explored: Set[Node] = None, root = None):
         """Realize all nodes of the CGG"""
+
+        if root is None:
+            root = self
 
         if explored is None:
             explored = set()
@@ -99,12 +105,15 @@ class Node(Goal):
             explored.add(self)
             for node in self.children_nodes():
                 if node not in explored:
-                    node.realize_all(navigation, explored)
+                    node.realize_all(navigation, explored, root)
 
-            self.realize_to_controller()
+            self.realize_to_controller(rel_path=root.__folder_path)
 
         if navigation == GraphTraversal.BFS:
             raise NotImplemented
+
+    def save(self):
+        Store.save_to_file(str(self), self.__folder_path, "cgg.txt")
 
     @staticmethod
     def composition(nodes: Set[Node], name: str = None, description: str = None) -> Node:

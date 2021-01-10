@@ -96,8 +96,13 @@ class Goal:
     def time_synthesis(self) -> int:
         return round(self.__time_synthesis, 2)
 
-    def realize_to_controller(self):
+    def realize_to_controller(self, rel_path: str = None):
         """Realize the goal into a Controller object"""
+
+        if rel_path is None:
+            folder_path = self.__folder_path
+        else:
+            folder_path = f"{rel_path}/{self.__folder_path}"
 
         controller_info = self.specification.get_controller_info()
 
@@ -106,7 +111,7 @@ class Goal:
         try:
             controller_synthesis_input = StringMng.get_controller_synthesis_str(controller_info)
 
-            Store.save_to_file(controller_synthesis_input, self.__folder_path, "controller_specs.txt")
+            Store.save_to_file(controller_synthesis_input, folder_path, "controller_specs.txt")
 
             realized, dot_mealy, time = Controller.generate_controller(a, g, i, o)
 
@@ -114,9 +119,9 @@ class Goal:
             self.__time_synthesis = time
 
             if realized:
-                source = Store.generate_eps_from_dot(dot_mealy, self.__folder_path, "controller")
+                source = Store.generate_eps_from_dot(dot_mealy, folder_path, "controller")
             else:
-                source = Store.generate_eps_from_dot(dot_mealy, self.__folder_path, "controller_inverted")
+                source = Store.generate_eps_from_dot(dot_mealy, folder_path, "controller_inverted")
 
             self.__controller = Controller(source=source)
 

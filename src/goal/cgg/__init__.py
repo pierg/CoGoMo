@@ -8,6 +8,7 @@ from goal import Goal
 from goal.cgg.exceptions import CGGOperationFail, CGGFailOperations
 from goal.exceptions import GoalException
 from tools.storage import Store
+from worlds import World
 
 
 class Link(Enum):
@@ -28,13 +29,14 @@ class Node(Goal):
                  description: str = None,
                  specification: Union[Specification, Contract] = None,
                  context: Specification = None,
+                 world: World = None,
                  goal: Goal = None):
         """Graph properties"""
 
         if goal is None:
-            super().__init__(name, description, specification, context)
-        elif goal is not None and name is None and description is None and specification is None and context is None:
-            super().__init__(goal.name, goal.description, goal.specification, goal.context)
+            super().__init__(name, description, specification, context, world)
+        elif goal is not None and name is None and description is None and specification is None and context is None and world is None:
+            super().__init__(goal.name, goal.description, goal.specification, goal.context, goal.world)
         else:
             raise AttributeError
 
@@ -44,9 +46,16 @@ class Node(Goal):
         """Dictionary Link -> Set[Node]"""
         self.__children = {}
 
-        self.__folder_path = f"cgg_root_{self.id}"
+        self.__cgg_folder_name = f"cgg_root_{self.id}"
 
     from ._printing import __str__
+
+    @property
+    def cgg_folder_name(self) -> str:
+        if self.session_name is None:
+            return f"{self.__cgg_folder_name}"
+        else:
+            return f"{self.session_name}/{self.__cgg_folder_name}"
 
     @property
     def parents(self) -> Dict[Link, Set[Node]]:
@@ -90,7 +99,8 @@ class Node(Goal):
                 ret |= values
         return ret
 
-    def realize_all(self, navigation: GraphTraversal, explored: Set[Node] = None, root = None):
+
+    def translate_all_to_buchi(self, traversal: GraphTraversal = GraphTraversal.DFS, explored: Set[Node] = None, root = None):
         """Realize all nodes of the CGG"""
 
         if root is None:
@@ -99,21 +109,43 @@ class Node(Goal):
         if explored is None:
             explored = set()
 
-        if navigation == GraphTraversal.DFS:
+        if traversal == GraphTraversal.DFS:
             """Dept-First Search"""
             """Label current node as explored"""
             explored.add(self)
             for node in self.children_nodes():
                 if node not in explored:
-                    node.realize_all(navigation, explored, root)
+                    node.translate_all_to_buchi(traversal, explored, root)
 
-            self.realize_to_controller(rel_path=root.__folder_path)
+            self.translate_to_buchi(cgg_path=root.cgg_folder_name)
 
-        if navigation == GraphTraversal.BFS:
+        if traversal == GraphTraversal.BFS:
+            raise NotImplemented
+
+    def realize_all(self, traversal: GraphTraversal = GraphTraversal.DFS, explored: Set[Node] = None, root = None):
+        """Realize all nodes of the CGG"""
+
+        if root is None:
+            root = self
+
+        if explored is None:
+            explored = set()
+
+        if traversal == GraphTraversal.DFS:
+            """Dept-First Search"""
+            """Label current node as explored"""
+            explored.add(self)
+            for node in self.children_nodes():
+                if node not in explored:
+                    node.realize_all(traversal, explored, root)
+
+            self.realize_to_controller(cgg_path=root.cgg_folder_name)
+
+        if traversal == GraphTraversal.BFS:
             raise NotImplemented
 
     def save(self):
-        Store.save_to_file(str(self), self.__folder_path, "cgg.txt")
+        Store.save_to_file(str(self), "cgg.txt", self.cgg_folder_name)
 
     @staticmethod
     def composition(nodes: Set[Node], name: str = None, description: str = None) -> Node:

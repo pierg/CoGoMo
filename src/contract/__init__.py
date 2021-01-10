@@ -86,7 +86,7 @@ class Contract:
             except NotSatisfiableException as e:
                 raise UnfeasibleContracts(self, e)
 
-    def get_controller_info(self) -> ControllerInfo:
+    def get_controller_info(self, world_ts: Typeset = None) -> ControllerInfo:
         """Extract All Info Needed to Build a Controller from the Contract"""
 
         """Assumptions"""
@@ -110,6 +110,15 @@ class Contract:
         guarantees.extend(list)
         g_typeset |= typeset
 
+        """Inputs typeset"""
+        i_typeset = Typeset((a_typeset | g_typeset).extract_inputs())
+
+        """For the rules we extracts rules from the types based on assumptions and inputs"""
+        a_typeset = a_typeset | i_typeset
+
+        """We remove the inputs typeset from the guarantees and we incorporate the world ts"""
+        g_typeset = g_typeset - i_typeset
+
         """Adding Mutex Rules"""
         ret = Atom.extract_mutex_rules(a_typeset, output=FormulaOutput.ListCNF)
         if ret is not None:
@@ -123,24 +132,27 @@ class Contract:
             g_mutex.extend(rules)
             g_typeset |= typeset
 
-        """Adding Adjacency Rules"""
-        ret = Atom.extract_adjacency_rules(g_typeset, output=FormulaOutput.ListCNF)
+        """Adjacecy rules can inclue things that are in the world_ts"""
+        if world_ts is not None:
+            adjacency_ts = g_typeset | world_ts
+        else:
+            adjacency_ts = g_typeset
+
+        ret = Atom.extract_adjacency_rules(adjacency_ts, output=FormulaOutput.ListCNF)
         if ret is not None:
             rules, typeset = ret
             g_adjacency.extend(rules)
             g_typeset |= typeset
 
-        alltypes = a_typeset | g_typeset
-
         """Adding Liveness To Sensors (input)"""
-        ret = Atom.extract_liveness_rules(alltypes, output=FormulaOutput.ListCNF)
+        ret = Atom.extract_liveness_rules(i_typeset, output=FormulaOutput.ListCNF)
         if ret is not None:
             rules, typeset = ret
             a_liveness.extend(rules)
 
         """Extract Inputs and Outputs"""
-        inputs = [t.name for t in alltypes.extract_inputs()]
-        outputs = [t.name for t in alltypes.extract_outputs()]
+        inputs = [t.name for t in (a_typeset | g_typeset).extract_inputs()]
+        outputs = [t.name for t in (a_typeset | g_typeset).extract_outputs()]
 
         return ControllerInfo(assumptions=assumptions,
                               a_liveness=a_liveness,

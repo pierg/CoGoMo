@@ -22,7 +22,7 @@ class G(Pattern):
     def __init__(self, element: Union[Specification, Boolean]):
         input_str, typeset = Pattern.process_unary_input(element)
 
-        formula_str = f"G {input_str}"
+        formula_str = f"G({input_str})"
 
         super().__init__(
             formula=(formula_str, typeset))
@@ -34,7 +34,7 @@ class F(Pattern):
     def __init__(self, element: Union[Specification, Boolean]):
         input_str, typeset = Pattern.process_unary_input(element)
 
-        formula_str = f"F {input_str}"
+        formula_str = f"F({input_str})"
 
         super().__init__(
             formula=(formula_str, typeset))
@@ -46,7 +46,7 @@ class X(Pattern):
     def __init__(self, element: Union[Specification, Boolean]):
         input_str, typeset = Pattern.process_unary_input(element)
 
-        formula_str = f"X {input_str}"
+        formula_str = f"X({input_str})"
 
         super().__init__(
             formula=(formula_str, typeset))
@@ -58,7 +58,7 @@ class GF(Pattern):
     def __init__(self, element: Union[Specification, Boolean]):
         input_str, typeset = Pattern.process_unary_input(element)
 
-        formula_str = f"GF {input_str}"
+        formula_str = f"GF({input_str})"
 
         super().__init__(
             formula=(formula_str, typeset))
@@ -70,7 +70,7 @@ class U(Pattern):
     def __init__(self, pre: Union[Specification, Boolean], post: Union[Specification, Boolean]):
         pre_str, post_str, typeset = Pattern.process_binary_input(pre, post)
 
-        formula_str = f"({pre_str} U {post_str})"
+        formula_str = f"(({pre_str}) U ({post_str}))"
 
         super().__init__(
             formula=(formula_str, typeset))
@@ -82,7 +82,7 @@ class W(Pattern):
     def __init__(self, pre: Union[Specification, Boolean], post: Union[Specification, Boolean]):
         pre_str, post_str, typeset = Pattern.process_binary_input(pre, post)
 
-        formula_str = f"(({pre_str} U {post_str}) | G{pre_str})"
+        formula_str = f"((({pre_str}) U ({post_str})) | G({pre_str}))"
 
         super().__init__(
             formula=(formula_str, typeset))

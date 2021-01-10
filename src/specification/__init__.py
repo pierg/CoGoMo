@@ -4,6 +4,7 @@ from specification.enums import *
 from specification.exceptions import NotSatisfiableException
 from tools.logic import LogicTuple
 from tools.nuxmv import Nuxmv
+from tools.spot import Spot
 from typeset import Typeset
 
 
@@ -22,6 +23,10 @@ class Specification(ABC):
 
     def __str__(self):
         return self.string
+
+    def translate_to_buchi(self, name: str, path: str = None):
+        """Realize the specification into a Buchi automaton"""
+        Spot.generate_buchi(self.string, name, path)
 
     """Abstract Operators, must be implemented can be conly confronted with equal subtypes"""
 

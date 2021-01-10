@@ -59,6 +59,16 @@ class Typeset(dict):
         new_dict |= element
         return new_dict
 
+    def __sub__(self, element: Union[Typeset, AllTypes]) -> Typeset:
+        """ Returns self - element """
+        if isinstance(element, Types):
+            element = Typeset({element})
+        """Shallow copy"""
+        new_dict = copy(self)
+        for key in element.keys():
+            del new_dict[key]
+        return new_dict
+
     def __and__(self, element: Typeset) -> Typeset:
         """ Returns self &= element """
         pass

@@ -1,4 +1,3 @@
-from goal import Goal
 from goal.cgg import Node, GraphTraversal
 from goal.exceptions import GoalException
 from specification.atom.pattern.basic import Init
@@ -14,28 +13,6 @@ sw = SimpleGridWorld()
     C   D
 """
 t = sw.typeset
-
-"""Definition of a goals"""
-
-g1 = Goal(name="patrol_a_b",
-          description="Patrolling of locations a and b and init a",
-          specification=Patrolling([t["a"], t["b"]]))
-
-try:
-    g1.realize_to_controller()
-except GoalException as e:
-    pass
-
-g1 = Goal(name="patrol_a_b_init_a_and_b",
-          description="Patrolling of locations a and b and init a and b",
-          specification=Patrolling([t["a"], t["b"]]) & Init(t["a"]))
-
-try:
-    g1.realize_to_controller()
-except GoalException as e:
-    raise e
-
-"""Let's use nodes and build a CGG"""
 
 """Definition of a goals"""
 try:

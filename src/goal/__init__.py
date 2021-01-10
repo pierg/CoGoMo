@@ -7,11 +7,13 @@ from graphviz import Source
 from contract import Contract, IncompatibleContracts, InconsistentContracts, UnfeasibleContracts
 from controller import Controller
 from controller.exceptions import ControllerException
-from goal.exceptions import GoalFailOperations, GoalFailMotivations, GoalAlgebraOperationFail, GoalSynthesisFail
+from goal.exceptions import GoalException, GoalFailOperations, GoalFailMotivations, GoalAlgebraOperationFail, \
+    GoalSynthesisFail
 from specification import Specification
 from specification.formula import FormulaOutput
 from tools.storage import Store
 from tools.strings import StringMng
+from worlds import World
 
 
 class Goal:
@@ -20,7 +22,8 @@ class Goal:
                  name: str = None,
                  description: str = None,
                  specification: Union[Specification, Contract] = None,
-                 context: Specification = None):
+                 context: Specification = None,
+                 world: World = None):
 
         """Read only properties"""
         self.__realizable = None
@@ -32,8 +35,10 @@ class Goal:
         self.description: str = description
         self.specification: Contract = specification
         self.context: Specification = context
+        self.world: Specification = world
 
-        self.__folder_path = f"goals/{self.__id}"
+        self.__session_name = None
+        self.__goal_folder_name = f"goals/{self.__id}"
 
     def __str__(self):
         return Goal.pretty_print_goal(self)
@@ -47,8 +52,23 @@ class Goal:
         return self.__id
 
     @property
-    def folder_path(self) -> str:
-        return self.__folder_path
+    def goal_folder_name(self) -> str:
+        if self.__session_name is None:
+            return self.__goal_folder_name
+        else:
+            return f"{self.session_name}/{self.__goal_folder_name}"
+
+    @property
+    def session_name(self) -> str:
+        return self.__session_name
+
+    @session_name.setter
+    def session_name(self, value: str):
+        if value is None:
+            self.__session_name: str = ""
+        else:
+            self.__session_name: str = value
+
 
     @name.setter
     def name(self, value: str):
@@ -85,6 +105,14 @@ class Goal:
         self.__context = value
 
     @property
+    def world(self) -> World:
+        return self.__world
+
+    @world.setter
+    def world(self, value: World):
+        self.__world = value
+
+    @property
     def realizable(self) -> bool:
         return self.__realizable
 
@@ -94,24 +122,40 @@ class Goal:
 
     @property
     def time_synthesis(self) -> int:
-        return round(self.__time_synthesis, 2)
+        if self.__time_synthesis is not None:
+            return round(self.__time_synthesis, 2)
+        else:
+            return -1
 
-    def realize_to_controller(self, rel_path: str = None):
+    def translate_to_buchi(self, cgg_path: str = None):
+
+        if cgg_path is None:
+            folder_path = self.goal_folder_name
+        else:
+            folder_path = f"{cgg_path}/{self.__goal_folder_name}"
+
+        self.specification.assumptions.translate_to_buchi("assumptions", folder_path)
+        self.specification.guarantees.translate_to_buchi("guarantees", folder_path)
+
+    def realize_to_controller(self, cgg_path: str = None):
         """Realize the goal into a Controller object"""
 
-        if rel_path is None:
-            folder_path = self.__folder_path
+        if cgg_path is None:
+            folder_path = self.goal_folder_name
         else:
-            folder_path = f"{rel_path}/{self.__folder_path}"
+            folder_path = f"{cgg_path}/{self.__goal_folder_name}"
 
-        controller_info = self.specification.get_controller_info()
+        if self.__world is not None:
+            controller_info = self.specification.get_controller_info(world_ts=self.__world.typeset)
+        else:
+            controller_info = self.specification.get_controller_info()
 
         a, g, i, o = controller_info.get_strix_inputs()
 
         try:
             controller_synthesis_input = StringMng.get_controller_synthesis_str(controller_info)
 
-            Store.save_to_file(controller_synthesis_input, folder_path, "controller_specs.txt")
+            Store.save_to_file(controller_synthesis_input, "controller_specs.txt", folder_path)
 
             realized, dot_mealy, time = Controller.generate_controller(a, g, i, o)
 
@@ -119,9 +163,9 @@ class Goal:
             self.__time_synthesis = time
 
             if realized:
-                source = Store.generate_eps_from_dot(dot_mealy, folder_path, "controller")
+                source = Store.generate_eps_from_dot(dot_mealy, "controller", folder_path)
             else:
-                source = Store.generate_eps_from_dot(dot_mealy, folder_path, "controller_inverted")
+                source = Store.generate_eps_from_dot(dot_mealy, "controller_inverted", folder_path)
 
             self.__controller = Controller(source=source)
 
@@ -158,8 +202,15 @@ class Goal:
             name = conj_name[:-2]
 
         set_of_contracts = set()
+        new_goal_world = None
         for g in goals:
             set_of_contracts.add(g.specification)
+            if g.world is not None:
+                if new_goal_world is None:
+                    new_goal_world = g.world
+                else:
+                    if new_goal_world is not g.world:
+                        raise GoalException("conjoining goals that have different 'worlds'")
 
         try:
             new_contract = Contract.composition(set_of_contracts)
@@ -178,7 +229,8 @@ class Goal:
 
         new_goal = Goal(name=name,
                         description=description,
-                        specification=new_contract)
+                        specification=new_contract,
+                        world=new_goal_world)
 
         return new_goal
 
@@ -195,8 +247,16 @@ class Goal:
             name = conj_name[:-2]
 
         set_of_contracts = set()
+
+        new_goal_world = None
         for g in goals:
             set_of_contracts.add(g.specification)
+            if g.world is not None:
+                if new_goal_world is None:
+                    new_goal_world = g.world
+                else:
+                    if new_goal_world is not g.world:
+                        raise GoalException("conjoining goals that have different 'worlds'")
 
         try:
             new_contract = Contract.conjunction(set_of_contracts)
@@ -207,6 +267,7 @@ class Goal:
 
         new_goal = Goal(name=name,
                         description=description,
-                        specification=new_contract)
+                        specification=new_contract,
+                        world=new_goal_world)
 
         return new_goal

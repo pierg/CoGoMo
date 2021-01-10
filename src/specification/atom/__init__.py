@@ -56,7 +56,7 @@ class Atom(Specification):
             if self.__saturation is None:
                 expression, typset = self.__base_formula
             else:
-                expression, typset = LogicTuple.implies_(self.__saturation.formula(), self.__base_formula)
+                expression, typset = LogicTuple.implies_(self.__saturation.formula(), self.__base_formula, brackets=True)
         if self.negated:
             return Logic.not_(expression), typset
         return expression, typset

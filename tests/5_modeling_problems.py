@@ -1,8 +1,12 @@
+from typing import Set
+
 from contract import Contract
 from goal.cgg import Node
 from goal.cgg.exceptions import CGGException
 from specification.atom.pattern.basic import Init, G, F
+from specification.atom.pattern.robotics.coremovement.surveillance import Patrolling
 from type.subtypes.actions import BooleanAction
+from type.subtypes.locations import ReachLocation
 from type.subtypes.sensors import BooleanSensor
 
 """Let's define two actions and sensors"""
@@ -112,10 +116,10 @@ except CGGException as e:
 try:
 
     n1 = Node(name="awake_during_day",
-              specification=Contract(guarantees=G(day >> sleep_now)))
+              specification=Contract(guarantees=G(day >> awake_now)))
 
     n2 = Node(name="sleep_during_night",
-              specification=Contract(guarantees=G(night >> awake_now)))
+              specification=Contract(guarantees=G(night >> sleep_now)))
 
     cgg = Node.conjunction({n1, n2})
 
@@ -127,7 +131,61 @@ try:
 
     print(cgg)
 
-    print("In this case it works, does this approach work with any guaratee?")
+    print("In this case it works, does this approach work with any guarantees?")
+
+except CGGException as e:
+    raise e
+
+"""CASE 3b: Adding Globally in the assumptions with different pattern"""
+
+
+class Bed(ReachLocation):
+
+    def __init__(self, name: str = "bed"):
+        super().__init__(name)
+
+    @property
+    def mutex_group(self) -> str:
+        return "locations"
+
+
+class Office(ReachLocation):
+
+    def __init__(self, name: str = "office"):
+        super().__init__(name)
+
+    @property
+    def mutex_group(self) -> str:
+        return "locations"
+
+
+"""Infinitely Often Visit the Bed =  GF(bed) """
+bed = Patrolling([Bed()])
+
+"""Infinitely Often Visit the Office =  GF(office) """
+office = Patrolling([Office()])
+
+try:
+
+    n1 = Node(name="awake_during_day",
+              specification=Contract(guarantees=G(day >> office)))
+
+    n2 = Node(name="sleep_during_night",
+              specification=Contract(guarantees=G(night >> bed)))
+
+    cgg = Node.conjunction({n1, n2})
+
+    cgg.session_name = "case_3b"
+
+    cgg.translate_all_to_buchi()
+    cgg.realize_all()
+    cgg.save()
+
+    print(cgg)
+
+    print("Although its satisfiable and realizable it does not reflect what we want i.e.:"
+          "when 'day' is true => continuously visit the office, "
+          "and when 'night' is true => continuously visit the bed")
 
 except CGGException as e:
     raise e

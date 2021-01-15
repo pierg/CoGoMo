@@ -80,7 +80,7 @@ try:
 
     print(cgg)
 
-    print("The CGG is realizable but it does not reflect the behaviour that we want")
+    print("The CGG  is realizable but it does not reflect the behaviour that we want")
 
 
 except CGGException as e:

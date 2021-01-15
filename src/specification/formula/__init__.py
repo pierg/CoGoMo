@@ -250,7 +250,12 @@ class Formula(Specification):
             self.__dnf: List[Set[Atom]] = [{new_atom}]
             return self
 
-        if other.is_true() or self.is_true():
+        if other.is_true():
+            return self
+
+        if other.is_true():
+            self.__cnf = other.cnf
+            self.__dnf = other.dnf
             return self
 
         new_other = deepcopy(other)
@@ -292,7 +297,10 @@ class Formula(Specification):
         if isinstance(other, Atom):
             other = Formula(other)
 
-        if other.is_true() or self.is_true():
+        if self.is_true():
+            return self
+
+        if other.is_true():
             new_atom = Atom("TRUE")
             self.__cnf: List[Set[Atom]] = [{new_atom}]
             self.__dnf: List[Set[Atom]] = [{new_atom}]

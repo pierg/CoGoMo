@@ -99,7 +99,7 @@ class Typeset(dict):
     def extract_inputs(self) -> Set[Types]:
         """Returns a set of types in the typeset that are not controllable"""
         ret = set()
-        if len(self.values()) > 1:
+        if len(self.values()) > 0:
             for t in self.values():
                 if not t.controllable:
                     ret.add(t)
@@ -108,7 +108,7 @@ class Typeset(dict):
     def extract_outputs(self) -> Set[Types]:
         """Returns a set of types in the typeset that are not controllable"""
         ret = set()
-        if len(self.values()) > 1:
+        if len(self.values()) > 0:
             for t in self.values():
                 if t.controllable:
                     ret.add(t)

@@ -10,6 +10,7 @@ from controller.exceptions import ControllerException
 from goal.exceptions import GoalException, GoalFailOperations, GoalFailMotivations, GoalAlgebraOperationFail, \
     GoalSynthesisFail
 from specification import Specification
+from specification.atom.pattern.basic import G
 from specification.formula import FormulaOutput
 from tools.storage import Store
 from tools.strings import StringMng
@@ -103,6 +104,10 @@ class Goal:
     @context.setter
     def context(self, value: Specification):
         self.__context = value
+
+        """Adding (by conjunction) the context as a G(context) as contract assumption"""
+        if value is not None:
+            self.__specification.assumptions &= G(value)
 
     @property
     def world(self) -> World:

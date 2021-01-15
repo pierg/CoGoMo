@@ -61,20 +61,20 @@ class Office(ReachLocation):
 
 
 """Infinitely Often Visit the Bed =  GF(bed) """
-bed = Patrolling([Bed()])
+patrol_bed = Patrolling([Bed()])
 
 """Infinitely Often Visit the Office =  GF(office) """
-office = Patrolling([Office()])
+patrol_office = Patrolling([Office()])
 
 try:
 
     n1 = Node(name="awake_during_day",
               context=day,
-              specification=Contract(guarantees=bed))
+              specification=Contract(guarantees=patrol_bed))
 
     n2 = Node(name="sleep_during_night",
               context=night,
-              specification=Contract(guarantees=office))
+              specification=Contract(guarantees=patrol_office))
 
     cgg = Node.conjunction({n1, n2})
 

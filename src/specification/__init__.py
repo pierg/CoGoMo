@@ -124,10 +124,12 @@ class Specification(ABC):
         from specification.atom import Atom
         refinement_rules = Atom.extract_refinement_rules(self.typeset | other.typeset)
         if refinement_rules is not None:
-            ref_check_formula = (self & refinement_rules) >> other
+            # ref_check_formula = (self & refinement_rules) >> other
+            ref_check_formula = LogicTuple.implies_(LogicTuple.and_([self.formula(), refinement_rules.formula()]), other.formula())
         else:
-            ref_check_formula = self >> other
-        return Nuxmv.check_validity(ref_check_formula.formula())
+            # ref_check_formula = self >> other
+            ref_check_formula = LogicTuple.implies_(self.formula(), other.formula())
+        return Nuxmv.check_validity(ref_check_formula)
 
     def __gt__(self, other: Specification):
         """self > other. True if self is an abstraction but not equal to other"""
@@ -143,18 +145,21 @@ class Specification(ABC):
         from specification.atom import Atom
         refinement_rules = Atom.extract_refinement_rules(self.typeset | other.typeset)
         if refinement_rules is not None:
-            ref_check_formula = (other & refinement_rules) << self
+            # ref_check_formula = (other & refinement_rules) << self
+            ref_check_formula = LogicTuple.implies_(other.formula(), LogicTuple.and_([self.formula(), refinement_rules.formula()]))
         else:
-            ref_check_formula = other << self
-        return Nuxmv.check_validity(ref_check_formula.formula())
+            # ref_check_formula = other << self
+            ref_check_formula = LogicTuple.implies_(other.formula(), self.formula())
+        return Nuxmv.check_validity(ref_check_formula)
 
     def __eq__(self, other: Specification):
         """Check if self -> other and other -> self"""
         if self.string == other.string:
             return True
-        elif ~self == other:
-            return False
         else:
+            not_self = ~self
+            if not_self.string == other.string:
+                return False
             return self.__le__(other) and self.__ge__(other)
 
     def __ne__(self, other: Specification):

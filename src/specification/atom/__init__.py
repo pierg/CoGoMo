@@ -195,7 +195,7 @@ class Atom(Specification):
         if output is not None and output == FormulaOutput.ListCNF:
             return rules_str, rules_typeset
 
-        return Atom(formula=(Logic.and_(rules_str, brackets=True), rules_typeset), kind=AtomKind.LIVENESS_RULES)
+        return Atom(formula=(Logic.and_(rules_str, brackets=True), rules_typeset), kind=AtomKind.LIVENESS_RULE)
 
     def __hash__(self):
         return hash(self.__base_formula[0])

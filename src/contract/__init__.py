@@ -86,6 +86,14 @@ class Contract:
             except NotSatisfiableException as e:
                 raise UnfeasibleContracts(self, e)
 
+    """Refinement"""
+    def __le__(self: Contract, other: Contract):
+        """self <= other. True if self is a refinement of other"""
+        cond_a = self.assumptions >= other.assumptions
+        cond_g = self.guarantees <= other.guarantees
+        return cond_a and cond_g
+
+
     def get_controller_info(self, world_ts: Typeset = None) -> ControllerInfo:
         """Extract All Info Needed to Build a Controller from the Contract"""
 

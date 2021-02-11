@@ -35,6 +35,7 @@ class Night(ContextBooleanTime):
     def mutex_group(self):
         return "time"
 
+
 """Our goals as before, using the Patrolling Pattern"""
 
 
@@ -137,7 +138,6 @@ live_night = Atom.extract_liveness_rules(night.typeset)
 
 """Topology"""
 topology = Atom.extract_adjacency_rules(o_typeset)
-
 
 c1 = Contract(assumptions=live_day, guarantees=patrol_a & mutex_locs & topology)
 c2 = Contract(assumptions=live_night, guarantees=patrol_b & mutex_locs & topology)

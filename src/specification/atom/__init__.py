@@ -181,7 +181,7 @@ class Atom(Specification):
         rules_str = []
         rules_typeset = Typeset()
 
-        sensors = typeset.extract_inputs()
+        sensors, outs = typeset.extract_inputs_outputs()
 
         for t in sensors:
             if isinstance(t, Boolean):

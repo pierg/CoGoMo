@@ -258,6 +258,12 @@ class Formula(Specification):
             self.__dnf = other.dnf
             return self
 
+        if self.is_true():
+            new_other = deepcopy(other)
+            self.__cnf: List[Set[Atom]] = new_other.cnf
+            self.__dnf: List[Set[Atom]] = new_other.dnf
+            return self
+
         new_other = deepcopy(other)
 
         """Mutex Rules necessary for Satisfiability Check"""

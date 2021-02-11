@@ -6,10 +6,11 @@ from enum import Enum, auto
 
 class TypeKinds(Enum):
     SENSOR = auto()
+    SENSOR_ACTION = auto()
+    SENSOR_LOCATION = auto()
     LOCATION = auto()
     ACTION = auto()
-    TIME = auto()
-    IDENTITY = auto()
+    CONTEXT = auto()
 
 
 class Types(ABC):
@@ -26,7 +27,37 @@ class Types(ABC):
 
     @property
     def controllable(self) -> bool:
+        if self.kind == TypeKinds.SENSOR or self.kind == TypeKinds.CONTEXT:
+            return False
+        return True
+
+    @property
+    def sensor(self) -> bool:
         if self.kind == TypeKinds.SENSOR:
+            return False
+        return True
+
+    @property
+    def sensor_action(self) -> bool:
+        if self.kind == TypeKinds.SENSOR_ACTION:
+            return False
+        return True
+
+    @property
+    def sensor_location(self) -> bool:
+        if self.kind == TypeKinds.SENSOR_LOCATION:
+            return False
+        return True
+
+    @property
+    def action(self) -> bool:
+        if self.kind == TypeKinds.ACTION:
+            return False
+        return True
+
+    @property
+    def location(self) -> bool:
+        if self.kind == TypeKinds.LOCATION:
             return False
         return True
 

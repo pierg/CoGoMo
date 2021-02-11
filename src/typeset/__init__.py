@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from copy import copy, deepcopy
 from itertools import combinations
-from typing import Set, Dict, Union, TypeVar, List
+from typing import Set, Dict, Union, TypeVar, List, Tuple
 
 from type import Types
 
@@ -66,7 +66,8 @@ class Typeset(dict):
         """Shallow copy"""
         new_dict = copy(self)
         for key in element.keys():
-            del new_dict[key]
+            if key in new_dict:
+                del new_dict[key]
         return new_dict
 
     def __and__(self, element: Typeset) -> Typeset:
@@ -79,7 +80,12 @@ class Typeset(dict):
             element = Typeset({element})
         for key, value in element.items():
             if key in self:
-                if value is not self[key]:
+                # if value is not self[key]:
+                #     print(f"Trying to add an element with key '{key}' and value of type '{type(value).__name__}'")
+                #     print(f"ERROR:\n"
+                #           f"There is already en element with key '{key}' and value of type '{type(self[key]).__name__}'")
+                #     raise Exception("Type Mismatch")
+                if type(value).__name__ != type(self[key]).__name__:
                     print(f"Trying to add an element with key '{key}' and value of type '{type(value).__name__}'")
                     print(f"ERROR:\n"
                           f"There is already en element with key '{key}' and value of type '{type(self[key]).__name__}'")
@@ -96,21 +102,60 @@ class Typeset(dict):
         """ Updates self with self -= element """
         pass
 
-    def extract_inputs(self) -> Set[Types]:
-        """Returns a set of types in the typeset that are not controllable"""
-        ret = set()
+    def extract_inputs_outputs(self) -> Tuple[Set[Types], Set[Types]]:
+        """Returns a set of types in the typeset that are not controllable and controllable"""
+        i = set()
+        o = set()
         if len(self.values()) > 0:
             for t in self.values():
                 if not t.controllable:
-                    ret.add(t)
-        return ret
+                    i.add(t)
+                else:
+                    o.add(t)
+        return i, o
 
-    def extract_outputs(self) -> Set[Types]:
-        """Returns a set of types in the typeset that are not controllable"""
+    def extract_actions(self) -> Set[Types]:
+        """Returns a set of types in the typeset that are controllable actions"""
         ret = set()
         if len(self.values()) > 0:
             for t in self.values():
-                if t.controllable:
+                if t.action:
+                    ret.add(t)
+        return ret
+
+    def extract_location(self) -> Set[Types]:
+        """Returns a set of types in the typeset that are controllable location"""
+        ret = set()
+        if len(self.values()) > 0:
+            for t in self.values():
+                if t.location:
+                    ret.add(t)
+        return ret
+
+    def extract_sensors(self) -> Set[Types]:
+        """Returns a set of types in the typeset that are not controllable sensors"""
+        ret = set()
+        if len(self.values()) > 0:
+            for t in self.values():
+                if t.sensor:
+                    ret.add(t)
+        return ret
+
+    def extract_sensor_actions(self) -> Set[Types]:
+        """Returns a set of types in the typeset that are sensors of action completion"""
+        ret = set()
+        if len(self.values()) > 0:
+            for t in self.values():
+                if t.sensor_action:
+                    ret.add(t)
+        return ret
+
+    def extract_sensor_locations(self) -> Set[Types]:
+        """Returns a set of types in the typeset that are sensors indicating current robot location"""
+        ret = set()
+        if len(self.values()) > 0:
+            for t in self.values():
+                if t.sensor_location:
                     ret.add(t)
         return ret
 
@@ -155,14 +200,13 @@ class Typeset(dict):
         if len(self.values()) > 1:
             self.__adjacent_types = dict()
             for variable in self.values():
+                """Adding 'self' as adjuacent as well i.e. the robot can stay still"""
+                self.__adjacent_types[variable] = {variable}
                 if hasattr(variable, "adjacency_set"):
                     for adjacent_class in variable.adjacency_set:
                         for variable_candidate in self.values():
                             if variable_candidate.__class__.__name__ == adjacent_class:
-                                if variable in self.__adjacent_types:
-                                    self.__adjacent_types[variable].add(variable_candidate)
-                                else:
-                                    self.__adjacent_types[variable] = {variable_candidate}
+                                self.__adjacent_types[variable].add(variable_candidate)
 
     def __setitem__(self, name, elem):
         self.add_elements({elem})

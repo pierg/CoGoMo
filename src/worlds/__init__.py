@@ -1,11 +1,15 @@
-from abc import ABC, abstractmethod
+from typing import Set
 
+from type import Types
 from typeset import Typeset
 
 
-class World(ABC):
+class World:
+
+    def __init__(self, types: Set[Types]):
+        self.__typeset = Typeset(types)
 
     @property
-    @abstractmethod
     def typeset(self) -> Typeset:
-        pass
+        return self.__typeset
+

@@ -8,7 +8,7 @@ class ContextTime(BoundedInteger):
 
     @property
     def kind(self):
-        return TypeKinds.TIME
+        return TypeKinds.CONTEXT
 
 
 class ContextBooleanTime(Boolean):
@@ -18,7 +18,7 @@ class ContextBooleanTime(Boolean):
 
     @property
     def kind(self):
-        return TypeKinds.TIME
+        return TypeKinds.CONTEXT
 
 
 class ContextLocation(Boolean):
@@ -28,7 +28,7 @@ class ContextLocation(Boolean):
 
     @property
     def kind(self):
-        return TypeKinds.LOCATION
+        return TypeKinds.CONTEXT
 
 
 class ContextIdentity(Boolean):
@@ -38,4 +38,4 @@ class ContextIdentity(Boolean):
 
     @property
     def kind(self):
-        return TypeKinds.IDENTITY
+        return TypeKinds.CONTEXT

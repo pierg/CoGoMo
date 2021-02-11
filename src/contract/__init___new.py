@@ -89,49 +89,84 @@ class Contract:
     def get_controller_info(self, world_ts: Typeset = None) -> ControllerInfo:
         """Extract All Info Needed to Build a Controller from the Contract"""
 
+        if world_ts is None:
+            world_ts = Typeset()
+
         """Assumptions"""
-        assumptions = []
-        a_mutex = []
-        a_liveness = []
+        a_initial: List[str] = []
+        a_fairness: List[str] = []
+        a_safety: List[str] = []
+        a_mutex: List[str] = []
 
         """Guarantees"""
-        guarantees = []
-        g_mutex = []
-        g_adjacency = []
+        g_initial: List[str] = []
+        g_safety: List[str] = []
+        g_mutex: List[str] = []
+        g_goal: List[str] = []
 
         a_typeset = Typeset()
         g_typeset = Typeset()
 
         list, typeset = self.assumptions.formula(FormulaOutput.ListCNF)
-        assumptions.extend(list)
+        a_initial.extend(list)
         a_typeset |= typeset
 
         list, typeset = self.guarantees.formula(FormulaOutput.ListCNF)
-        guarantees.extend(list)
+        g_goal.extend(list)
         g_typeset |= typeset
 
-        """Extracting Inputs and Outputs Including the world"""
-        i_set, o_set = (a_typeset | g_typeset | world_ts).extract_inputs_outputs()
+        all_typeset = a_typeset | g_typeset | world_ts
 
-        i_typeset = Typeset(i_set)
-        o_typeset = Typeset(o_set)
+        """Inputs typeset"""
+        i_typeset = Typeset(all_typeset.extract_inputs())
 
-        """Mutex Rules"""
+        """Output typeset"""
+        o_typeset = Typeset(all_typeset.extract_outputs())
+
+        actions_typeset = Typeset(all_typeset.ext())
+
+        """Mutex"""
         ret = Atom.extract_mutex_rules(i_typeset, output=FormulaOutput.ListCNF)
         if ret is not None:
             rules, typeset = ret
             a_mutex.extend(rules)
-
         ret = Atom.extract_mutex_rules(o_typeset, output=FormulaOutput.ListCNF)
         if ret is not None:
             rules, typeset = ret
             g_mutex.extend(rules)
 
-        """Adjacecy Rules"""
-        ret = Atom.extract_adjacency_rules(o_typeset, output=FormulaOutput.ListCNF)
+
+
+        """For the rules we extracts rules from the types based on assumptions and inputs"""
+        a_typeset = a_typeset | i_typeset
+
+        """We remove the inputs typeset from the guarantees and we incorporate the world ts"""
+        g_typeset = g_typeset - i_typeset
+
+        """Adding Mutex Rules"""
+        ret = Atom.extract_mutex_rules(a_typeset, output=FormulaOutput.ListCNF)
+        if ret is not None:
+            rules, typeset = ret
+            a_mutex.extend(rules)
+            a_typeset |= typeset
+
+        ret = Atom.extract_mutex_rules(g_typeset, output=FormulaOutput.ListCNF)
+        if ret is not None:
+            rules, typeset = ret
+            g_mutex.extend(rules)
+            g_typeset |= typeset
+
+        """Adjacecy rules can include things that are in the world_ts"""
+        if world_ts is not None:
+            adjacency_ts = g_typeset | world_ts
+        else:
+            adjacency_ts = g_typeset
+
+        ret = Atom.extract_adjacency_rules(adjacency_ts, output=FormulaOutput.ListCNF)
         if ret is not None:
             rules, typeset = ret
             g_adjacency.extend(rules)
+            g_typeset |= typeset
 
         """Adding Liveness To Sensors (input)"""
         ret = Atom.extract_liveness_rules(i_typeset, output=FormulaOutput.ListCNF)
@@ -140,15 +175,15 @@ class Contract:
             a_liveness.extend(rules)
 
         """Extract Inputs and Outputs"""
-        inputs = [t.name for t in i_set]
-        outputs = [t.name for t in o_set]
+        inputs = [t.name for t in (a_typeset | g_typeset).extract_inputs()]
+        outputs = [t.name for t in (a_typeset | g_typeset).extract_outputs()]
 
-        return ControllerInfo(assumptions=assumptions,
-                              a_liveness=a_liveness,
+        return ControllerInfo(a_initial=assumptions,
+                              a_fairness=a_liveness,
                               a_mutex=a_mutex,
                               guarantees=guarantees,
                               g_mutex=g_mutex,
-                              g_adjacency=g_adjacency,
+                              g_safety=g_adjacency,
                               inputs=inputs,
                               outputs=outputs)
 

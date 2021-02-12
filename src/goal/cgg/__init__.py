@@ -15,6 +15,7 @@ class Link(Enum):
     REFINEMENT = 0
     COMPOSITION = 1
     CONJUNCTION = 2
+    DISJUNCTION = 3
 
 
 class GraphTraversal(Enum):
@@ -172,5 +173,19 @@ class Node(Goal):
         new_node = Node(goal=new_goal)
 
         new_node.add_children(link=Link.CONJUNCTION, nodes=nodes)
+
+        return new_node
+
+    @staticmethod
+    def disjunction(nodes: Set[Node], name: str = None, description: str = None) -> Node:
+
+        try:
+            new_goal = Goal.disjunction(nodes, name, description)
+        except GoalException as e:
+            raise CGGOperationFail(nodes=nodes, operation=CGGFailOperations.algebra_op, goal_ex=e)
+
+        new_node = Node(goal=new_goal)
+
+        new_node.add_children(link=Link.DISJUNCTION, nodes=nodes)
 
         return new_node

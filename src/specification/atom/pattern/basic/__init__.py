@@ -58,7 +58,7 @@ class GF(Pattern):
     def __init__(self, element: Union[Specification, Boolean]):
         input_str, typeset = Pattern.process_unary_input(element)
 
-        formula_str = f"GF({input_str})"
+        formula_str = f"G(F({input_str}))"
 
         super().__init__(
             formula=(formula_str, typeset))

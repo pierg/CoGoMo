@@ -27,6 +27,7 @@ class Contract:
 
         self.composed_by = {self}
         self.conjoined_by = {self}
+        self.disjoined_by = {self}
 
     from ._copying import __deepcopy__
     from ._printing import __str__
@@ -87,12 +88,12 @@ class Contract:
                 raise UnfeasibleContracts(self, e)
 
     """Refinement"""
+
     def __le__(self: Contract, other: Contract):
         """self <= other. True if self is a refinement of other"""
         cond_a = self.assumptions >= other.assumptions
         cond_g = self.guarantees <= other.guarantees
         return cond_a and cond_g
-
 
     def get_controller_info(self, world_ts: Typeset = None) -> ControllerInfo:
         """Extract All Info Needed to Build a Controller from the Contract"""
@@ -201,7 +202,7 @@ class Contract:
         if len(contracts) == 1:
             return next(iter(contracts))
         if len(contracts) == 0:
-            raise Exception("No contract specified in the composition")
+            raise Exception("No contract specified in the conjunction")
 
         contract_list = list(contracts)
         new_assumptions = deepcopy(contract_list[0].assumptions)
@@ -223,5 +224,35 @@ class Contract:
         new_contract = Contract(assumptions=new_assumptions, guarantees=new_guarantees, saturate=False)
 
         new_contract.conjoined_by = contracts
+
+        return new_contract
+
+    @staticmethod
+    def disjunction(contracts: Set[Contract]) -> Contract:
+        if len(contracts) == 1:
+            return next(iter(contracts))
+        if len(contracts) == 0:
+            raise Exception("No contract specified in the disjunction")
+
+        contract_list = list(contracts)
+        new_assumptions = deepcopy(contract_list[0].assumptions)
+        new_guarantees = deepcopy(contract_list[0].guarantees)
+
+        """Populate the data structure while checking for compatibility and consistency"""
+        for contract in contract_list[1:]:
+
+            new_assumptions &= contract.assumptions
+
+            try:
+                new_guarantees |= contract.guarantees
+            except NotSatisfiableException as e:
+                raise InconsistentContracts(contract, e)
+
+        print("The disjunction is compatible and consistent")
+
+        """New contracts without saturation cause it was already saturated"""
+        new_contract = Contract(assumptions=new_assumptions, guarantees=new_guarantees, saturate=False)
+
+        new_contract.disjoined_by = contracts
 
         return new_contract

@@ -10,7 +10,7 @@ from controller.exceptions import ControllerException
 from goal.exceptions import GoalException, GoalFailOperations, GoalFailMotivations, GoalAlgebraOperationFail, \
     GoalSynthesisFail
 from specification import Specification
-from specification.atom.pattern.basic import G
+from specification.atom.pattern.basic import GF
 from specification.formula import FormulaOutput
 from tools.storage import Store
 from tools.strings import StringMng
@@ -36,7 +36,7 @@ class Goal:
         self.description: str = description
         self.specification: Contract = specification
         self.context: Specification = context
-        self.world: Specification = world
+        self.world: World = world
 
         self.__session_name = None
         self.__goal_folder_name = f"goals/{self.__id}"
@@ -69,7 +69,6 @@ class Goal:
             self.__session_name: str = ""
         else:
             self.__session_name: str = value
-
 
     @name.setter
     def name(self, value: str):
@@ -107,7 +106,7 @@ class Goal:
 
         """Adding (by conjunction) the context as a G(context) as contract assumption"""
         if value is not None:
-            self.__specification.assumptions &= G(value)
+            self.__specification.assumptions &= GF(value)
 
     @property
     def world(self) -> World:
@@ -151,7 +150,7 @@ class Goal:
             folder_path = f"{cgg_path}/{self.__goal_folder_name}"
 
         if self.__world is not None:
-            controller_info = self.specification.get_controller_info(world_ts=self.__world.typeset)
+            controller_info = self.specification.get_controller_info(world_ts=self.__world)
         else:
             controller_info = self.specification.get_controller_info()
 
@@ -265,6 +264,44 @@ class Goal:
 
         try:
             new_contract = Contract.conjunction(set_of_contracts)
+
+        except InconsistentContracts as e:
+
+            raise GoalAlgebraOperationFail(goals=goals, operation=GoalFailOperations.conjunction, contr_ex=e)
+
+        new_goal = Goal(name=name,
+                        description=description,
+                        specification=new_contract,
+                        world=new_goal_world)
+
+        return new_goal
+
+    @staticmethod
+    def disjunction(goals: Set[Goal], name: str = None, description: str = None) -> Goal:
+        if name is None:
+            names = []
+            for goal in goals:
+                names.append(goal.name)
+            names.sort()
+            conj_name = ""
+            for name in names:
+                conj_name += name + "vv"
+            name = conj_name[:-2]
+
+        set_of_contracts = set()
+
+        new_goal_world = None
+        for g in goals:
+            set_of_contracts.add(g.specification)
+            if g.world is not None:
+                if new_goal_world is None:
+                    new_goal_world = g.world
+                else:
+                    if new_goal_world is not g.world:
+                        raise GoalException("disjoining goals that have different 'worlds'")
+
+        try:
+            new_contract = Contract.disjunction(set_of_contracts)
 
         except InconsistentContracts as e:
 

@@ -1,6 +1,7 @@
 from contract import Contract
 from goal.cgg import Node
 from goal.cgg.exceptions import CGGException
+from specification.atom.pattern.basic import Init
 from specification.atom.pattern.robotics.coremovement.surveillance import *
 from type.subtypes.context import ContextBooleanTime
 from type.subtypes.locations import ReachLocation
@@ -111,28 +112,28 @@ class Z(ReachLocation):
         return {"A1", "A2", "B1", "B2"}
 
 
-gridworld = World({A1(), A2(), B1(), B2(), Z()})
+w = World({A1(), A2(), B1(), B2(), Z()})
 
 
-"""Ordered Patrolling Location a1, a2"""
-ordered_patrol_a = OrderedPatrolling([A1(), A2()])
+"""Start from a1 and Ordered Patrolling Location a1, a2"""
+ordered_patrol_a = Init(w["a1"]) & OrderedPatrolling([w["a1"], w["a2"]])
 
-"""Ordered Patrolling Location b1, b2"""
-ordered_patrol_b = OrderedPatrolling([B1(), B2()])
+"""Start from b1 and Ordered Patrolling Location b1, b2"""
+ordered_patrol_b = Init(w["b1"]) & OrderedPatrolling([w["b1"], w["b2"]])
 
 try:
 
     n1 = Node(name="day_patrol_a",
               context=day,
               specification=Contract(guarantees=ordered_patrol_a),
-              world=gridworld)
+              world=w)
 
     n2 = Node(name="night_patrol_b",
               context=night,
               specification=Contract(guarantees=ordered_patrol_b),
-              world=gridworld)
+              world=w)
 
-    cgg = Node.conjunction({n1, n2})
+    cgg = Node.disjunction({n1, n2})
 
     cgg.session_name = "context_example"
 
@@ -142,9 +143,7 @@ try:
 
     print(cgg)
 
-    print("Although its satisfiable and realizable it does not reflect what we wat i.e.:"
-          "when 'day' is true => continuously visit the office, "
-          "and when 'night' is true => continuously visit the bed")
+
 
 except CGGException as e:
     raise e

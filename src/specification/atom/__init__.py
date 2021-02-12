@@ -200,7 +200,7 @@ class Atom(Specification):
     def __hash__(self):
         return hash(self.__base_formula[0])
 
-    def __and__(self, other: Union[Type[Atom], Formula]) -> Formula:
+    def __and__(self, other: Union[Atom, Formula]) -> Formula:
         """self & other
         Returns a new Specification with the conjunction with other"""
         if not (isinstance(other, Atom) or isinstance(other, Formula)):
@@ -211,7 +211,7 @@ class Atom(Specification):
 
         return Formula(atom=self) & other
 
-    def __or__(self, other: Union[Type[Atom], Formula]) -> Formula:
+    def __or__(self, other: Union[Atom, Formula]) -> Formula:
         """self | other
         Returns a new Specification with the disjunction with other"""
         if not (isinstance(other, Atom) or isinstance(other, Formula)):
@@ -228,7 +228,7 @@ class Atom(Specification):
         new_formula.__negation = not new_formula.__negation
         return new_formula
 
-    def __rshift__(self, other: Union[Type[Atom], Formula]) -> Formula:
+    def __rshift__(self, other: Union[Atom, Formula]) -> Formula:
         """>>
         Returns a new Specification that is the result of self -> other (implies)"""
         if not (isinstance(other, Atom) or isinstance(other, Formula)):
@@ -239,7 +239,7 @@ class Atom(Specification):
 
         return Formula(atom=self) >> other
 
-    def __lshift__(self, other: Union[Type[Atom], Formula]) -> Formula:
+    def __lshift__(self, other: Union[Atom, Formula]) -> Formula:
         """<<
         Returns a new Specification that is the result of other -> self (implies)"""
         if not (isinstance(other, Atom) or isinstance(other, Formula)):
@@ -250,13 +250,13 @@ class Atom(Specification):
 
         return Formula(atom=self) << other
 
-    def __iand__(self, other: Union[Type[Atom], Formula]) -> Formula:
+    def __iand__(self, other: Union[Atom, Formula]) -> Formula:
         """self &= other
         Modifies self with the conjunction with other"""
 
         return self & other
 
-    def __ior__(self, other: Union[Type[Atom], Formula]) -> Formula:
+    def __ior__(self, other: Union[Atom, Formula]) -> Formula:
         """self |= other
         Modifies self with the disjunction with other"""
 

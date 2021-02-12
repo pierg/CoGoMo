@@ -1,15 +1,12 @@
-from typing import Set
-
-from type import Types
 from typeset import Typeset
 
+from typing import Set, TypeVar
 
-class World:
+from type import Types
 
-    def __init__(self, types: Set[Types]):
-        self.__typeset = Typeset(types)
+AllTypes = TypeVar('AllTypes', bound=Types)
 
-    @property
-    def typeset(self) -> Typeset:
-        return self.__typeset
 
+class World(Typeset):
+    def __init__(self, types: Set[AllTypes] = None):
+        super().__init__(types)

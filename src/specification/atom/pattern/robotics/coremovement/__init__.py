@@ -1,9 +1,6 @@
 from typing import List, Union, Tuple
-from specification import Specification
 from specification.atom import Atom
-from specification.atom.pattern.basic import F
 from specification.atom.pattern.robotics import RoboticPattern
-from tools.logic import Logic
 from type import Boolean
 from typeset import Typeset
 

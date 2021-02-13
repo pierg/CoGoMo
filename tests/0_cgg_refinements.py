@@ -145,7 +145,8 @@ c2 = Contract(assumptions=live_night, guarantees=patrol_b & mutex_locs & topolog
 print(c1)
 print(c2)
 
-c = Contract(assumptions=c1.assumptions & c2.assumptions, guarantees=c1.guarantees | c2.guarantees)
+# c = Contract(assumptions=c1.assumptions & c2.assumptions, guarantees=c1.guarantees | c2.guarantees)
+c = Contract.disjunction({c1, c2})
 
 print(c)
 print(c1 <= c)

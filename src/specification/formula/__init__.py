@@ -124,7 +124,8 @@ class Formula(Specification):
             if len(guarantee) == 1:
                 g = list(guarantee)[0]
             else:
-                raise Exception
+                # TODO: Change
+                continue
             atoms_to_remove = set()
             for clause in self.dnf:
                 if g.saturation is not None:

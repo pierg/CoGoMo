@@ -1,15 +1,15 @@
 from type.subtypes.locations import *
 
 """"
-    A1      A2   
-        Z
-    B1      B2
+    R1      R2   
+        R5
+    R3      R4
 """
 
 
-class A1(ReachLocation):
+class R1(ReachLocation):
 
-    def __init__(self, name: str = "a1"):
+    def __init__(self, name: str = "r1"):
         super().__init__(name)
 
     @property
@@ -18,12 +18,12 @@ class A1(ReachLocation):
 
     @property
     def adjacency_set(self):
-        return {"A2", "Z"}
+        return {"R2", "R5"}
 
 
-class A2(ReachLocation):
+class R2(ReachLocation):
 
-    def __init__(self, name: str = "a2"):
+    def __init__(self, name: str = "r2"):
         super().__init__(name)
 
     @property
@@ -32,12 +32,12 @@ class A2(ReachLocation):
 
     @property
     def adjacency_set(self):
-        return {"A1", "A"}
+        return {"R1", "A"}
 
 
-class B1(ReachLocation):
+class R3(ReachLocation):
 
-    def __init__(self, name: str = "b1"):
+    def __init__(self, name: str = "r3"):
         super().__init__(name)
 
     @property
@@ -46,12 +46,12 @@ class B1(ReachLocation):
 
     @property
     def adjacency_set(self):
-        return {"B2", "Z"}
+        return {"R4", "R5"}
 
 
-class B2(ReachLocation):
+class R4(ReachLocation):
 
-    def __init__(self, name: str = "b2"):
+    def __init__(self, name: str = "r4"):
         super().__init__(name)
 
     @property
@@ -60,12 +60,12 @@ class B2(ReachLocation):
 
     @property
     def adjacency_set(self):
-        return {"B1", "Z"}
+        return {"R3", "R5"}
 
 
-class Z(ReachLocation):
+class R5(ReachLocation):
 
-    def __init__(self, name: str = "z"):
+    def __init__(self, name: str = "r5"):
         super().__init__(name)
 
     @property
@@ -74,4 +74,4 @@ class Z(ReachLocation):
 
     @property
     def adjacency_set(self):
-        return {"A1", "A2", "B1", "B2"}
+        return {"R1", "R2", "R3", "R4"}

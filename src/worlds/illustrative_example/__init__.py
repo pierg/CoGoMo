@@ -10,11 +10,11 @@ class IllustrativeExample(World):
     def __init__(self):
         super().__init__({
             Person(),
-            A1(),
-            A2(),
-            B1(),
-            B2(),
-            Z(),
+            R1(),
+            R2(),
+            R3(),
+            R4(),
+            R5(),
             Day(),
             Night(),
             Greet()

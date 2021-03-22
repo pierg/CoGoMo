@@ -181,7 +181,7 @@ class Goal:
         ret = "\t" * level + f"|---GOAL\t {goal.id} {repr(goal.name)}\n"
         if goal.context is not None:
             ret += "\t" * level + f"|\tCONTEXT:\t {str(goal.context)}\n"
-        if not goal.specification.assumptions.is_valid():
+        if not goal.specification.assumptions.is_true():
             ret += "\t" * level + "|\t  ASSUMPTIONS:\n"
             ret += "\t" * level + f"|\t  {goal.specification.assumptions.pretty_print(FormulaOutput.DNF)} \n"
         ret += "\t" * level + "|\t  GUARANTEES:\n"

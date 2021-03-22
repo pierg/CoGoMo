@@ -160,10 +160,10 @@ class Formula(Specification):
         x->((a | b) & (c | d)) === ((x->a) | (x->b)) & ((x->c) | (x->d))
         x->((a & b) | (c & d)) === ((x->a) & (x->b)) | ((x->c) & (x->d))
         """
-        if not value.is_true():
-            for clause in self.cnf:
-                for atom in clause:
-                    atom.saturate(value)
+        # if not value.is_true():
+        for clause in self.cnf:
+            for atom in clause:
+                atom.saturate(value)
         """Atoms are shared between CNF and DNF"""
 
     def formula(self, formulatype: FormulaOutput = FormulaOutput.CNF) -> Union[

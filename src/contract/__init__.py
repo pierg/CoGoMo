@@ -4,7 +4,7 @@ from copy import deepcopy
 from typing import Set, Tuple, List
 
 from contract.exceptions import *
-from controller.controllerinfo import ControllerInfo
+from controller.synthesisinfo import SynthesisInfo
 from specification import FormulaOutput
 from specification.atom import Atom
 from specification.exceptions import NotSatisfiableException
@@ -95,7 +95,7 @@ class Contract:
         cond_g = self.guarantees <= other.guarantees
         return cond_a and cond_g
 
-    def get_controller_info(self, world_ts: Typeset = None) -> ControllerInfo:
+    def get_controller_info(self, world_ts: Typeset = None) -> SynthesisInfo:
         """Extract All Info Needed to Build a Controller from the Contract"""
 
         """Assumptions"""
@@ -152,14 +152,14 @@ class Contract:
         inputs = [t.name for t in i_set]
         outputs = [t.name for t in o_set]
 
-        return ControllerInfo(assumptions=assumptions,
-                              a_liveness=a_liveness,
-                              a_mutex=a_mutex,
-                              guarantees=guarantees,
-                              g_mutex=g_mutex,
-                              g_adjacency=g_adjacency,
-                              inputs=inputs,
-                              outputs=outputs)
+        return SynthesisInfo(assumptions=assumptions,
+                             a_liveness=a_liveness,
+                             a_mutex=a_mutex,
+                             guarantees=guarantees,
+                             g_mutex=g_mutex,
+                             g_adjacency=g_adjacency,
+                             inputs=inputs,
+                             outputs=outputs)
 
     @staticmethod
     def composition(contracts: Set[Contract]) -> Contract:

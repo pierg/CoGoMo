@@ -4,7 +4,7 @@ import re
 import string
 from typing import Tuple
 
-from controller.controllerinfo import ControllerInfo
+from controller.synthesisinfo import SynthesisInfo
 
 
 class StringMng:
@@ -37,7 +37,7 @@ class StringMng:
         return res
 
     @staticmethod
-    def get_controller_synthesis_str(controller_info: ControllerInfo) -> str:
+    def get_controller_synthesis_str(controller_info: SynthesisInfo) -> str:
 
         ret = ""
 

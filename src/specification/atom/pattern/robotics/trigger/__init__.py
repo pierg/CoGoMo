@@ -11,7 +11,23 @@ class Trigger(RoboticPattern):
         super().__init__(formula=formula)
 
     @staticmethod
-    def process_input(pre: Union[Atom, Boolean], post: Union[Atom, Boolean]) -> Tuple[Typeset, str, str]:
+    def process_uni_input(l: Union[Atom, Boolean]) -> Tuple[Typeset, str]:
+
+        new_typeset = Typeset()
+
+        if isinstance(l, Boolean):
+            new_typeset |= l
+            l = l.name
+        elif isinstance(l, Atom):
+            new_typeset |= l.typeset
+            l = l.string
+        else:
+            raise AttributeError
+
+        return new_typeset, l
+
+    @staticmethod
+    def process_bin_input(pre: Union[Atom, Boolean], post: Union[Atom, Boolean]) -> Tuple[Typeset, str, str]:
 
         new_typeset = Typeset()
 

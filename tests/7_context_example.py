@@ -1,8 +1,8 @@
-from goal.cgg import Node
+from goal.cgg import Node, Link
 from goal.cgg.exceptions import CGGException
-from specification.atom.pattern.basic import Init
 from specification.atom.pattern.robotics.coremovement.surveillance import *
-from specification.atom.pattern.robotics.trigger.triggers import InstantaneousReaction
+from specification.atom.pattern.robotics.trigger.triggers import InstantaneousReaction, BoundReaction, Wait, \
+    GlobalAvoidance, BoundDelay
 from worlds.illustrative_example import IllustrativeExample
 
 """Illustrative Example:
@@ -15,14 +15,16 @@ always => if see a person, greet
 """We import the world"""
 w = IllustrativeExample()
 
-"""Start from r1 and Ordered Patrolling Location r1, r2"""
-ordered_patrol_day = Init(w["r1"]) & OrderedPatrolling([w["r1"], w["r2"]])
+"""Strict Ordered Patrolling Location r1, r2"""
+ordered_patrol_day = StrictOrderedPatrolling([w["r1"], w["r2"]])
+print("one\n" + str(ordered_patrol_day))
 
-"""Start from r3 and Ordered Patrolling Location r3, r4"""
-ordered_patrol_night = Init(w["r3"]) & OrderedPatrolling([w["r3"], w["r4"]])
+"""Strict Ordered Patrolling Location r3, r4"""
+ordered_patrol_night = StrictOrderedPatrolling([w["r3"], w["r4"]])
+print("two\n" + str(ordered_patrol_night))
 
-"""If see a person greet"""
-greet = InstantaneousReaction(w["person"], w["greet"])
+"""Only if see a person, greet in the next step"""
+greet = BoundDelay(w["person"], w["greet"])
 
 try:
 
@@ -40,27 +42,15 @@ try:
                    specification=greet,
                    world=w)
 
-    # CGG 1
-    cgg_1 = Node.disjunction({n_day, n_night})
-    cgg_1 = Node.composition({cgg_1, n_greet})
-    cgg_1.session_name = "illustrative_example_1"
-    cgg_1.translate_all_to_buchi()
-    cgg_1.realize_all()
-    cgg_1.save()
-    print(cgg_1)
-
-    # CGG 2
-    n_day_2 = Node.composition({n_day, n_greet})
-    n_night_2 = Node.composition({n_night, n_greet})
-    cgg_2 = Node.disjunction({n_day_2, n_night_2})
-    cgg_2.session_name = "illustrative_example_2"
-    cgg_2.translate_all_to_buchi()
-    cgg_2.realize_all()
-    cgg_2.save()
-    print(cgg_2)
-
-    print(cgg_1.specification.guarantees == cgg_2.specification.guarantees)
-
+    n_day_greet = Node.conjunction({n_day, n_greet})
+    n_night_greet = Node.conjunction({n_night, n_greet})
+    cgg = Node.disjunction({n_day_greet, n_night_greet})
+    cgg.session_name = "illustrative_example"
+    cgg.translate_all_to_buchi()
+    cgg.realize_all()
+    cgg.save()
+    print(cgg)
+    cgg.children[Link.DISJUNCTION]
 
 
 except CGGException as e:

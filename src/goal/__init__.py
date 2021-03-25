@@ -6,6 +6,7 @@ from graphviz import Source
 
 from contract import Contract, IncompatibleContracts, InconsistentContracts, UnfeasibleContracts
 from controller import Controller
+from controller import Controller
 from controller.exceptions import ControllerException
 from goal.exceptions import GoalException, GoalFailOperations, GoalFailMotivations, GoalAlgebraOperationFail, \
     GoalSynthesisFail
@@ -14,6 +15,7 @@ from specification.atom.pattern.basic import GF
 from specification.formula import FormulaOutput
 from tools.storage import Store
 from tools.strings import StringMng
+from type import Boolean
 from worlds import World
 
 
@@ -23,7 +25,7 @@ class Goal:
                  name: str = None,
                  description: str = None,
                  specification: Union[Specification, Contract] = None,
-                 context: Specification = None,
+                 context: Union[Specification, Boolean] = None,
                  world: World = None):
 
         """Read only properties"""
@@ -101,12 +103,15 @@ class Goal:
         return self.__context
 
     @context.setter
-    def context(self, value: Specification):
-        self.__context = value
+    def context(self, value: Union[Specification, Boolean]):
+        if isinstance(value, Boolean):
+            self.__context = value.to_atom()
+        else:
+            self.__context = value
 
-        """Adding (by conjunction) the context as a G(context) as contract assumption"""
-        if value is not None:
-            self.__specification.assumptions &= GF(value)
+        # """Adding (by conjunction) the context as a G(context) as contract assumption"""
+        # if value is not None:
+        #     self.__specification.assumptions &= GF(value)
 
     @property
     def world(self) -> World:
@@ -161,7 +166,7 @@ class Goal:
 
             Store.save_to_file(controller_synthesis_input, "controller_specs.txt", folder_path)
 
-            realized, dot_mealy, time = Controller.generate_controller(a, g, i, o)
+            realized, dot_mealy, kiss_mealy, time = Controller.generate_controller(a, g, i, o)
 
             self.__realizable = realized
             self.__time_synthesis = time
@@ -171,7 +176,7 @@ class Goal:
             else:
                 source = Store.generate_eps_from_dot(dot_mealy, "controller_inverted", folder_path)
 
-            self.__controller = Controller(source=source)
+            self.__controller = Controller(source=source, mealy_machine=kiss_mealy)
 
         except ControllerException as e:
             raise GoalSynthesisFail(self, e)

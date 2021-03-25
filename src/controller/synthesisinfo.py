@@ -4,7 +4,7 @@ from typing import List, Tuple
 from tools.logic import Logic
 
 
-class ControllerInfo:
+class SynthesisInfo:
 
     def __init__(self,
                  assumptions: List[str] = None,

@@ -42,25 +42,38 @@ try:
                    specification=greet,
                    world=w)
 
-
-
-    cgg = Node.disjunction({n_day, n_night})
-    cgg.session_name = "illustrative_example_nogreet"
+    n_day_greet = Node.composition({n_day, n_greet})
+    n_night_greet = Node.composition({n_night, n_greet})
+    cgg = Node.conjunction({n_day_greet, n_night_greet})
+    cgg.session_name = "illustrative_example_conjunction"
+    cgg.save()
+    print(cgg)
+    cgg.session_name = "illustrative_example_conjunction"
     cgg.translate_all_to_buchi()
     cgg.realize_all()
     cgg.save()
     print(cgg)
 
 
-    n_day_greet = Node.conjunction({n_day, n_greet})
-    n_night_greet = Node.conjunction({n_night, n_greet})
-    cgg = Node.disjunction({n_day_greet, n_night_greet})
-    cgg.session_name = "illustrative_example"
-    cgg.translate_all_to_buchi()
-    cgg.realize_all()
-    cgg.save()
-    print(cgg)
-
+    #
+    #
+    # cgg = Node.disjunction({n_day, n_night})
+    # cgg.session_name = "illustrative_example_nogreet"
+    # cgg.translate_all_to_buchi()
+    # cgg.realize_all()
+    # cgg.save()
+    # print(cgg)
+    #
+    #
+    # n_day_greet = Node.conjunction({n_day, n_greet})
+    # n_night_greet = Node.conjunction({n_night, n_greet})
+    # cgg = Node.disjunction({n_day_greet, n_night_greet})
+    # cgg.session_name = "illustrative_example"
+    # cgg.translate_all_to_buchi()
+    # cgg.realize_all()
+    # cgg.save()
+    # print(cgg)
+    # #
 
 except CGGException as e:
     raise e

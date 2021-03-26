@@ -21,6 +21,13 @@ class Controller:
         self.source = source
         self.mealy_machine = mealy_machine
 
+        self.inputs = []
+        self.outputs = []
+        self.initial_state = None
+        self.current_state = None
+        self.transitions = {}
+        self.outputs = {}
+
     @property
     def source(self) -> Source:
         return self.__source
@@ -35,7 +42,6 @@ class Controller:
 
     @mealy_machine.setter
     def mealy_machine(self, value: str):
-        print(value)
         self.__mealy_machine = value
 
     @staticmethod

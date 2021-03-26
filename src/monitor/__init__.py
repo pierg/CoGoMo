@@ -9,6 +9,14 @@ class State(Enum):
     ON_HOOK = auto()
 
 
+class Output(Enum):
+    OFF_HOOK = auto()
+    CONNECTING = auto()
+    CONNECTED = auto()
+    ON_HOLD = auto()
+    ON_HOOK = auto()
+
+
 class Trigger(Enum):
     CALL_DIALED = auto()
     HUNG_UP = auto()

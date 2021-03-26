@@ -120,7 +120,7 @@ class Contract:
         g_typeset |= typeset
 
         """Extracting Inputs and Outputs Including the world"""
-        i_set, o_set = (a_typeset | g_typeset | world_ts).extract_inputs_outputs()
+        i_set, o_set = (a_typeset | g_typeset | world_ts).extract_inputs_outputs_excluding_context()
 
         i_typeset = Typeset(i_set)
         o_typeset = Typeset(o_set)

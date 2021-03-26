@@ -4,7 +4,7 @@ from copy import copy, deepcopy
 from itertools import combinations
 from typing import Set, Dict, Union, TypeVar, List, Tuple
 
-from type import Types
+from type import Types, TypeKinds
 
 AllTypes = TypeVar('AllTypes', bound=Types)
 
@@ -108,6 +108,20 @@ class Typeset(dict):
         o = set()
         if len(self.values()) > 0:
             for t in self.values():
+                if not t.controllable:
+                    i.add(t)
+                else:
+                    o.add(t)
+        return i, o
+
+    def extract_inputs_outputs_excluding_context(self) -> Tuple[Set[Types], Set[Types]]:
+        """Returns a set of types (excluding contexts) in the typeset that are not controllable and controllable"""
+        i = set()
+        o = set()
+        if len(self.values()) > 0:
+            for t in self.values():
+                if t.kind == TypeKinds.CONTEXT:
+                    continue
                 if not t.controllable:
                     i.add(t)
                 else:

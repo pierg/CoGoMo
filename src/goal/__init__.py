@@ -172,11 +172,16 @@ class Goal:
             self.__time_synthesis = time
 
             if realized:
-                source = Store.generate_eps_from_dot(dot_mealy, "controller", folder_path)
+                Store.save_to_file(kiss_mealy, "controller_kiss", folder_path)
+                Store.generate_eps_from_dot(dot_mealy, "controller", folder_path)
             else:
-                source = Store.generate_eps_from_dot(dot_mealy, "controller_inverted", folder_path)
+                Store.save_to_file(kiss_mealy, "controller_inverted_kiss", folder_path)
+                Store.generate_eps_from_dot(dot_mealy, "controller_inverted", folder_path)
 
-            self.__controller = Controller(source=source, mealy_machine=kiss_mealy)
+            self.__controller = Controller(mealy_machine=kiss_mealy, world=self.world)
+            print(f"NAME:\t{self.__name} ({self.__id})")
+            print(self.__controller)
+
 
         except ControllerException as e:
             raise GoalSynthesisFail(self, e)

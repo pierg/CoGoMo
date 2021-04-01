@@ -2,7 +2,7 @@ import hashlib
 import random
 import re
 import string
-from typing import Tuple
+from typing import Tuple, List
 
 from controller.synthesisinfo import SynthesisInfo
 
@@ -79,3 +79,27 @@ class StringMng:
         ret += "\n\nEND\n\n"
 
         return ret
+
+    @staticmethod
+    def get_inputs_from_kiss(text: str) -> List[str]:
+        inputsline = text.splitlines()[0]
+        return inputsline.split()[1:]
+
+    @staticmethod
+    def get_outputs_from_kiss(text: str) -> List[str]:
+        outputsline = text.splitlines()[1]
+        return outputsline.split()[1:]
+
+    @staticmethod
+    def get_states_from_kiss(text: str) -> List[str]:
+        states = []
+        statesline = text.splitlines()[5]
+        state_n = int(statesline.split()[1])
+        for i in range(state_n):
+            states.append(f"S{i}")
+        return states
+
+    @staticmethod
+    def get_initial_state_from_kiss(text: str) -> str:
+        initialstateline = text.splitlines()[6]
+        return initialstateline.split()[1]

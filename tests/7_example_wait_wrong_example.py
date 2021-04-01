@@ -16,22 +16,31 @@ always => if see a person, greet
 """We import the world"""
 w = IllustrativeExample()
 
-"""Strict Ordered Patrolling Location r1, r2"""
-ordered_patrol_day = StrictOrderedPatrolling([w["r1"], w["r2"]])
-print("one\n" + str(ordered_patrol_day))
+"""Strict Patrolling Location r1, r2"""
+patrol_day = Patrolling([w["r1"], w["r2"]])
+print("one\n" + str(patrol_day))
 
 """Strict Ordered Patrolling Location r3, r4"""
 ordered_patrol_night = StrictOrderedPatrolling([w["r3"], w["r4"]])
 print("two\n" + str(ordered_patrol_night))
+
+"""Wait in r1 until see person"""
+wait_person = Wait(w["r1"], w["person"])
+print("three\n" + str(wait_person))
 
 """Only if see a person, greet in the next step"""
 greet = BoundDelay(w["person"], w["greet"])
 
 try:
 
+    n_wait = Node(name="wait",
+                  context=w["day"],
+                  specification=wait_person,
+                  world=w)
+
     n_day = Node(name="day_patrol_a",
                  context=w["day"],
-                 specification=ordered_patrol_day,
+                 specification=patrol_day,
                  world=w)
 
     n_night = Node(name="night_patrol_b",
@@ -43,16 +52,18 @@ try:
                    specification=greet,
                    world=w)
 
-    n_day_greet = Node.composition({n_day, n_greet})
+    n_day_greet = Node.composition({n_day, n_greet, n_wait})
     n_night_greet = Node.composition({n_night, n_greet})
-    cgg = Node.conjunction({n_day_greet, n_night_greet})
-    cgg.session_name = "illustrative_example_good"
-    cgg.realize_all()
-    cgg.save()
-    print(cgg)
-
-    """Orchestration"""
-
+    cgg_con = Node.conjunction({n_day_greet, n_night_greet})
+    cgg_dis = Node.disjunction({n_day_greet, n_night_greet})
+    cgg_con.session_name = "illustrative_example_wrong"
+    # cgg.translate_all_to_buchi()
+    cgg_con.realize_all()
+    cgg_con.save()
+    print("\n\ncon:\n")
+    print(cgg_con.specification.guarantees)
+    print("\n\ndis:\n")
+    print(cgg_dis.specification.guarantees.formula(FormulaOutput.DNF)[0])
 
 
 

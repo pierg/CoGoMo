@@ -102,6 +102,22 @@ class Typeset(dict):
         """ Updates self with self -= element """
         pass
 
+
+    @staticmethod
+    def get_instance_ts(specification_ts: Typeset, world_ts: Typeset) -> Typeset:
+        new_ts = Typeset()
+        new_ts |= specification_ts
+        for t in specification_ts.values():
+            if t.kind == TypeKinds.LOCATION:
+                adjacent_locations = world_ts[t.name].adjacency_set
+                for ta in adjacent_locations:
+                    for elem in world_ts.values():
+                        if type(elem).__name__ == ta:
+                            new_ts |= elem
+        return new_ts
+
+
+
     def extract_inputs_outputs(self) -> Tuple[Set[Types], Set[Types]]:
         """Returns a set of types in the typeset that are not controllable and controllable"""
         i = set()
@@ -133,7 +149,7 @@ class Typeset(dict):
         ret = set()
         if len(self.values()) > 0:
             for t in self.values():
-                if t.action:
+                if t.kind == TypeKinds.ACTION:
                     ret.add(t)
         return ret
 
@@ -142,7 +158,7 @@ class Typeset(dict):
         ret = set()
         if len(self.values()) > 0:
             for t in self.values():
-                if t.location:
+                if t.kind == TypeKinds.LOCATION:
                     ret.add(t)
         return ret
 
@@ -151,7 +167,7 @@ class Typeset(dict):
         ret = set()
         if len(self.values()) > 0:
             for t in self.values():
-                if t.sensor:
+                if t.kind == TypeKinds.SENSOR:
                     ret.add(t)
         return ret
 
@@ -160,7 +176,7 @@ class Typeset(dict):
         ret = set()
         if len(self.values()) > 0:
             for t in self.values():
-                if t.sensor_action:
+                if t.kind == TypeKinds.SENSOR_ACTION:
                     ret.add(t)
         return ret
 
@@ -169,7 +185,7 @@ class Typeset(dict):
         ret = set()
         if len(self.values()) > 0:
             for t in self.values():
-                if t.sensor_location:
+                if t.kind == TypeKinds.SENSOR_LOCATION:
                     ret.add(t)
         return ret
 

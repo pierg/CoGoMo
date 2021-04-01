@@ -16,7 +16,8 @@ class Atom(Specification):
     def __init__(self,
                  formula: Union[str, Tuple[str, Typeset]] = None,
                  kind: AtomKind = None,
-                 check: bool = True):
+                 check: bool = True,
+                 dontcare: bool = False):
         """Atomic Specification (can be an AP, but also an LTL formula that cannot be broken down, e.g. a Pattern)"""
 
         if kind is None:
@@ -32,6 +33,9 @@ class Atom(Specification):
 
         """Indicates if the formula is negated"""
         self.__negation: bool = False
+
+        """Indicates if the formula is a dontcare (weather is true or false)"""
+        self.__dontcare: bool = dontcare
 
         """Used for linking guarantees to assumptions"""
         self.__saturation = None
@@ -56,7 +60,8 @@ class Atom(Specification):
             if self.__saturation is None:
                 expression, typset = self.__base_formula
             else:
-                expression, typset = LogicTuple.implies_(self.__saturation.formula(), self.__base_formula, brackets=True)
+                expression, typset = LogicTuple.implies_(self.__saturation.formula(), self.__base_formula,
+                                                         brackets=True)
         if self.negated:
             return Logic.not_(expression), typset
         return expression, typset
@@ -101,6 +106,10 @@ class Atom(Specification):
     @property
     def negated(self) -> bool:
         return self.__negation
+
+    @property
+    def dontcare(self) -> bool:
+        return self.__dontcare
 
     @staticmethod
     def extract_refinement_rules(typeset: Typeset, output=None) -> Union[Atom, Tuple[List[str], Typeset]]:
@@ -226,6 +235,12 @@ class Atom(Specification):
         """Returns a new Specification with the negation of self"""
         new_formula = deepcopy(self)
         new_formula.__negation = not new_formula.__negation
+        return new_formula
+
+    def get_dontcare(self) -> Atom:
+        """Returns a new Specification which is a don't care of self"""
+        new_formula = deepcopy(self)
+        new_formula.__dontcare = True
         return new_formula
 
     def __rshift__(self, other: Union[Atom, Formula]) -> Formula:

@@ -45,14 +45,17 @@ try:
 
     n_day_greet = Node.composition({n_day, n_greet})
     n_night_greet = Node.composition({n_night, n_greet})
-    cgg = Node.conjunction({n_day_greet, n_night_greet})
-    cgg.session_name = "illustrative_example_good"
-    cgg.realize_all()
-    cgg.save()
-    print(cgg)
-
-    """Orchestration"""
-
+    cgg_con = Node.conjunction({n_day_greet, n_night_greet})
+    cgg_dis = Node.disjunction({n_day_greet, n_night_greet})
+    cgg_con.session_name = "illustrative_example_good"
+    # cgg.translate_all_to_buchi()
+    cgg_con.realize_all()
+    cgg_con.save()
+    print(cgg_con)
+    print("\n\ncon:\n")
+    print(cgg_con.specification.guarantees)
+    print("\n\ndis:\n")
+    print(cgg_dis.specification.guarantees.formula(FormulaOutput.DNF)[0])
 
 
 

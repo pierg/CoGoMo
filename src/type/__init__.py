@@ -18,6 +18,9 @@ class Types(ABC):
     def __init__(self, name: str):
         self.__name: str = name
 
+    def __str__(self):
+        return self.__name
+
     @property
     def name(self) -> str:
         return self.__name
@@ -28,36 +31,6 @@ class Types(ABC):
     @property
     def controllable(self) -> bool:
         if self.kind == TypeKinds.SENSOR or self.kind == TypeKinds.CONTEXT:
-            return False
-        return True
-
-    @property
-    def sensor(self) -> bool:
-        if self.kind == TypeKinds.SENSOR:
-            return False
-        return True
-
-    @property
-    def sensor_action(self) -> bool:
-        if self.kind == TypeKinds.SENSOR_ACTION:
-            return False
-        return True
-
-    @property
-    def sensor_location(self) -> bool:
-        if self.kind == TypeKinds.SENSOR_LOCATION:
-            return False
-        return True
-
-    @property
-    def action(self) -> bool:
-        if self.kind == TypeKinds.ACTION:
-            return False
-        return True
-
-    @property
-    def location(self) -> bool:
-        if self.kind == TypeKinds.LOCATION:
             return False
         return True
 
@@ -83,7 +56,7 @@ class Boolean(Types):
     def to_atom(self):
         from specification.atom import Atom
         from typeset import Typeset
-        return Atom(formula=(self.name, Typeset({self})))
+        return Atom(formula=(self.name, Typeset({self})), check=False)
 
     @property
     def mutex_group(self) -> str:

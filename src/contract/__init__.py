@@ -119,8 +119,10 @@ class Contract:
         guarantees.extend(list)
         g_typeset |= typeset
 
+        instance_ts = Typeset.get_instance_ts((a_typeset | g_typeset), world_ts)
+
         """Extracting Inputs and Outputs Including the world"""
-        i_set, o_set = (a_typeset | g_typeset | world_ts).extract_inputs_outputs_excluding_context()
+        i_set, o_set = instance_ts.extract_inputs_outputs_excluding_context()
 
         i_typeset = Typeset(i_set)
         o_typeset = Typeset(o_set)

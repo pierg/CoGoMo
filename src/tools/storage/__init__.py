@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-
 from graphviz import Source
 
 
@@ -10,7 +9,7 @@ class Store:
     @staticmethod
     def save_to_file(text: str, file_name: str, folder_name=None):
 
-        if Path(file_name).suffix is None:
+        if Path(file_name).suffix == "":
             file_name += ".txt"
 
         if folder_name is not None:
@@ -42,6 +41,5 @@ class Store:
         source.render(cleanup=True)
         print(f"{output_folder}/{file_name} -> DOT and EPS files generated")
 
-        return source
 
 

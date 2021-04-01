@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+import itertools
 from enum import Enum, auto
-from typing import Dict, Set, Union
+from typing import Dict, Set, Union, Tuple, List
 
 from contract import Contract, Specification
 from goal import Goal
 from goal.cgg.exceptions import CGGOperationFail, CGGFailOperations
 from goal.exceptions import GoalException
+from specification import NotSatisfiableException
 from tools.storage import Store
 from worlds import World
 
@@ -100,8 +102,8 @@ class Node(Goal):
                 ret |= values
         return ret
 
-
-    def translate_all_to_buchi(self, traversal: GraphTraversal = GraphTraversal.DFS, explored: Set[Node] = None, root = None):
+    def translate_all_to_buchi(self, traversal: GraphTraversal = GraphTraversal.DFS, explored: Set[Node] = None,
+                               root=None):
         """Realize all nodes of the CGG"""
 
         if root is None:
@@ -123,7 +125,7 @@ class Node(Goal):
         if traversal == GraphTraversal.BFS:
             raise NotImplemented
 
-    def realize_all(self, traversal: GraphTraversal = GraphTraversal.DFS, explored: Set[Node] = None, root = None):
+    def realize_all(self, traversal: GraphTraversal = GraphTraversal.DFS, explored: Set[Node] = None, root=None):
         """Realize all nodes of the CGG"""
 
         if root is None:
@@ -189,3 +191,71 @@ class Node(Goal):
         new_node.add_children(link=Link.DISJUNCTION, nodes=nodes)
 
         return new_node
+
+    @staticmethod
+    def build_cgg(nodes: Set[Node], name: str = None, description: str = None) -> Node:
+
+        contexts = [g.context for g in nodes if g.context is not None]
+
+        """Extract all combinations of context which are consistent"""
+        saturated_combinations = []
+        for i in range(0, len(contexts)):
+            """Extract all combinations of i context and saturate it"""
+            combinations = itertools.combinations(contexts, i + 1)
+            for combination in combinations:
+                saturated_combination = combination[0]
+                try:
+                    for element in combination[1:]:
+                        saturated_combination &= element
+                    for context in contexts:
+                        if context not in combination:
+                            saturated_combination &= ~context
+                except NotSatisfiableException:
+                    continue
+                saturated_combinations.append(saturated_combination)
+
+        print("\n".join(x.string for x in saturated_combinations))
+
+        """Group combinations"""
+        saturated_combinations_grouped = list(saturated_combinations)
+        for c_a in saturated_combinations:
+            for c_b in saturated_combinations:
+                if c_a is not c_b and c_a <= c_b:
+                    saturated_combinations_grouped.remove(c_b)
+
+        print("\n".join(x.string for x in saturated_combinations))
+
+        """Map to goals"""
+        mapped_goals = set()
+        context_goal_map: Dict[Specification, Set[Node]] = {}
+        for goal in nodes:
+            if goal.context is not None:
+                for combination in saturated_combinations_grouped:
+                    if combination <= goal.context:
+                        if combination in context_goal_map:
+                            context_goal_map[combination].add(goal)
+                        else:
+                            context_goal_map[combination] = {goal}
+                        mapped_goals.add(goal)
+            else:
+                for combination in saturated_combinations_grouped:
+                    if combination in context_goal_map:
+                        context_goal_map[combination].add(goal)
+                    else:
+                        context_goal_map[combination] = {goal}
+                    mapped_goals.add(goal)
+
+        if mapped_goals != nodes:
+            raise Exception("Not all goals have been mapped!")
+        print("All goals have been mapped to mutually exclusive context")
+
+        """Building the cgg..."""
+        composed_goals = set()
+        for mutex_context, cluster in context_goal_map.items():
+            new_node = Node.composition(cluster)
+            new_node.context = mutex_context
+            composed_goals.add(new_node)
+
+        cgg = Node.conjunction(composed_goals)
+        return cgg
+

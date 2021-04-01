@@ -1,9 +1,9 @@
 from goal.cgg import Node, Link
 from goal.cgg.exceptions import CGGException
-from specification import FormulaOutput
 from specification.atom.pattern.robotics.coremovement.surveillance import *
 from specification.atom.pattern.robotics.trigger.triggers import InstantaneousReaction, BoundReaction, Wait, \
     GlobalAvoidance, BoundDelay
+from worlds.crome import Crome
 from worlds.illustrative_example import IllustrativeExample
 
 """Illustrative Example:
@@ -14,7 +14,7 @@ always => if see a person, greet
 """
 
 """We import the world"""
-w = IllustrativeExample()
+w = Crome()
 
 """Strict Ordered Patrolling Location r1, r2"""
 ordered_patrol_day = StrictOrderedPatrolling([w["r1"], w["r2"]])
@@ -26,6 +26,9 @@ print("two\n" + str(ordered_patrol_night))
 
 """Only if see a person, greet in the next step"""
 greet = BoundDelay(w["person"], w["greet"])
+
+"""Only if see a person, greet in the next step"""
+cure = InstantaneousReaction(w["person"], w["cure"])
 
 try:
 
@@ -39,20 +42,17 @@ try:
                    specification=ordered_patrol_night,
                    world=w)
 
+    n_cure = Node(name="cure",
+                  context=w["severe"],
+                  specification=cure,
+                  world=w)
+
     n_greet = Node(name="greet_person",
                    specification=greet,
                    world=w)
 
-    n_day_greet = Node.composition({n_day, n_greet})
-    n_night_greet = Node.composition({n_night, n_greet})
-    cgg = Node.conjunction({n_day_greet, n_night_greet})
-    cgg.session_name = "illustrative_example_good"
-    cgg.realize_all()
-    cgg.save()
+    cgg = Node.build_cgg({n_day, n_night, n_greet, n_cure})
     print(cgg)
-
-    """Orchestration"""
-
 
 
 

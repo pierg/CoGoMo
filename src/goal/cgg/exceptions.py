@@ -32,3 +32,8 @@ class CGGOperationFail(CGGException):
                   f"{', '.join(g.name for g in self.nodes)}"
         super().__init__(message=message)
 
+
+class TransSynthesisFail(CGGException):
+    def __init__(self, e):
+        message = f"A failure has occurred while synthetizing the transition controllers\n{e}"
+        super().__init__(message=message)

@@ -11,7 +11,7 @@ from controller.exceptions import SynthesisTimeout, OutOfMemoryException, Unknow
 from specification.atom import Atom
 from tools.logic import Logic
 from tools.strings import StringMng
-from type import Boolean
+from type import Boolean, TypeKinds
 from worlds import World
 
 strix_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'bin', 'ubuntu_19_10', 'strix'))
@@ -166,6 +166,14 @@ class Controller:
     @property
     def output_alphabet(self) -> List[Boolean]:
         return self.__output_alphabet
+
+    @property
+    def locations(self) -> List[Boolean]:
+        locations = []
+        for element in self.__output_alphabet:
+            if element.kind == TypeKinds.LOCATION:
+                locations.append(element)
+        return locations
 
     @property
     def transitions(self) -> Dict[Tuple[List[Atom], str], Tuple[str, Tuple[List[Atom]]]]:

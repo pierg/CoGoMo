@@ -109,10 +109,6 @@ class Goal:
         else:
             self.__context = value
 
-        # """Adding (by conjunction) the context as a G(context) as contract assumption"""
-        # if value is not None:
-        #     self.__specification.assumptions &= GF(value)
-
     @property
     def world(self) -> World:
         return self.__world
@@ -154,19 +150,19 @@ class Goal:
         else:
             folder_path = f"{cgg_path}/{self.__goal_folder_name}"
 
-        if self.__world is not None:
-            controller_info = self.specification.get_controller_info(world_ts=self.__world)
-        else:
-            controller_info = self.specification.get_controller_info()
-
-        a, g, i, o = controller_info.get_strix_inputs()
-
         try:
+            controller_info = self.specification.get_controller_info()
+            a, g, i, o = controller_info.get_strix_inputs()
             controller_synthesis_input = StringMng.get_controller_synthesis_str(controller_info)
-
             Store.save_to_file(controller_synthesis_input, "controller_specs.txt", folder_path)
-
             realized, dot_mealy, kiss_mealy, time = Controller.generate_controller(a, g, i, o)
+
+            if not realized:
+                controller_info = self.specification.get_controller_info(world_ts=self.__world)
+                a, g, i, o = controller_info.get_strix_inputs()
+                controller_synthesis_input = StringMng.get_controller_synthesis_str(controller_info)
+                Store.save_to_file(controller_synthesis_input, "controller_specs.txt", folder_path)
+                realized, dot_mealy, kiss_mealy, time = Controller.generate_controller(a, g, i, o)
 
             self.__realizable = realized
             self.__time_synthesis = time
@@ -181,6 +177,8 @@ class Goal:
             self.__controller = Controller(mealy_machine=kiss_mealy, world=self.world)
             print(f"NAME:\t{self.__name} ({self.__id})")
             print(self.__controller)
+            Store.save_to_file(str(self.__controller), "controller_table", folder_path)
+
 
 
         except ControllerException as e:

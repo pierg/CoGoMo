@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import Set, Tuple, List
 
 from contract.exceptions import *
 from controller.synthesisinfo import SynthesisInfo
@@ -119,7 +118,10 @@ class Contract:
         guarantees.extend(list)
         g_typeset |= typeset
 
-        instance_ts = Typeset.get_instance_ts((a_typeset | g_typeset), world_ts)
+        if world_ts is not None:
+            instance_ts = Typeset.get_instance_ts((a_typeset | g_typeset), world_ts)
+        else:
+            instance_ts = (a_typeset | g_typeset)
 
         """Extracting Inputs and Outputs Including the world"""
         i_set, o_set = instance_ts.extract_inputs_outputs_excluding_context()

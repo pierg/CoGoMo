@@ -43,15 +43,13 @@ try:
                    specification=greet,
                    world=w)
 
-    n_day_greet = Node.composition({n_day, n_greet})
-    n_night_greet = Node.composition({n_night, n_greet})
-    cgg_con = Node.conjunction({n_day_greet, n_night_greet})
-    cgg_dis = Node.disjunction({n_day_greet, n_night_greet})
-    print(cgg_con)
-    print("\n\ncon:\n")
-    print(cgg_con.specification.guarantees)
-    print("\n\ndis:\n")
-    print(cgg_dis.specification.guarantees.formula(FormulaOutput.DNF)[0])
+    cgg = Node.build_cgg({n_day, n_night, n_greet})
+    cgg.session_name = "orchestration"
+    cgg.realize_all()
+    cgg.save()
+    print(cgg)
+    cgg.orchestrate(50, 3, 3)
+
 
 
 

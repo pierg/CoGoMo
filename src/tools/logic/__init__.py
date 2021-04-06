@@ -43,7 +43,8 @@ class LogicTuple:
             raise Exception("List of propositions is empty")
 
     @staticmethod
-    def implies_(prop_1: Tuple[str, Typeset], prop_2: Tuple[str, Typeset], brackets: bool = False) -> Tuple[str, Typeset]:
+    def implies_(prop_1: Tuple[str, Typeset], prop_2: Tuple[str, Typeset], brackets: bool = False) -> Tuple[
+        str, Typeset]:
         """Returns an Tuple[str, Typeset] formula representing the logical IMPLIES of prop_1 and prop_2"""
         if prop_1[0] == "TRUE":
             return prop_2[0], prop_2[1]
@@ -124,14 +125,12 @@ class Logic:
             return prop_2
         return f"(({prop_1}) -> ({prop_2}))"
 
-
     @staticmethod
     def iff_(prop_1: str, prop_2: str) -> str:
         """Returns an str formula representing the logical IFF of prop_1 and prop_2"""
         if prop_1 == "TRUE" or prop_1 == "(TRUE)" or prop_1 == "true" or prop_1 == "(true)":
             return prop_2
         return f"(({prop_1}) <-> ({prop_2}))"
-
 
     @staticmethod
     def not_(prop: str) -> str:
@@ -150,6 +149,17 @@ class Logic:
     def x_(prop: str) -> str:
         """Next"""
         return f"X({prop})"
+
+    @staticmethod
+    def xn_(prop: str, n: int) -> str:
+        """n times Next"""
+        ret = ""
+        for i in range(n):
+            ret += "X("
+        ret += prop
+        for i in range(n):
+            ret += ")"
+        return ret
 
     @staticmethod
     def f_(prop: str) -> str:

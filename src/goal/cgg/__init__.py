@@ -5,11 +5,18 @@ from enum import Enum, auto
 from typing import Dict, Set, Union, Tuple, List
 
 from contract import Contract, Specification
+from controller import Controller
+from controller.exceptions import ControllerException
 from goal import Goal
-from goal.cgg.exceptions import CGGOperationFail, CGGFailOperations
+from goal.cgg.exceptions import CGGOperationFail, CGGFailOperations, TransSynthesisFail
 from goal.exceptions import GoalException
 from specification import NotSatisfiableException
+from specification.atom import Atom
+from tools.logic import Logic
 from tools.storage import Store
+from tools.strings import StringMng
+from type import Types, Boolean
+from typeset import Typeset
 from worlds import World
 
 
@@ -51,6 +58,8 @@ class Node(Goal):
 
         self.__cgg_folder_name = f"cgg_root_{self.id}"
 
+        self.__t_controllers_folder = f"{self.cgg_folder_name}/t_controllers"
+
     from ._printing import __str__
 
     @property
@@ -59,6 +68,10 @@ class Node(Goal):
             return f"{self.__cgg_folder_name}"
         else:
             return f"{self.session_name}/{self.__cgg_folder_name}"
+
+    @property
+    def t_controllers_folder(self) -> str:
+        return self.__t_controllers_folder
 
     @property
     def parents(self) -> Dict[Link, Set[Node]]:
@@ -124,6 +137,66 @@ class Node(Goal):
 
         if traversal == GraphTraversal.BFS:
             raise NotImplemented
+
+    def get_scenarios(self) -> Set[Node]:
+        if Link.CONJUNCTION in self.children:
+            return self.children[Link.CONJUNCTION]
+
+    def create_transition_controller(self, start: Types, finish: Types, t_trans: int) -> Controller:
+        t_controller_folder = f"/{self.t_controllers_folder}/{start.name}-{finish.name}"
+        typeset = Typeset({start, finish})
+        realizable = False
+        for n_steps in range(1, t_trans):
+            trans_spec_str = Logic.and_([start.name, Logic.xn_(finish.name, n_steps)])
+            trans_spec = Atom(formula=(trans_spec_str, typeset))
+            trans_contract = Contract(guarantees=trans_spec)
+            try:
+                controller_info = trans_contract.get_controller_info(world_ts=self.world)
+                a, g, i, o = controller_info.get_strix_inputs()
+                controller_synthesis_input = StringMng.get_controller_synthesis_str(controller_info)
+                Store.save_to_file(controller_synthesis_input,
+                                   f"t_controller_{start.name}_{finish.name}_specs.txt", t_controller_folder)
+                realized, dot_mealy, kiss_mealy, time = Controller.generate_controller(a, g, i, o)
+                if realized:
+                    realizable = True
+                    break
+            except ControllerException as e:
+                raise TransSynthesisFail(self, e)
+        if not realizable:
+            raise Exception(
+                f"Controller [{start.name}, {finish.name}] cannot be synthetized in {t_trans} steps")
+        else:
+            Store.save_to_file(kiss_mealy, f"{start.name}_{finish.name}_mealy",
+                               t_controller_folder)
+            Store.generate_eps_from_dot(dot_mealy, f"{start.name}_{finish.name}_dot",
+                                        t_controller_folder)
+
+            t_controller = Controller(mealy_machine=kiss_mealy, world=self.world)
+            Store.save_to_file(str(t_controller), f"{start.name}_{finish.name}_table", t_controller_folder)
+
+            return t_controller
+
+    def orchestrate(self, n_steps: int, t_context: int, t_trans: int):
+        scenarios = self.get_scenarios()
+
+        """Context -> Specification Controllers"""
+        s_controllers: Dict[Specification, Controller] = {}
+        for scenario in scenarios:
+            s_controllers[scenario.context] = scenario.controller
+        t_controllers: Dict[Tuple[Boolean, Boolean], Controller] = {}
+
+        """Generating Transition Controllers"""
+        for scenario_a, scenario_b in itertools.combinations(scenarios, 2):
+            print(", ".join([x.name for x in scenario_a.controller.locations]))
+            print(", ".join([x.name for x in scenario_b.controller.locations]))
+            for start, finish in itertools.product(scenario_a.controller.locations, scenario_b.controller.locations):
+                t_controllers[(start, finish)] = self.create_transition_controller(start, finish, t_trans)
+                t_controllers[(finish, start)] = self.create_transition_controller(start, finish, t_trans)
+
+        print(f"{len(t_controllers)} transition controllers generated:")
+        for start,finish in t_controllers.keys():
+            print()
+
 
     def realize_all(self, traversal: GraphTraversal = GraphTraversal.DFS, explored: Set[Node] = None, root=None):
         """Realize all nodes of the CGG"""
@@ -193,9 +266,13 @@ class Node(Goal):
         return new_node
 
     @staticmethod
-    def build_cgg(nodes: Set[Node], name: str = None, description: str = None) -> Node:
+    def build_cgg(nodes: Set[Node], kind: Link = Link.CONJUNCTION) -> Node:
 
-        contexts = [g.context for g in nodes if g.context is not None]
+        contexts = set()
+
+        for g in nodes:
+            if g.context is not None:
+                contexts.add(g.context)
 
         """Extract all combinations of context which are consistent"""
         saturated_combinations = []
@@ -220,7 +297,7 @@ class Node(Goal):
         saturated_combinations_grouped = list(saturated_combinations)
         for c_a in saturated_combinations:
             for c_b in saturated_combinations:
-                if c_a is not c_b and c_a <= c_b:
+                if c_a is not c_b and c_a <= c_b and c_b in saturated_combinations_grouped:
                     saturated_combinations_grouped.remove(c_b)
 
         print("\n".join(x.string for x in saturated_combinations))
@@ -256,6 +333,10 @@ class Node(Goal):
             new_node.context = mutex_context
             composed_goals.add(new_node)
 
-        cgg = Node.conjunction(composed_goals)
+        if kind == Link.CONJUNCTION:
+            cgg = Node.conjunction(composed_goals)
+        elif kind == Link.DISJUNCTION:
+            cgg = Node.disjunction(composed_goals)
+        else:
+            cgg = Node.conjunction(composed_goals)
         return cgg
-

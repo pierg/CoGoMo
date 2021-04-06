@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import Tuple, Union, List, Type
+from typing import Tuple, Union, List
 from specification import Specification
 from specification.enums import *
 from specification.exceptions import AtomNotSatisfiableException

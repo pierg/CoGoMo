@@ -252,3 +252,4 @@ class Typeset(dict):
     @property
     def adjacent_types(self) -> Dict[AllTypes, Set[AllTypes]]:
         return self.__adjacent_types
+

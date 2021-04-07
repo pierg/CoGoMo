@@ -12,6 +12,7 @@ GOALS to model:
 during context day => start from r1, patrol r1, r2 
 during context night => start from r3, patrol r3, r4 
 always => if see a person, greet
+during day =>
 """
 
 """We import the world"""
@@ -52,11 +53,11 @@ try:
     cgg_c.save()
     print(cgg_c)
 
-    # cgg_d = Node.build_cgg({n_day, n_night, n_greet}, Link.DISJUNCTION)
-    # cgg_d.session_name = "instant_action_under_context_disjunction"
-    # cgg_d.realize_all()
-    # cgg_d.save()
-    # print(cgg_d)
+    cgg_d = Node.build_cgg({n_day, n_night, n_greet}, Link.DISJUNCTION)
+    cgg_d.session_name = "instant_action_under_context_disjunction"
+    cgg_d.realize_specification_controllers()
+    cgg_d.save()
+    print(cgg_d)
 
     conjunction = str(cgg_c.specification.guarantees)
     conjunction = conjunction.replace("r1", "location=r1") \
@@ -65,12 +66,12 @@ try:
         .replace("r4", "location=r4").replace("r5", "location=r5")
     print(f"--conjunction\nLTLSPEC {conjunction}")
 
-    # disjunction = str(cgg_d.specification.guarantees.formula(FormulaOutput.DNF)[0])
-    # disjunction = disjunction.replace("r1", "location=r1") \
-    #     .replace("r2", "location=r2") \
-    #     .replace("r3", "location=r3") \
-    #     .replace("r4", "location=r4").replace("r5", "location=r5")
-    # print(f"--disjunction\nLTLSPEC {disjunction}")
+    disjunction = str(cgg_d.specification.guarantees.formula(FormulaOutput.DNF)[0])
+    disjunction = disjunction.replace("r1", "location=r1") \
+        .replace("r2", "location=r2") \
+        .replace("r3", "location=r3") \
+        .replace("r4", "location=r4").replace("r5", "location=r5")
+    print(f"--disjunction\nLTLSPEC {disjunction}")
 
 
 except CGGException as e:

@@ -41,7 +41,7 @@ class Goal:
         self.world: World = world
 
         self.__session_name = None
-        self.__goal_folder_name = f"goals/{self.__id}"
+        self.__goal_folder_name = f"s_controllers/{self.__id}"
 
     def __str__(self):
         return Goal.pretty_print_goal(self)
@@ -63,7 +63,10 @@ class Goal:
 
     @property
     def session_name(self) -> str:
+        if self.__session_name is None:
+            return Store.output_folder
         return self.__session_name
+
 
     @session_name.setter
     def session_name(self, value: str):
@@ -144,6 +147,9 @@ class Goal:
 
     def realize_to_controller(self, cgg_path: str = None):
         """Realize the goal into a Controller object"""
+
+        if self.controller is not None:
+            return
 
         if cgg_path is None:
             folder_path = self.goal_folder_name

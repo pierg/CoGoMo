@@ -75,7 +75,7 @@ try:
     cgg.session_name = "case_1"
 
     cgg.translate_all_to_buchi()
-    cgg.realize_all()
+    cgg.realize_specification_controllers()
     cgg.save()
 
     print(cgg)
@@ -100,7 +100,7 @@ try:
     cgg.session_name = "case_2"
 
     cgg.translate_all_to_buchi()
-    cgg.realize_all()
+    cgg.realize_specification_controllers()
     cgg.save()
 
     print(cgg)
@@ -126,7 +126,7 @@ try:
     cgg.session_name = "case_3"
 
     cgg.translate_all_to_buchi()
-    cgg.realize_all()
+    cgg.realize_specification_controllers()
     cgg.save()
 
     print(cgg)
@@ -178,7 +178,7 @@ try:
     cgg.session_name = "case_3b"
 
     cgg.translate_all_to_buchi()
-    cgg.realize_all()
+    cgg.realize_specification_controllers()
     cgg.save()
 
     print(cgg)

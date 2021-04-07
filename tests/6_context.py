@@ -81,7 +81,7 @@ try:
     cgg.session_name = "case_3b_context"
 
     cgg.translate_all_to_buchi()
-    cgg.realize_all()
+    cgg.realize_specification_controllers()
     cgg.save()
 
     print(cgg)

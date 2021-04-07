@@ -1,4 +1,9 @@
 from __future__ import annotations
+
+import itertools
+import random
+from random import choices
+
 from tabulate import tabulate
 import os
 import subprocess
@@ -8,10 +13,11 @@ from typing import Tuple, List, Dict
 from graphviz import Source
 
 from controller.exceptions import SynthesisTimeout, OutOfMemoryException, UnknownStrixResponse
-from specification.atom import Atom
+from specification.atom import Atom, AtomKind
 from tools.logic import Logic
 from tools.strings import StringMng
 from type import Boolean, TypeKinds
+from type.subtypes.locations import ReachLocation
 from worlds import World
 
 strix_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'bin', 'ubuntu_19_10', 'strix'))
@@ -25,6 +31,7 @@ class Controller:
 
         self.world = world
         self.mealy_machine = mealy_machine
+        self.__current_location = None
 
     def __str__(self):
         output = f"States          \t {', '.join(self.states)}" + \
@@ -71,15 +78,41 @@ class Controller:
     def mealy_machine(self) -> str:
         return self.__mealy_machine
 
-    def react(self, inputs: Tuple[Atom]) -> Tuple[Tuple[Atom]]:
+    def react(self, inputs: Tuple[Atom]) -> Tuple[Atom]:
         """Take a reaction in the mealy machine"""
         (next_state, outputs) = self.__transitions[(inputs, self.__current_state)]
         self.__current_state = next_state
-        return outputs
+        output_choice = random.sample(outputs, 1)[0]
+        for o in output_choice:
+            if o.kind == TypeKinds.LOCATION and not o.negated:
+                self.__current_location = o
+        return output_choice
 
     def reset(self):
         """Reset mealy machine"""
         self.__current_state = self.__initial_state
+
+    def simulate_inputs(self, active_probability: int = 0.2) -> Tuple[Atom]:
+        inputs_assignment = []
+        for input, values in self.__inputs_ap.items():
+            """random choice between input true [0] or false [1] with prob distribution """
+            inputs_assignment.append(choices([values[0], values[1]], [active_probability, 1 - active_probability]))
+
+        return tuple(*inputs_assignment)
+
+    def all_inputs_combinations(self) -> List[Tuple[Atom]]:
+        binary_assignments = list(itertools.product([True, False], repeat=len(self.input_alphabet)))
+        inputs_assignments = []
+        for assignment in binary_assignments:
+            inputs = []
+            for i, input in enumerate(self.input_alphabet):
+                if assignment[i]:
+                    inputs.append(self.__inputs_ap[input][0])
+                else:
+                    inputs.append(self.__inputs_ap[input][1])
+            inputs_assignments.append(tuple(inputs))
+        return inputs_assignments
+
 
     @mealy_machine.setter
     def mealy_machine(self, value: str):
@@ -113,7 +146,7 @@ class Controller:
         self.__transitions: Dict[Tuple[Tuple[Atom], str], Tuple[str, Tuple[Tuple[Atom]]]] = {}
         for line in value.splitlines()[7:]:
             transition = line.split()
-            if(len(self.__input_alphabet) == 0):
+            if (len(self.__input_alphabet) == 0):
                 input_str = ""
                 cur_state_str = transition[0]
                 next_state_str = transition[1]
@@ -176,7 +209,7 @@ class Controller:
         return locations
 
     @property
-    def transitions(self) -> Dict[Tuple[List[Atom], str], Tuple[str, Tuple[List[Atom]]]]:
+    def transitions(self) -> Dict[Tuple[Tuple[Atom], str], Tuple[str, Tuple[Tuple[Atom]]]]:
         return self.__transitions
 
     @property
@@ -187,11 +220,33 @@ class Controller:
     def current_state(self) -> str:
         return self.__current_state
 
+    @property
+    def current_location(self) -> ReachLocation:
+        if self.__current_location is None:
+            """The mealy-machine has never reacted before"""
+            outputs_choices = []
+            for inputs in self.all_inputs_combinations():
+                (next_state, outputs) = self.__transitions[(inputs, self.__current_state)]
+                output_choice = random.sample(outputs, 1)[0]
+                outputs_choices.append(output_choice)
+            current_location = None
+            for outputs in outputs_choices:
+                for o in outputs:
+                    if o.kind == AtomKind.LOCATION and not o.negated:
+                        loc = list(o.typeset.values())[0]
+                        if current_location is not None:
+                            if loc is not current_location:
+                                raise Exception("Location depends on future inputs!")
+                        else:
+                            current_location = loc
+            self.__current_location = current_location
+        return self.__current_location
+
     @staticmethod
     def generate_controller(assumptions: str, guarantees: str, ins: str, outs: str) -> Tuple[bool, str, str, float]:
         """It returns:
             bool: indicating if a contorller has been synthetised
-            str: mealy machine of the controller (if found) or of the counter-example if not found in dot format
+            str: mealy machine of the controller (if found) or of the counter-examples if not found in dot format
             float: indicating the controller time"""
 
         global command_dot, timeout

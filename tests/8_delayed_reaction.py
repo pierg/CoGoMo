@@ -48,13 +48,13 @@ try:
 
     cgg_c = Node.build_cgg({n_day, n_night, n_greet}, Link.CONJUNCTION)
     cgg_c.session_name = "delayed_action_under_context_conjunction"
-    cgg_c.realize_all()
+    cgg_c.realize_specification_controllers()
     cgg_c.save()
     print(cgg_c)
 
     cgg_d = Node.build_cgg({n_day, n_night, n_greet}, Link.DISJUNCTION)
     cgg_d.session_name = "delayed_action_under_context_disjunction"
-    cgg_d.realize_all()
+    cgg_d.realize_specification_controllers()
     cgg_d.save()
     print(cgg_d)
 

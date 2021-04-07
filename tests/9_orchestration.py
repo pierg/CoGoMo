@@ -1,9 +1,13 @@
+import os
+import pickle
+
 from goal.cgg import Node, Link
 from goal.cgg.exceptions import CGGException
 from specification import FormulaOutput
 from specification.atom.pattern.robotics.coremovement.surveillance import *
 from specification.atom.pattern.robotics.trigger.triggers import InstantaneousReaction, BoundReaction, Wait, \
     GlobalAvoidance, BoundDelay
+from tools.persistence import Persistence
 from worlds.illustrative_example import IllustrativeExample
 
 """Illustrative Example:
@@ -44,11 +48,11 @@ try:
                    world=w)
 
     cgg = Node.build_cgg({n_day, n_night, n_greet})
-    cgg.session_name = "orchestration"
-    cgg.realize_all()
+    cgg.session_name = "running_example"
     cgg.save()
+    cgg.realize_all(t_trans=3)
+    Persistence.dump_cgg(cgg)
     print(cgg)
-    cgg.orchestrate(50, 3, 3)
 
 
 

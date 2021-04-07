@@ -1,8 +1,12 @@
 from __future__ import annotations
 
 import itertools
+import os
 from enum import Enum, auto
+import random
 from typing import Dict, Set, Union, Tuple, List
+
+from tabulate import tabulate
 
 from contract import Contract, Specification
 from controller import Controller
@@ -58,7 +62,8 @@ class Node(Goal):
 
         self.__cgg_folder_name = f"cgg_root_{self.id}"
 
-        self.__t_controllers_folder = f"{self.cgg_folder_name}/t_controllers"
+        self.__t_trans: int = 0
+        self.__t_controllers: Dict[Tuple[Boolean, Boolean], Controller] = {}
 
     from ._printing import __str__
 
@@ -70,8 +75,16 @@ class Node(Goal):
             return f"{self.session_name}/{self.__cgg_folder_name}"
 
     @property
+    def cgg_folder(self) -> str:
+        return f"{self.session_name}"
+
+    @property
+    def t_trans(self) -> int:
+        return self.__t_trans
+
+    @property
     def t_controllers_folder(self) -> str:
-        return self.__t_controllers_folder
+        return f"{self.session_name}/t_controllers"
 
     @property
     def parents(self) -> Dict[Link, Set[Node]]:
@@ -80,6 +93,16 @@ class Node(Goal):
     @property
     def children(self) -> Dict[Link, Set[Node]]:
         return self.__children
+
+    @property
+    def storage_file(self):
+
+        output_file = f"{Store.output_folder}/cgg.dat"
+
+        if not os.path.exists(Store.output_folder):
+            os.makedirs(Store.output_folder)
+
+        return open(output_file, 'wb')
 
     def add_parents(self, link: Link, nodes: Set[Node]):
         if link in self.__parents.keys():
@@ -142,6 +165,118 @@ class Node(Goal):
         if Link.CONJUNCTION in self.children:
             return self.children[Link.CONJUNCTION]
 
+    def orchestrate(self, n_steps: int, t_min_context: int):
+        if t_min_context < self.t_trans:
+            raise Exception("T context min < T transition max")
+
+        scenarios = self.get_scenarios()
+        active_scenario = random.sample(scenarios, 1)[0]
+
+        headers = ["t", "context", "inputs", "outputs"]
+        history: List[List[str]] = []
+
+        """Counter for how long the current context has been active"""
+        active_context_count = 0
+        """Context switch probability, it will be linearly increased up to 0.9"""
+        cs_prob = 0.2
+        context_switch = False
+        for i in range(n_steps):
+            active_context_count += 1
+            if active_context_count >= t_min_context:
+                """Calculating context-switch probability"""
+                if cs_prob < 0.9:
+                    cs_prob = cs_prob + 0.05 * (active_context_count - t_min_context)
+                context_switch = random.choices([True, False], [cs_prob, 1 - cs_prob])
+            if context_switch:
+                new_scenario = random.sample(scenarios, 1)[0]
+                while new_scenario is active_scenario:
+                    new_scenario = random.sample(scenarios, 1)[0]
+
+                start = active_scenario.controller.current_location
+                destination = new_scenario.controller.current_location
+                t_ctrl = self.__t_controllers[(start, destination)]
+                active_scenario = new_scenario
+                active_context_count = 0
+                cs_prob = 0.2
+
+            s_ctrl = active_scenario.controller
+            """Take a step"""
+            inputs = s_ctrl.simulate_inputs()
+            outputs = s_ctrl.react(inputs)
+            context_str = active_scenario.context.string
+            inputs_str = []
+            for x in inputs:
+                if not x.negated:
+                    inputs_str.append(str(x))
+            outputs_str = []
+            for x in outputs:
+                if not x.negated:
+                    outputs_str.append(str(x))
+            inputs_str = ', '.join(inputs_str)
+            outputs_str = ', '.join(outputs_str)
+            history.append([i, context_str, inputs_str, outputs_str])
+
+        output = tabulate(history, headers=headers)
+        print(output)
+        print(output)
+
+    def realize_all(self, t_trans: int):
+        """Realize Sepcification and Transition Controllers"""
+        self.realize_specification_controllers()
+        self.realize_transition_controllers(t_trans)
+
+    def realize_transition_controllers(self, t_trans_max: int):
+        self.__t_trans = t_trans_max
+        scenarios = self.get_scenarios()
+
+        if scenarios is None:
+            print("Realize Transition Controllers: No CGG found")
+            return
+
+        """Context -> Specification Controllers"""
+        s_controllers: Dict[Specification, Controller] = {}
+        for scenario in scenarios:
+            s_controllers[scenario.context] = scenario.controller
+        self.__t_controllers: Dict[Tuple[Boolean, Boolean], Controller] = {}
+
+        """Generating Transition Controllers"""
+        for scenario_a, scenario_b in itertools.combinations(scenarios, 2):
+            print(", ".join([x.name for x in scenario_a.controller.locations]))
+            print(", ".join([x.name for x in scenario_b.controller.locations]))
+            for start, finish in itertools.product(scenario_a.controller.locations, scenario_b.controller.locations):
+                self.__t_controllers[(start, finish)] = self.create_transition_controller(start, finish, t_trans_max)
+                self.__t_controllers[(finish, start)] = self.create_transition_controller(finish, start, t_trans_max)
+
+        print(f"{len(self.__t_controllers)} transition controllers generated:")
+        for start, finish in self.__t_controllers.keys():
+            print(f"{start.name} -> {finish.name}")
+
+    def realize_specification_controllers(self, traversal: GraphTraversal = GraphTraversal.DFS,
+                                          explored: Set[Node] = None, root=None):
+        """Realize all nodes of the CGG"""
+
+        if root is None:
+            root = self
+
+        if explored is None:
+            explored = set()
+
+        if traversal == GraphTraversal.DFS:
+            """Dept-First Search"""
+            """Label current node as explored"""
+            explored.add(self)
+            for node in self.children_nodes():
+                if node not in explored:
+                    node.realize_specification_controllers(traversal, explored, root)
+
+            self.realize_to_controller(cgg_path=root.cgg_folder)
+
+        if traversal == GraphTraversal.BFS:
+            raise NotImplemented
+
+    def save(self):
+        Store.save_to_file(str(self), "cgg.txt", self.cgg_folder)
+
     def create_transition_controller(self, start: Types, finish: Types, t_trans: int) -> Controller:
         t_controller_folder = f"/{self.t_controllers_folder}/{start.name}-{finish.name}"
         typeset = Typeset({start, finish})
@@ -175,53 +310,6 @@ class Node(Goal):
             Store.save_to_file(str(t_controller), f"{start.name}_{finish.name}_table", t_controller_folder)
 
             return t_controller
-
-    def orchestrate(self, n_steps: int, t_context: int, t_trans: int):
-        scenarios = self.get_scenarios()
-
-        """Context -> Specification Controllers"""
-        s_controllers: Dict[Specification, Controller] = {}
-        for scenario in scenarios:
-            s_controllers[scenario.context] = scenario.controller
-        t_controllers: Dict[Tuple[Boolean, Boolean], Controller] = {}
-
-        """Generating Transition Controllers"""
-        for scenario_a, scenario_b in itertools.combinations(scenarios, 2):
-            print(", ".join([x.name for x in scenario_a.controller.locations]))
-            print(", ".join([x.name for x in scenario_b.controller.locations]))
-            for start, finish in itertools.product(scenario_a.controller.locations, scenario_b.controller.locations):
-                t_controllers[(start, finish)] = self.create_transition_controller(start, finish, t_trans)
-                t_controllers[(finish, start)] = self.create_transition_controller(start, finish, t_trans)
-
-        print(f"{len(t_controllers)} transition controllers generated:")
-        for start,finish in t_controllers.keys():
-            print()
-
-
-    def realize_all(self, traversal: GraphTraversal = GraphTraversal.DFS, explored: Set[Node] = None, root=None):
-        """Realize all nodes of the CGG"""
-
-        if root is None:
-            root = self
-
-        if explored is None:
-            explored = set()
-
-        if traversal == GraphTraversal.DFS:
-            """Dept-First Search"""
-            """Label current node as explored"""
-            explored.add(self)
-            for node in self.children_nodes():
-                if node not in explored:
-                    node.realize_all(traversal, explored, root)
-
-            self.realize_to_controller(cgg_path=root.cgg_folder_name)
-
-        if traversal == GraphTraversal.BFS:
-            raise NotImplemented
-
-    def save(self):
-        Store.save_to_file(str(self), "cgg.txt", self.cgg_folder_name)
 
     @staticmethod
     def composition(nodes: Set[Node], name: str = None, description: str = None) -> Node:

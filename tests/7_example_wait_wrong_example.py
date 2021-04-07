@@ -58,7 +58,7 @@ try:
     cgg_dis = Node.disjunction({n_day_greet, n_night_greet})
     cgg_con.session_name = "illustrative_example_wrong"
     # cgg.translate_all_to_buchi()
-    cgg_con.realize_all()
+    cgg_con.realize_specification_controllers()
     cgg_con.save()
     print("\n\ncon:\n")
     print(cgg_con.specification.guarantees)

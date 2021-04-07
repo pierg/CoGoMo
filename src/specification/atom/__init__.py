@@ -55,16 +55,16 @@ class Atom(Specification):
                     raise AtomNotSatisfiableException(formula=self.__base_formula)
 
     def formula(self, type: FormulaType = FormulaType.SATURATED) -> (str, Typeset):
-        expression, typset = self.__base_formula
+        expression, typeset = self.__base_formula
         if type == FormulaType.SATURATED:
             if self.__saturation is None:
-                expression, typset = self.__base_formula
+                expression, typeset = self.__base_formula
             else:
-                expression, typset = LogicTuple.implies_(self.__saturation.formula(), self.__base_formula,
+                expression, typeset = LogicTuple.implies_(self.__saturation.formula(), self.__base_formula,
                                                          brackets=True)
         if self.negated:
-            return Logic.not_(expression), typset
-        return expression, typset
+            return Logic.not_(expression), typeset
+        return expression, typeset
 
     def negate(self):
         self.__negation = not self.negated

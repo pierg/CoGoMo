@@ -50,7 +50,7 @@ try:
 
     cgg = Node.composition({n1, n2})
     print(cgg)
-    cgg.realize_all(GraphTraversal.DFS)
+    cgg.realize_specification_controllers(GraphTraversal.DFS)
     print(cgg)
 
     print(
@@ -74,7 +74,7 @@ try:
 
     cgg = Node.composition({n1, n2})
     print(cgg)
-    cgg.realize_all(GraphTraversal.DFS)
+    cgg.realize_specification_controllers(GraphTraversal.DFS)
     print(cgg)
 
     print("Now the CGG is realizable and the controller is generated")

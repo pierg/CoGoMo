@@ -16,6 +16,11 @@ class BooleanSensor(Boolean):
     def __init__(self, name: str):
         super().__init__(name)
 
+    def to_atom(self):
+        from specification.atom import Atom, AtomKind
+        from typeset import Typeset
+        return Atom(formula=(self.name, Typeset({self})), check=False, kind=AtomKind.SENSOR)
+
     @property
     def kind(self):
         return TypeKinds.SENSOR

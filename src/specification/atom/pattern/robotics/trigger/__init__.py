@@ -50,3 +50,50 @@ class Trigger(RoboticPattern):
             raise AttributeError
 
         return new_typeset, pre, post
+
+
+    @staticmethod
+    def process_bin_contextual_input(pre: Union[Atom, Boolean],
+                                     post: Union[Atom, Boolean],
+                                     context: Union[Atom, Boolean],
+                                     active: Union[Atom, Boolean]) -> Tuple[Typeset, str, str, str, str]:
+
+        new_typeset = Typeset()
+
+        if isinstance(pre, Boolean):
+            new_typeset |= pre
+            pre = pre.name
+        elif isinstance(pre, Atom):
+            new_typeset |= pre.typeset
+            pre = pre.string
+        else:
+            raise AttributeError
+
+        if isinstance(post, Boolean):
+            new_typeset |= post
+            post = post.name
+        elif isinstance(post, Atom):
+            new_typeset |= post.typeset
+            post = post.string
+        else:
+            raise AttributeError
+
+        if isinstance(context, Boolean):
+            new_typeset |= context
+            context = context.name
+        elif isinstance(context, Atom):
+            new_typeset |= context.typeset
+            context = context.string
+        else:
+            raise AttributeError
+
+        if isinstance(active, Boolean):
+            new_typeset |= active
+            active = active.name
+        elif isinstance(active, Atom):
+            new_typeset |= active.typeset
+            active = active.string
+        else:
+            raise AttributeError
+
+        return new_typeset, pre, post, context, active

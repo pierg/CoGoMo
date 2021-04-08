@@ -21,6 +21,6 @@ always => if see a person, greet
 """Load CGG"""
 cgg = Persistence.load_cgg(folder_name)
 
-cgg.orchestrate(n_steps=50, t_min_context=4)
+run = cgg.orchestrate(n_steps=50, t_min_context=6)
+print(run)
 
-print(cgg)

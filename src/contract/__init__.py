@@ -50,6 +50,11 @@ class Contract:
         self.__setguarantees(value)
         self.__checkfeasibility()
 
+
+    @property
+    def typeset(self) -> Typeset:
+        return self.__guarantees.typeset | self.__assumptions.typeset
+
     def __setassumptions(self, value: Specification):
         """Setting Assumptions"""
         if value is None:

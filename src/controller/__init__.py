@@ -9,7 +9,7 @@ import os
 import subprocess
 import platform
 import time
-from typing import Tuple, List, Dict
+from typing import Tuple, List, Dict, Set
 from graphviz import Source
 
 from controller.exceptions import SynthesisTimeout, OutOfMemoryException, UnknownStrixResponse
@@ -18,6 +18,7 @@ from tools.logic import Logic
 from tools.strings import StringMng
 from type import Boolean, TypeKinds
 from type.subtypes.locations import ReachLocation
+from typeset import Typeset
 from worlds import World
 
 strix_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'bin', 'ubuntu_19_10', 'strix'))
@@ -27,8 +28,13 @@ class Controller:
 
     def __init__(self,
                  mealy_machine: str,
-                 world: World):
+                 world: World,
+                 name:str = None):
 
+        if name is None:
+            self.__name = ""
+        else:
+            self.__name = name
         self.world = world
         self.mealy_machine = mealy_machine
         self.__current_location = None
@@ -70,6 +76,10 @@ class Controller:
     def world(self) -> World:
         return self.__world
 
+    @property
+    def name(self) -> str:
+        return self.__name
+
     @world.setter
     def world(self, value: World):
         self.__world = value
@@ -78,14 +88,14 @@ class Controller:
     def mealy_machine(self) -> str:
         return self.__mealy_machine
 
-    def react(self, inputs: Tuple[Atom]) -> Tuple[Atom]:
+    def react(self, inputs: Tuple[Atom] = ()) -> Tuple[Atom]:
         """Take a reaction in the mealy machine"""
         (next_state, outputs) = self.__transitions[(inputs, self.__current_state)]
         self.__current_state = next_state
         output_choice = random.sample(outputs, 1)[0]
         for o in output_choice:
-            if o.kind == TypeKinds.LOCATION and not o.negated:
-                self.__current_location = o
+            if o.kind == AtomKind.LOCATION and not o.negated:
+                self.__current_location = list(o.typeset.values())[0]
         return output_choice
 
     def reset(self):
@@ -113,6 +123,15 @@ class Controller:
             inputs_assignments.append(tuple(inputs))
         return inputs_assignments
 
+    def get_incoming_edges_from_state(self, state: str) -> List[Tuple[Tuple[Atom]]]:
+        if state == self.__initial_state:
+            self.react(self.simulate_inputs())
+            state = self.__current_state
+        edges = []
+        for (ins, state_s), (state_t, outs) in self.__transitions.items():
+            if state_t == state:
+                edges.append(outs)
+        return edges
 
     @mealy_machine.setter
     def mealy_machine(self, value: str):
@@ -201,12 +220,23 @@ class Controller:
         return self.__output_alphabet
 
     @property
-    def locations(self) -> List[Boolean]:
+    def locations(self) -> List[ReachLocation]:
         locations = []
         for element in self.__output_alphabet:
-            if element.kind == TypeKinds.LOCATION:
+            if element.kind == TypeKinds.LOCATION and isinstance(element, ReachLocation):
                 locations.append(element)
         return locations
+
+    def all_entry_locations(self, typeset: Typeset) -> Set[ReachLocation]:
+        """List of all locations from where it is possible to reach any of the locations of the controller"""
+        reachable_locations = set()
+        for location in self.locations:
+            """Extracting the locations from where 'first_location_to_visit' is reachable"""
+            for class_name in location.adjacency_set:
+                for t in typeset.values():
+                    if type(t).__name__ == class_name:
+                        reachable_locations.add(t)
+        return reachable_locations
 
     @property
     def transitions(self) -> Dict[Tuple[Tuple[Atom], str], Tuple[str, Tuple[Tuple[Atom]]]]:
@@ -220,27 +250,32 @@ class Controller:
     def current_state(self) -> str:
         return self.__current_state
 
-    @property
-    def current_location(self) -> ReachLocation:
-        if self.__current_location is None:
-            """The mealy-machine has never reacted before"""
-            outputs_choices = []
-            for inputs in self.all_inputs_combinations():
-                (next_state, outputs) = self.__transitions[(inputs, self.__current_state)]
-                output_choice = random.sample(outputs, 1)[0]
-                outputs_choices.append(output_choice)
-            current_location = None
-            for outputs in outputs_choices:
-                for o in outputs:
-                    if o.kind == AtomKind.LOCATION and not o.negated:
-                        loc = list(o.typeset.values())[0]
-                        if current_location is not None:
-                            if loc is not current_location:
-                                raise Exception("Location depends on future inputs!")
-                        else:
-                            current_location = loc
-            self.__current_location = current_location
-        return self.__current_location
+    def entry_locations_next_step(self, typeset: Typeset) -> List[ReachLocation]:
+        """Returns a set of locations from where it is possible to reach the next location the controller will visit"""
+        if self.__current_location is not None:
+            """The last visited location is for sure a location from where the robot can reach the next location"""
+            return [self.__current_location]
+        """The mealy-machine has never reacted before"""
+        """Extracting the first location to visit"""
+        first_location_to_visit = None
+        for inputs in self.all_inputs_combinations():
+            (next_state, outputs) = self.__transitions[(inputs, self.__current_state)]
+            output_choice = random.sample(outputs, 1)[0]
+            for o in output_choice:
+                if o.kind == AtomKind.LOCATION and not o.negated:
+                    loc = list(o.typeset.values())[0]
+                    if first_location_to_visit is not None:
+                        if loc is not first_location_to_visit:
+                            raise Exception("Location depends on future inputs!")
+                    else:
+                        first_location_to_visit = loc
+        """Extracting the locations from where 'first_location_to_visit' is reachable"""
+        reachable_locations = []
+        for class_name in first_location_to_visit.adjacency_set:
+            for t in typeset.values():
+                if type(t).__name__ == class_name:
+                    reachable_locations.append(t)
+        return reachable_locations
 
     @staticmethod
     def generate_controller(assumptions: str, guarantees: str, ins: str, outs: str) -> Tuple[bool, str, str, float]:

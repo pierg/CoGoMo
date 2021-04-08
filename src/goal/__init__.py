@@ -40,8 +40,8 @@ class Goal:
         self.context: Specification = context
         self.world: World = world
 
+        """Name of the session (i.e. the subfolder in the output folder)"""
         self.__session_name = None
-        self.__goal_folder_name = f"s_controllers/{self.__id}"
 
     def __str__(self):
         return Goal.pretty_print_goal(self)
@@ -50,30 +50,32 @@ class Goal:
     def name(self) -> str:
         return self.__name
 
+    @name.setter
+    def name(self, value: str):
+        self.__name = value
+
     @property
     def id(self) -> str:
         return self.__id
 
     @property
-    def goal_folder_name(self) -> str:
-        if self.__session_name is None:
-            return self.__goal_folder_name
-        else:
-            return f"{self.session_name}/{self.__goal_folder_name}"
-
-    @property
     def session_name(self) -> str:
-        if self.__session_name is None:
-            return Store.output_folder
         return self.__session_name
-
 
     @session_name.setter
     def session_name(self, value: str):
-        if value is None:
-            self.__session_name: str = ""
+        self.__session_name: str = value
+
+    @property
+    def goal_folder_name(self) -> str:
+        if self.name.startswith("SCEN"):
+            return self.name
         else:
-            self.__session_name: str = value
+            return self.id
+
+    @property
+    def s_controller_folder_name(self) -> str:
+        return "s_controllers"
 
     @name.setter
     def name(self, value: str):
@@ -135,55 +137,55 @@ class Goal:
         else:
             return -1
 
-    def translate_to_buchi(self, cgg_path: str = None):
+    def translate_to_buchi(self):
 
-        if cgg_path is None:
-            folder_path = self.goal_folder_name
+        if self.session_name is None:
+            folder_name = self.goal_folder_name
         else:
-            folder_path = f"{cgg_path}/{self.__goal_folder_name}"
+            folder_name = f"{self.session_name}/{self.goal_folder_name}"
 
-        self.specification.assumptions.translate_to_buchi("assumptions", folder_path)
-        self.specification.guarantees.translate_to_buchi("guarantees", folder_path)
+        self.specification.assumptions.translate_to_buchi("assumptions", folder_name)
+        self.specification.guarantees.translate_to_buchi("guarantees", folder_name)
 
-    def realize_to_controller(self, cgg_path: str = None):
+    def realize_to_controller(self):
         """Realize the goal into a Controller object"""
 
         if self.controller is not None:
             return
 
-        if cgg_path is None:
-            folder_path = self.goal_folder_name
+        if self.session_name is None:
+            folder_name = f"{self.s_controller_folder_name}/{self.goal_folder_name}"
         else:
-            folder_path = f"{cgg_path}/{self.__goal_folder_name}"
+            folder_name = f"{self.session_name}/{self.s_controller_folder_name}/{self.goal_folder_name}"
 
         try:
             controller_info = self.specification.get_controller_info()
             a, g, i, o = controller_info.get_strix_inputs()
             controller_synthesis_input = StringMng.get_controller_synthesis_str(controller_info)
-            Store.save_to_file(controller_synthesis_input, "controller_specs.txt", folder_path)
+            Store.save_to_file(controller_synthesis_input, "controller_specs.txt", folder_name)
             realized, dot_mealy, kiss_mealy, time = Controller.generate_controller(a, g, i, o)
 
             if not realized:
                 controller_info = self.specification.get_controller_info(world_ts=self.__world)
                 a, g, i, o = controller_info.get_strix_inputs()
                 controller_synthesis_input = StringMng.get_controller_synthesis_str(controller_info)
-                Store.save_to_file(controller_synthesis_input, "controller_specs.txt", folder_path)
+                Store.save_to_file(controller_synthesis_input, "controller_specs.txt", folder_name)
                 realized, dot_mealy, kiss_mealy, time = Controller.generate_controller(a, g, i, o)
 
             self.__realizable = realized
             self.__time_synthesis = time
 
             if realized:
-                Store.save_to_file(kiss_mealy, "controller_kiss", folder_path)
-                Store.generate_eps_from_dot(dot_mealy, "controller", folder_path)
+                Store.save_to_file(kiss_mealy, "controller_kiss", folder_name)
+                Store.generate_eps_from_dot(dot_mealy, "controller", folder_name)
             else:
-                Store.save_to_file(kiss_mealy, "controller_inverted_kiss", folder_path)
-                Store.generate_eps_from_dot(dot_mealy, "controller_inverted", folder_path)
+                Store.save_to_file(kiss_mealy, "controller_inverted_kiss", folder_name)
+                Store.generate_eps_from_dot(dot_mealy, "controller_inverted", folder_name)
 
-            self.__controller = Controller(mealy_machine=kiss_mealy, world=self.world)
+            self.__controller = Controller(mealy_machine=kiss_mealy, world=self.world, name=self.name)
             print(f"NAME:\t{self.__name} ({self.__id})")
             print(self.__controller)
-            Store.save_to_file(str(self.__controller), "controller_table", folder_path)
+            Store.save_to_file(str(self.__controller), "controller_table", folder_name)
 
 
 

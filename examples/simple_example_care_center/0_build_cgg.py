@@ -49,7 +49,7 @@ try:
                    world=w)
 
     cgg = Node.build_cgg({n_day, n_night, n_greet})
-    cgg.session_name = folder_name
+    cgg.set_session_name(folder_name)
     cgg.save()
     Persistence.dump_cgg(cgg)
     print(cgg)

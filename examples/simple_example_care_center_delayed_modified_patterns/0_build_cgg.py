@@ -29,8 +29,8 @@ print("one\n" + str(ordered_patrol_day))
 ordered_patrol_night = StrictOrderedPatrolling([w["r3"], w["r4"]])
 print("two\n" + str(ordered_patrol_night))
 
-"""Only if see a person, greet in the same step"""
-greet = BoundReaction(w["person"], w["greet"])
+"""Only if see a person, greet in the next step"""
+greet = BoundDelay(w["person"], w["greet"])
 
 try:
 

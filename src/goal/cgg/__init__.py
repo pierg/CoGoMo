@@ -302,6 +302,8 @@ class Node(Goal):
             print(", ".join([x.name for x in scenario_a_entry_points]))
             print(", ".join([x.name for x in scenario_b_entry_points]))
             for start, finish in itertools.product(scenario_a_entry_points, scenario_b_entry_points):
+                if start == finish:
+                    continue
                 self.__t_controllers[(start, finish)] = self.create_transition_controller(start, finish, t_trans_max)
                 self.__t_controllers[(finish, start)] = self.create_transition_controller(finish, start, t_trans_max)
 

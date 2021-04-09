@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Set
 from goal.exceptions import GoalException
 
 if TYPE_CHECKING:
-    from goal.cgg import Node
+    from cgg import Node
 
 from enum import Enum
 

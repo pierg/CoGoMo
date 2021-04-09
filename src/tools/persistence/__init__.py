@@ -1,6 +1,6 @@
 import os
 import pickle
-from goal.cgg import Node
+from cgg import Node
 
 
 class Persistence:

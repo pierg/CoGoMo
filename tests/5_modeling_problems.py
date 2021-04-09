@@ -1,8 +1,8 @@
 from typing import Set
 
 from contract import Contract
-from goal.cgg import Node
-from goal.cgg.exceptions import CGGException
+from cgg import Node
+from cgg.exceptions import CGGException
 from specification.atom.pattern.basic import Init, G, F
 from specification.atom.pattern.robotics.coremovement.surveillance import Patrolling
 from type.subtypes.actions import BooleanAction

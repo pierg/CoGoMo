@@ -1,5 +1,5 @@
-from goal.cgg import Node, Link
-from goal.cgg.exceptions import CGGException
+from cgg import Node, Link
+from cgg.exceptions import CGGException
 from specification.atom.pattern.robotics.coremovement.surveillance import *
 from specification.atom.pattern.robotics.trigger.triggers import InstantaneousReaction, BoundReaction, Wait, \
     GlobalAvoidance, BoundDelay

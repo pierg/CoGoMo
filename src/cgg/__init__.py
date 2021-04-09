@@ -12,7 +12,7 @@ from contract import Contract, Specification
 from controller import Controller
 from controller.exceptions import ControllerException
 from goal import Goal
-from goal.cgg.exceptions import CGGOperationFail, CGGFailOperations, TransSynthesisFail
+from cgg.exceptions import CGGOperationFail, CGGFailOperations, TransSynthesisFail
 from goal.exceptions import GoalException
 from specification import NotSatisfiableException, AtomKind
 from specification.atom import Atom

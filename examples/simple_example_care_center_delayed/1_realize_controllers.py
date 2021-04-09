@@ -2,8 +2,8 @@ import os
 import pickle
 
 from examples.simple_example_care_center import folder_name
-from goal.cgg import Node, Link
-from goal.cgg.exceptions import CGGException
+from cgg import Node, Link
+from cgg.exceptions import CGGException
 from specification import FormulaOutput
 from specification.atom.pattern.robotics.coremovement.surveillance import *
 from specification.atom.pattern.robotics.trigger.triggers import InstantaneousReaction, BoundReaction, Wait, \

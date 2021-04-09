@@ -1,5 +1,5 @@
 from goal import Goal
-from goal.cgg import Node, GraphTraversal
+from cgg import Node, GraphTraversal
 from goal.exceptions import GoalException
 from specification.atom.pattern.basic import Init
 from specification.atom.pattern.robotics.coremovement.surveillance import Patrolling
